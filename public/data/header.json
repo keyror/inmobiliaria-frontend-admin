@@ -1,0 +1,98 @@
+{
+    "attachment":[
+        {
+            "icon":"fas fa-file-word",
+            "name":"Doc_file.doc",
+            "size":"800MB",
+            "color":"bg-success-light"
+        },
+        {
+            "icon":"fas fa-file-image",
+            "name":"Apartment.jpg",
+            "size":"500kb",
+            "color":"bg-primary-light"
+        },
+        {
+            "icon":"fas fa-file-pdf",
+            "name":"villa_report.pdf",
+            "size":"26MB",
+            "color":"bg-warning-light"
+        }
+    ],
+    "notification":[
+        {
+            "title":"Item damaged",
+            "reply":true,
+            "icon":"fab fa-xbox",
+            "color":"bg-primary-light",
+            "time":"8 hours ago, Tadawis 24",
+            "desc":"the table is broken:(",
+            "user":[
+                {
+                    "src":"/image/about/4.jpg"
+                }
+            ]
+        },
+        {
+            "title":"Payment received",
+            "reply":false,
+            "icon":"fas fa-file-invoice-dollar",
+            "color":"bg-success-light",
+            "time":"2 hours ago, Bracka 15",
+            "user":[
+                {
+                    "src":"/image/about/1.jpg"
+                },
+                {
+                    "src":"/image/about/2.jpg"
+                },
+                {
+                    "src":"/image/about/3.jpg"
+                }
+            ]
+        },
+        {
+            "title":"New inquiry",
+            "reply":true,
+            "color":"bg-warning-light",
+            "icon":"fas fa-comment-dots",
+            "time":"1 Days ago, Krowada 7",
+            "desc":"is the villa still available?",
+            "user":[
+                {
+                    "src":"/image/about/2.jpg"
+                },
+                {
+                    "src":"/image/about/3.jpg"
+                }
+            ]
+        }
+       
+    ],
+    "message":[
+        {
+            "src":"/image/avatar/1.jpg",
+            "title":"Bob Frapples",
+            "desc":"Template Represents simply...",
+            "status":"online"
+        },
+        {
+            "src":"/image/avatar/3.jpg",
+            "title":"Greta Life",
+            "desc":"Template Represents simply...",
+            "status":"away"
+        },
+        {
+            "src":"/image/avatar/4.jpg",
+            "title":"Greta Life",
+            "desc":"Template Represents simply...",
+            "status":"online"
+        },
+        {
+            "src":"/image/avatar/7.jpg",
+            "title":"Greta Life",
+            "desc":"Template Represents simply...",
+            "status":"busy"
+        }
+    ]
+}

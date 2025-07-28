@@ -1,0 +1,59 @@
+{
+  "status": ["For Sale", "For Rent"],
+  "room": [2, 3, 4, 5, 6],
+  "agencies": ["Blue Sky", "Zephyr", "Premiere"],
+  "country": ["Austria", "Brazil", "New york", "USA"],
+  "city": ["Gandhinagar", "Bharuch", "Amreli", "Ahmadabad"],
+  "features": [
+    {
+      "c_id": "chk-ani-1",
+      "name": "Emergency Exit",
+      "checked":false
+    },
+    {
+      "c_id": "chk-ani-2",
+      "name": "CCTV",
+      "checked":false
+    },
+    {
+      "c_id": "chk-ani-3",
+      "name": "Free Wi-Fi",
+      "checked":true
+    },
+    {
+      "c_id": "chk-ani-4",
+      "name": "Free Parking In The Area",
+      "checked":false
+    },
+    {
+      "c_id": "chk-ani-5",
+      "name": "Air Conditioning",
+      "checked":false
+    },
+    {
+      "c_id": "chk-ani-6",
+      "name": "Security Guard",
+      "checked":false
+    },
+    {
+      "c_id": "chk-ani-7",
+      "name": "Terrace",
+      "checked":true
+    },
+    {
+      "c_id": "chk-ani-8",
+      "name": "Laundry Service",
+      "checked":false
+    },
+    {
+      "c_id": "chk-ani-9",
+      "name": "Elevator Lift",
+      "checked":false
+    },
+    {
+      "c_id": "chk-ani-10",
+      "name": "Balcony",
+      "checked":true
+    }
+  ]
+}

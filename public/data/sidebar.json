@@ -1,0 +1,184 @@
+{
+    "sidebar":[
+        {
+            "link":"/",
+            "icon":"material-symbols:airplay-outline",
+            "title":"Dashboard",
+            "collapse":false,
+            "active":false
+        },
+        {
+            "icon":"bi:grid",
+            "title":"My properties",
+            "collapse":true,
+            "active":false,
+            "children":[
+                {
+                    "link":"/myproperties/addproperty",
+                    "title":"add property",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/myproperties/editproperty",
+                    "title":"edit property",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/myproperties/propertylist",
+                    "title":"property list",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/myproperties/favourites",
+                    "title":"Favourites",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                }
+            ]
+        },
+        {
+            "icon":"lucide:users",
+            "title":"Manage users",
+            "collapse":true,
+            "active":false,
+            "children":[
+                {
+                    "link":"/users/profile",
+                    "title":"Profile",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/users/adduser",
+                    "title":"Add user",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/users/adduserwizard",
+                    "title":"Add user wizard",
+                    "icon":"material-symbols:keyboard-double-arrow-right",
+                    "label":"new"
+                },
+                {
+                    "link":"/users/edituser",
+                    "title":"Edit user",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/users/allusers",
+                    "title":"All users",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                }
+            ]
+        },
+        {
+            "icon":"ic:baseline-person-add-alt",
+            "title":"Agents",
+            "collapse":true,
+            "active":false,
+            "children":[
+                {
+                    "link":"/agent/agentprofile",
+                    "title":"Profile",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/agent/addagent",
+                    "title":"Add agent",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/agent/addagentwizard",
+                    "title":"Add agent wizard",
+                    "icon":"material-symbols:keyboard-double-arrow-right",
+                    "label":"new"
+                },
+                {
+                    "link":"/agent/editagent",
+                    "title":"Edit agent",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/agent/allagent",
+                    "title":"All agents",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/agent/invoice",
+                    "title":"Invoice",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                }
+            ]
+        },
+        {
+            "link":"/map",
+            "icon":"material-symbols:location-on-outline-rounded",
+            "title":"Map",
+            "collapse":false,
+            "active":false
+        },
+        {
+            "icon":"ri:layout-5-line",
+            "title":"Types",
+            "collapse":true,
+            "active":false,
+            "children":[
+                {
+                    "link":"/type/family",
+                    "title":"Family House",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/type/cottage",
+                    "title":"Cottage",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/type/appartment",
+                    "title":"Appartment",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/type/condominium",
+                    "title":"Condominium",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                }
+            ]
+        },
+        {
+            "link":"/report",
+            "icon":"ri:bar-chart-line",
+            "title":"Reports",
+            "collapse":false,
+            "active":false
+        },
+        {
+            "link":"/payment",
+            "icon":"ph:credit-card",
+            "title":"Payments",
+            "collapse":false,
+            "active":false
+        },
+        {
+            "icon":"gg:lock-unlock",
+            "title":"Authentication",
+            "collapse":true,
+            "active":false,
+            "children":[
+                {
+                    "link":"/Authentication/login",
+                    "title":"Log in",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/Authentication/signup",
+                    "title":"sign up",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/Authentication/404",
+                    "title":"404",
+                    "icon":"material-symbols:keyboard-double-arrow-right"
+                }
+            ]
+        }
+    ]
+}

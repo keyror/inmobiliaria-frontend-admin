@@ -1,0 +1,36 @@
+{
+  "name": "sheltos",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@types/node": "^18.17.0",
+    "nuxt": "^3.15.3",
+    "nuxt-icon": "^0.6.10",
+    "sass": "1.63.0",
+    "vue-datamaps": "^0.3.6"
+  },
+  "dependencies": {
+    "@pinia/nuxt": "^0.10.1",
+    "@syncfusion/ej2-vue-maps": "^22.2.8",
+    "@vuepic/vue-datepicker": "^6.0.1",
+    "apexcharts": "^4.5.0",
+    "bootstrap": "^5.3.1",
+    "dropzone-vue": "^0.1.11",
+    "pinia": "^3.0.1",
+    "swiper": "^10.1.0",
+    "vue3-apexcharts": "^1.4.4",
+    "vue3-datepicker": "^0.4.0",
+    "vue3-form-wizard": "^0.2.1",
+    "vue3-google-map": "^0.17.1",
+    "vue3-openlayers": "^3.0.0",
+    "vuejs3-datepicker": "^1.0.19",
+    "vuevectormap": "^1.1.0"
+  }
+}

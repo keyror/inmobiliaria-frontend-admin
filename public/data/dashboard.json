@@ -1,0 +1,300 @@
+{
+    "properties":[
+        {
+            "src":"/image/svg/icon/sold.png",
+            "totle":"1500",
+            "type":"Sale"
+        },
+        {
+            "src":"/image/svg/icon/rent.png",
+            "totle":"380",
+            "type":"Rented"
+        },
+        {
+            "src":"/image/svg/icon/sold.png",
+            "totle":"240",
+            "type":"Unlisted"
+        }
+    ],
+    "widgets":[
+        {
+            "icon":"fab fa-foursquare",
+            "bgcolor":"bg-primary-light",
+            "task":"Completed",
+            "pers":"20",
+            "arrow":"icon-park:trending-up",
+            "head":"Total projects",
+            "status":"New users"
+        },
+        {
+            "icon":"fab fa-behance",
+            "bgcolor":"bg-warning-light",
+            "task":"Completed",
+            "pers":"15",
+            "arrow":"icon-park:trending-up",
+            "head":"Behance project",
+            "status":"Users"
+        },
+        {
+            "icon":"fab fa-angellist",
+            "bgcolor":"bg-success-light",
+            "task":"Coming soon",
+            "head":"10,000",
+            "status":"Agents"
+        },
+        {
+            "icon":"fab fa-cloudscale",
+            "task":"Monthly",
+            "pers":"10",
+            "arrow":"icon-park:trending-up",
+            "head":"36,000",
+            "status":"New project"
+        }
+    ],
+    "widgetsOne":[
+        {
+            "icon":"fab fa-foursquare",
+            "bgcolor":"bg-primary-light",
+            "task":"Completed",
+            "pers":"20",
+            "arrow":"icon-park:trending-up",
+            "head":"Total projects",
+            "status":"New users"
+        },
+        {
+            "icon":"fab fa-behance",
+            "bgcolor":"bg-warning-light",
+            "task":"Completed",
+            "pers":"15",
+            "arrow":"icon-park:trending-up",
+            "head":"Behance project",
+            "status":"Users"
+        },
+        {
+            "icon":"fab fa-angellist",
+            "bgcolor":"bg-success-light",
+            "task":"Coming soon",
+            "head":"10,000",
+            "status":"Agents"
+        },
+        {
+            "icon":"fab fa-cloudscale",
+            "task":"Monthly",
+            "pers":"10",
+            "arrow":"icon-park:trending-up",
+            "head":"36,000",
+            "status":"New project"
+        }
+    ],
+    "assignees":[
+        {
+          "tr":[
+            {
+                "src":"/image/avatar/1.jpg",
+                "name":"Bob Frapples",
+                "sub":"Pumbing"
+            },
+            {
+                "textcolor":"font-danger",
+                "count":"10",
+                "status":"Open"
+            },
+            {
+                "textcolor":"font-warning",
+                "count":"3",
+                "status":"Escaleted"
+            },
+            {
+                "textcolor":"font-success",
+                "count":"126",
+                "status":"Completed"
+            }
+          ]
+        },
+        {
+            "tr":[
+              {
+                  "src":"/image/avatar/3.jpg",
+                  "name":"Greta Life",
+                  "sub":"Pest control"
+              },
+              {
+                  "textcolor":"font-danger",
+                  "count":"8",
+                  "status":"Open"
+              },
+              {
+                  "textcolor":"font-warning",
+                  "count":"20",
+                  "status":"Escaleted"
+              },
+              {
+                  "textcolor":"font-success",
+                  "count":"154",
+                  "status":"Completed"
+              }
+            ]
+          },
+          {
+            "tr":[
+              {
+                  "src":"/image/avatar/5.jpg",
+                  "name":"Zack Lee",
+                  "sub":"others"
+              },
+              {
+                  "textcolor":"font-danger",
+                  "count":"5",
+                  "status":"Open"
+              },
+              {
+                  "textcolor":"font-warning",
+                  "count":"18",
+                  "status":"Escaleted"
+              },
+              {
+                  "textcolor":"font-success",
+                  "count":"79",
+                  "status":"Completed"
+              }
+            ]
+          },
+          {
+            "tr":[
+              {
+                  "src":"/image/avatar/6.jpg",
+                  "name":"Paige Turner",
+                  "sub":"Pest control"
+              },
+              {
+                  "textcolor":"font-danger",
+                  "count":"15",
+                  "status":"Open"
+              },
+              {
+                  "textcolor":"font-warning",
+                  "count":"7",
+                  "status":"Escaleted"
+              },
+              {
+                  "textcolor":"font-success",
+                  "count":"145",
+                  "status":"Completed"
+              }
+            ]
+          },
+          {
+            "tr":[
+              {
+                  "src":"/image/avatar/4.jpg",
+                  "name":"Mary Goround",
+                  "sub":"Pumbing"
+              },
+              {
+                  "textcolor":"font-danger",
+                  "count":"10",
+                  "status":"Open"
+              },
+              {
+                  "textcolor":"font-warning",
+                  "count":"3",
+                  "status":"Escaleted"
+              },
+              {
+                  "textcolor":"font-success",
+                  "count":"126",
+                  "status":"Completed"
+              }
+            ]
+          }
+    ],
+    "my_property":[
+        {
+            "src":"/image/property/14.jpg",
+            "name":"Orchard House",
+            "icon":[
+                {
+                    "src":"/image/svg/icon/double-bed.svg",
+                    "qty":"3"
+                },
+                {
+                    "src":"/image/svg/icon/bathroom.svg",
+                    "qty":"2"
+                },
+                {
+                    "src":"/image/svg/icon/sofa.svg",
+                    "qty":"1"
+                }
+            ],
+            "status":"Rented",
+            "statuscolor":"color-4"
+        },
+        {
+            "src":"/image/property/7.jpg",
+            "name":"Neverland",
+            "icon":[
+                {
+                    "src":"/image/svg/icon/double-bed.svg",
+                    "qty":"4"
+                },
+                {
+                    "src":"/image/svg/icon/bathroom.svg",
+                    "qty":"4"
+                },
+                {
+                    "src":"/image/svg/icon/sofa.svg",
+                    "qty":"2"
+                }
+            ],
+            "status":"Rented",
+            "statuscolor":"color-4"
+        },
+        {
+            "src":"/image/property/8.jpg",
+            "name":"Sea Breezes",
+            "icon":[
+                {
+                    "src":"/image/svg/icon/double-bed.svg",
+                    "qty":"3"
+                },
+                {
+                    "src":"/image/svg/icon/bathroom.svg",
+                    "qty":"2"
+                },
+                {
+                    "src":"/image/svg/icon/sofa.svg",
+                    "qty":"0"
+                }
+            ],
+            "status":"Listed",
+            "statuscolor":"color-3"
+        }
+    ],
+    "report":[
+        {
+            "src":"/image/svg/icon/pdf.png",
+            "desc":"Report 8/10/23 - 15/10/23",
+            "time":"Created 16/10/23"
+        },
+        {
+            "src":"/image/svg/icon/microsoft.png",
+            "desc":"Report 20/10/23 - 25/10/23",
+            "time":"Created 24/10/23"
+        },
+        {
+            "src":"/image/svg/icon/excel.png",
+            "desc":"Report 30/10/23 - 5/11/23",
+            "time":"Created 1/11/23"
+        },
+        {
+            "src":"/image/svg/icon/pdf.png",
+            "desc":"Report 10/11/23 - 15/11/23",
+            "time":"Created 17/11/23"
+        },
+        {
+            "src":"/image/svg/icon/excel.png",
+            "desc":"Report 20/11/23 - 25/11/23",
+            "time":"Created 28/11/23"
+        }
+    ]
+}
