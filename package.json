@@ -29,8 +29,8 @@
     "vue3-datepicker": "^0.4.0",
     "vue3-form-wizard": "^0.2.1",
     "vue3-google-map": "^0.17.1",
-    "vue3-openlayers": "^3.0.0",
+    "vue3-openlayers": "^11.6.2",
     "vuejs3-datepicker": "^1.0.19",
-    "vuevectormap": "^1.1.0"
+    "vuevectormap": "^2.1.1"
   }
 }
