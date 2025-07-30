@@ -20,6 +20,20 @@ class AutenticacionService {
     async refresh(): Promise<any> {
         return useApi('/auth/refresh', { method: 'POST' })
     }
+
+    async sendResetEmail(email: string): Promise<any> {
+        return useApi('/auth/send-reset-email', {
+            method: 'POST',
+            body: { email },
+        });
+    }
+
+    async resetPassword(data: { email: string, token: string, password: string, password_confirmation: string }): Promise<any> {
+        return useApi('/auth/reset-password', {
+            method: 'POST',
+            body: data,
+        });
+    }
 }
 
 export default new AutenticacionService()

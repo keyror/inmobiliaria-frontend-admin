@@ -42,7 +42,7 @@
                                         <label class="d-block mb-0" for="chk-ani">
                                             <input v-model="form.remember_me" class="checkbox_animated color-2" id="chk-ani" type="checkbox"> Recuérdame
                                         </label>
-                                        <a href="https://sheltos-vue.vercel.app/page/otherpages/forgot-password" class="font-rubik text-color-2">Forgot password ?</a>
+                                        <a href="/Authentication/forgot-password" class="font-rubik text-color-2">Forgot password ?</a>
                                     </div>
                                     <div>
                                         <button class="btn btn-gradient btn-pill color-2 me-sm-3 me-2">Log in</button>

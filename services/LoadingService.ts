@@ -13,7 +13,6 @@ class LoadingService {
     }
 
     show() {
-        console.log('hola')
         this._isLoading.value = true
     }
 
