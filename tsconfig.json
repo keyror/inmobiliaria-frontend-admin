@@ -5,6 +5,7 @@
     "useUnknownInCatchVariables": false,
      "moduleResolution": "node",
      "target": "esnext",
-    "module": "esnext"
-  }
+    "module": "esnext",
+    "types": ["@types/node"]
+  },
 }

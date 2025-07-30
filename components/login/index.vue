@@ -9,7 +9,7 @@
                                 <div class="title-3 text-start">
                                     <h2>Log in</h2>
                                 </div>
-                                <form autocomplete="off">
+                                <form autocomplete="off" @submit.prevent="submitForm">
                                     <div class="form-group">
                                         <div class="input-group">
                                             <div class="input-group-prepend">
@@ -17,7 +17,7 @@
                                                 <Icon name="material-symbols:person-outline"/>
                                                 </div>
                                             </div>
-                                            <input type="email" class="form-control" placeholder="Enter Email" autocomplete="off">
+                                            <input v-model="form.email" type="email" class="form-control" placeholder="Enter Email" autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -27,7 +27,7 @@
                                                     <Icon name="material-symbols:lock-outline"/>
                                                 </div>
                                             </div>
-                                            <input :type="password?'text':'password'" id="pwd-input" class="form-control" placeholder="Password" autocomplete="off" maxlength="8">
+                                            <input v-model="form.password" :type="password?'text':'password'" id="pwd-input" class="form-control" placeholder="Password" autocomplete="off">
                                             <div class="input-group-apend">
                                                 <div class="input-group-text" @click="password = !password">
                                                     <i id="pwd-icon" :class="password?'far fa-eye':'far fa-eye-slash'"></i>
@@ -40,12 +40,12 @@
                                     </div>
                                     <div class="d-flex">
                                         <label class="d-block mb-0" for="chk-ani">
-                                            <input class="checkbox_animated color-2" id="chk-ani" type="checkbox"> Remember me
+                                            <input v-model="form.remember_me" class="checkbox_animated color-2" id="chk-ani" type="checkbox"> Recuérdame
                                         </label>
                                         <a href="https://sheltos-vue.vercel.app/page/otherpages/forgot-password" class="font-rubik text-color-2">Forgot password ?</a>
                                     </div>
                                     <div>
-                                        <button type="button" class="btn btn-gradient btn-pill color-2 me-sm-3 me-2">Log in</button>
+                                        <button class="btn btn-gradient btn-pill color-2 me-sm-3 me-2">Log in</button>
                                         <nuxt-link to="/Authentication/signup" target="_parent" class="btn btn-dashed btn-pill color-2">Create Account</nuxt-link>
                                     </div>
                                     <div class="divider">
@@ -66,7 +66,23 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+import {useAuthStore} from "~/store/authStore";
+
+
+const auth = useAuthStore();
+
 let password = ref<boolean>(false)
+
+const form = ref({
+  email: '',
+  password:'',
+  remember_me: false
+})
+
+function submitForm() {
+  auth.login(form.value)
+}
 </script>
 
 <style scoped>

@@ -1,5 +1,10 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  runtimeConfig: {
+    public: {
+      apiBase: 'http://localhost:8000/api',
+    },
+  },
 
   app: {
     head: {
@@ -21,12 +26,11 @@ export default defineNuxtConfig({
 ],
 
 
-
   build: {
     transpile: ['@vuepic/vue-datepicker']
   },
 
-  modules: ['nuxt-icon' , '@pinia/nuxt'],
+  modules: ['nuxt-icon' , '@pinia/nuxt', 'pinia-plugin-persistedstate/nuxt'],
   pinia: {
     storesDirs: ['./store/**', './custom-folder/store/**'],
   },

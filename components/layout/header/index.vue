@@ -15,7 +15,7 @@
             </li>
             <li>
                 <a href="#!" @click="toggleFullScreen()">
-                    <Icon name="humbleicons:maximize" class="fs-3" />                   
+                    <Icon name="humbleicons:maximize" class="fs-3" />
                 </a>
             </li>
             <ClientOnly>
@@ -30,7 +30,7 @@
                 <ul class="profile-dropdown onhover-show-div">
                     <li><nuxt-link to="/users/profile"><span>Account </span><Icon name="mdi:account-outline" class="fs-3" /></nuxt-link></li>
                     <li><nuxt-link to="/myproperties/propertylist"><span>Listing</span><Icon name="mdi:file-document-outline" class="fs-3"/></nuxt-link></li>
-                    <li><nuxt-link to="/Authentication/login"><span>Log in</span><Icon name="mdi:login" class="fs-3"/></nuxt-link></li>
+                    <li><nuxt-link @click="submitForm"><span>Log in</span><Icon name="mdi:login" class="fs-3"/></nuxt-link></li>
                 </ul>
             </li>
         </ul>
@@ -40,6 +40,13 @@
 
 <script setup lang="ts">
 let open = ref<boolean>(false)
+import {useAuthStore} from "~/store/authStore";
+
+const auth = useAuthStore();
+
+function submitForm() {
+  auth.logout()
+}
 function toggleFullScreen() {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
