@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import AutenticacionService from '@/services/AutenticacionService';
+import AutenticacionService from '~/services/AuthenticationService';
 import LoadingService from "~/services/LoadingService";
 import AlertaService from "~/services/AlertService";
 

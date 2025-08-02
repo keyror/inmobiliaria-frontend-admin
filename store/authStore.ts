@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import AutenticacionService from '@/services/AutenticacionService';
+import AutenticacionService from '~/services/AuthenticationService';
 import LoadingService from "@/services/LoadingService";
 import AlertaService from "@/services/AlertService";
 
@@ -19,8 +19,8 @@ export const useAuthStore = defineStore(
                     token.value = response.access_token
                     user.value = response.data
                     expiresAt.value = Date.now() + response.expires_in * 1000
-                    navigateTo('/')
                     LoadingService.hide()
+                    navigateTo('/')
             }).catch((error) => {
                 LoadingService.hide()
                 AlertaService.showError('Ha ocurrido un error', error);
@@ -28,12 +28,14 @@ export const useAuthStore = defineStore(
         }
 
         const logout = async () => {
+            LoadingService.show()
              AutenticacionService.logout()
                 .then((response) => {
                     clearAuth()
                     AlertaService.showSuccess('Operación exitosa', response.message).then((result) => {
                         if (result.isConfirmed) {
-                            navigateTo('Authentication/login')
+                            LoadingService.hide()
+                            navigateTo('/Authentication/login')
                         }
                     });
                 }).catch((error) => {
@@ -81,8 +83,9 @@ export const useAuthStore = defineStore(
         }
     },
     {
-        persist: {
+        persist: true,
+        /**persist: {
             storage: piniaPluginPersistedstate.localStorage(),
-        },
+        },**/
     },
 )

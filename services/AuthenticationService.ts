@@ -1,7 +1,7 @@
 
 import {useApi} from "~/composable/useApi";
 
-class AutenticacionService {
+class AuthenticationService {
     async login(data: any): Promise<any> {
         return useApi('/auth/login', {
             method: 'POST',
@@ -36,4 +36,4 @@ class AutenticacionService {
     }
 }
 
-export default new AutenticacionService()
+export default new AuthenticationService()

@@ -72,7 +72,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import LoadingService from "~/services/LoadingService";
-import AutenticacionService from "~/services/AutenticacionService";
+import AutenticacionService from "~/services/AuthenticationService";
 import AlertaService from "~/services/AlertService";
 
 const route = useRoute()

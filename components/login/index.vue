@@ -69,7 +69,6 @@
 import { ref } from 'vue'
 import {useAuthStore} from "~/store/authStore";
 
-
 const auth = useAuthStore();
 
 let password = ref<boolean>(false)
