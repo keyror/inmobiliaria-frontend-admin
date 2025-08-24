@@ -40,17 +40,17 @@ import type {IParamsTable} from "~/interfaces/IParamsTable";
 import {usersHeader} from "~/constants/tableHeaders/UsersHeader";
 import type {IExportOptions} from "~/interfaces/IExportOptions";
 import {Constants} from "~/constants/Constants";
-import {UrlExports} from "~/constants/UrlExports";
+import {ApiUrls} from "~/constants/ApiUrls";
 
 const usersData = ref([]);
 
 const exportUsers :IExportOptions = {
   pdf: {
-    url: UrlExports.EXPORT_USERS_TO_PDF,
+    url: ApiUrls.USERS_EXPORT_TO_PDF,
     extension: Constants.PDF,
   },
   excel :{
-    url: UrlExports.EXPORT_USERS_TO_EXCEL,
+    url: ApiUrls.USERS_EXPORT_TO_EXCEL,
     extension: Constants.EXCEL,
   }
 }
