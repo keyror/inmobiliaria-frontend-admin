@@ -16,6 +16,10 @@ export function useApi<T>(
             ...opts?.headers,
         },
         async onResponse({ response }) {
+            if (response._data instanceof Blob) {
+                return; // es archivo, no validar estructura
+            }
+
             if (!response._data.status) {
                 const mensaje = Array.isArray(response._data.message)
                     ? response._data.message.join('<br>')

@@ -11,10 +11,12 @@
                               :items="usersData"
                               @update="users"
                               :server-items-length="usersTotal"
-                              :loading="loading">
+                              :loading="loading"
+                              :export-input="exportUsers"
+                          >
 
                             <template #item-actions="{ item }">
-                              <button @click="editUser(item)" class="btn btn-sm btn-primary me-2">
+                              <button @click="editUser(item)" class="btn btn-sm btn-primary m-2">
                                 <i class="fas fa-pen"></i>
                               </button>
                               <button @click="deleteUser(item)" class="btn btn-sm btn-danger">
@@ -36,8 +38,22 @@ import LoadingService from "~/services/LoadingService";
 import AlertaService from "~/services/AlertService";
 import type {IParamsTable} from "~/interfaces/IParamsTable";
 import {usersHeader} from "~/constants/tableHeaders/UsersHeader";
+import type {IExportOptions} from "~/interfaces/IExportOptions";
+import {Constants} from "~/constants/Constants";
+import {UrlExports} from "~/constants/UrlExports";
 
 const usersData = ref([]);
+
+const exportUsers :IExportOptions = {
+  pdf: {
+    url: UrlExports.EXPORT_USERS_TO_PDF,
+    extension: Constants.PDF,
+  },
+  excel :{
+    url: UrlExports.EXPORT_USERS_TO_EXCEL,
+    extension: Constants.EXCEL,
+  }
+}
 
 const paramsTable = ref<IParamsTable>({
   page: 1,
@@ -66,6 +82,7 @@ const users = async (paramsTable: IParamsTable) => {
 
 const editUser = async (item:any) => {
   console.log("edit ", item)
+  navigateTo(`/users/edit/${item.id}`)
 }
 
 const deleteUser = async (item:any) => {

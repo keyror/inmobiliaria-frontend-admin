@@ -16,7 +16,7 @@
                                 <CommonInputfieldsNumberfield label="Phone number" placeholder="enter your mobile number" classes="col-md-4 col-sm-6" star="*" value="7596140312"/>
                                 <div class="col-md-4 col-sm-6">
                                     <label>Date of birth <span class="font-danger">*</span></label>
-                                    <VueDatePicker v-model="date"></VueDatePicker>                                    
+                                    <VueDatePicker v-model="date"></VueDatePicker>
                                 </div>
                                 <CommonInputfieldsTextfield label="Email Address" placeholder="enter your email" classes="col-md-4 col-sm-6" star="*" value="turner@gmail.in"/>
                                 <CommonInputfieldsTextfield label="Password" placeholder="Enter your password" classes=" col-sm-6" star="*" value="13535@12" type="password"/>
@@ -47,6 +47,10 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 let Gender:string[] = ['Male' , 'Female']
 let date = ref(new Date)
+
+const route = useRoute()
+const id = route.params.id;
+alert(id)
 </script>
 
 <style scoped>
