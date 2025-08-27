@@ -26,6 +26,7 @@
           :items="items"
           v-model:server-options="serverOptions"
           :server-items-length="serverItemsLength"
+          table-class-name="shadow p-3 mb-5 bg-body rounded"
           :loading="isLoading"
           theme-color="#f24451"
           buttons-pagination>

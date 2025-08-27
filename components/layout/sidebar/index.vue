@@ -45,7 +45,7 @@
                                 <h6>Need Help</h6>
                                 <a href="https://support.pixelstrap.com/" target="_blank" class="p-0 m-0">
                                     <span class="d-block">Raise ticket at "support@pixelstrap.com"</span></a>
-                                
+
                                 <button type="button" onclick=" window.open('https://themeforest.net/user/pixelstrap/portfolio', '_blank');" class="btn btn-pill btn-gradient color-4 btn-sm mt-2 fw-bold">Buy Now</button>
                             </div>
                         </li>
@@ -71,14 +71,18 @@ interface children{
 }
 const route = useRoute();
 const alldata = ref<sidebar[]>([]);
-const {data} = await useFetch(baseUrl+'/data/sidebar.json')
+//const {data} = await useFetch(baseUrl+'/data/sidebar.json')
+import sidebar from '@/public/data/sidebar.json';
+
+const data = ref(sidebar);
+
 let activemenu = ref<string>('')
 let active = ref<boolean>(false)
 function getactivevalue(value:string) {
     if (activemenu.value === value) {
-    active.value = !active.value; 
+    active.value = !active.value;
   } else {
-    active.value = true; 
+    active.value = true;
   }
   activemenu.value = value;
 }
