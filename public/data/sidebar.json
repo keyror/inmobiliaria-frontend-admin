@@ -1,9 +1,10 @@
 {
-    "sidebar":[
-        {
+    "sidebar": [
+         {
             "link":"/",
             "icon":"material-symbols:airplay-outline",
             "title":"Dashboard",
+            "titlePage": "All tenants",
             "collapse":false,
             "active":false
         },
@@ -36,8 +37,28 @@
             ]
         },
         {
+          "icon":"lucide:building-2",
+          "title":"Administrar Tenants",
+          "titlePage": "Listado tenants",
+          "collapse":true,
+          "active":false,
+          "children":[
+            {
+              "link":"/central/tenants/alltenants",
+              "title":"Listado tenants",
+              "icon":"material-symbols:keyboard-double-arrow-right"
+            },
+            {
+              "link":"/central/tenants/addtenant",
+              "title":"Agregar tenant",
+              "icon":"material-symbols:keyboard-double-arrow-right"
+            }
+          ]
+        },
+        {
             "icon":"lucide:users",
             "title":"Manage users",
+            "titlePage": "All tenants",
             "collapse":true,
             "active":false,
             "children":[
@@ -58,11 +79,6 @@
                     "label":"new"
                 },
                 {
-                    "link":"/users/edituser",
-                    "title":"Edit user",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
-                },
-                {
                     "link":"/users/allusers",
                     "title":"All users",
                     "icon":"material-symbols:keyboard-double-arrow-right"
@@ -72,6 +88,7 @@
         {
             "icon":"ic:baseline-person-add-alt",
             "title":"Agents",
+            "titlePage": "All tenants",
             "collapse":true,
             "active":false,
             "children":[
@@ -112,12 +129,14 @@
             "link":"/map",
             "icon":"material-symbols:location-on-outline-rounded",
             "title":"Map",
+            "titlePage": "All tenants",
             "collapse":false,
             "active":false
         },
         {
             "icon":"ri:layout-5-line",
             "title":"Types",
+            "titlePage": "All tenants",
             "collapse":true,
             "active":false,
             "children":[
@@ -147,6 +166,7 @@
             "link":"/report",
             "icon":"ri:bar-chart-line",
             "title":"Reports",
+            "titlePage": "All tenants",
             "collapse":false,
             "active":false
         },
@@ -154,12 +174,14 @@
             "link":"/payment",
             "icon":"ph:credit-card",
             "title":"Payments",
+            "titlePage": "All tenants",
             "collapse":false,
             "active":false
         },
         {
             "icon":"gg:lock-unlock",
             "title":"Authentication",
+            "titlePage": "All tenants",
             "collapse":true,
             "active":false,
             "children":[

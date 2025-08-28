@@ -6,27 +6,27 @@
     --theme-gradient2: linear-gradient(to right, var(--theme-default) 0%, var(--theme-default2) 100%);
     --theme-gradient3: linear-gradient(48deg, var(--theme-default) 0%, var(--theme-default2) 100%);
     --theme-gradient4: linear-gradient(to right, var(--theme-default) 25%, var(--theme-default2) 100%);
-  
+
     --theme-default3: #ff5c41;
     --theme-default4: #ff8c41;
     --theme-gradient5: linear-gradient(to right, var(--theme-default3) 0%, var(--theme-default4) 51%, var(--theme-default3) 100%);
     --theme-gradient6: linear-gradient(to right, var(--theme-default3) 0%, var(--theme-default4) 100%);
     --theme-gradient7: linear-gradient(90deg, var(--theme-default3) 25%, var(--theme-default4) 100%);
-  
+
     --theme-default5: #5eac12;
-    
+
     --theme-default6: #f35d43;
     --theme-default7: #f34451;
     --theme-gradient8: linear-gradient(to right, var(--theme-default6) 0%, var(--theme-default7) 51%, var(--theme-default6) 100%);
     --theme-gradient9: linear-gradient(90deg, var(--theme-default6) 0%, var(--theme-default7) 100%);
-  
+
     --theme-default8: #2c2e97;
     --theme-default9: #4b55c4;
     --theme-gradient10: linear-gradient(to right, var(--theme-default8) 0%, var(--theme-default9) 51%, var(--theme-default8) 100%);
     --theme-gradient11: linear-gradient(to right, var(--theme-default8) 0%, var(--theme-default9) 100%);
     --theme-gradient12: linear-gradient(48deg, var(--theme-default8) 0%, var(--theme-default9) 100%);
     --theme-gradient13: linear-gradient(to right, var(--theme-default8) 25%, var(--theme-default9) 100%);
-  
+
     --theme-default10: #00968a;
 }
 
@@ -43,6 +43,7 @@ $theme-main-font-color: rgba(59, 66, 73, 0.7);
 $theme-sub-font-color:#3b4249;
 $black: #000000;
 $white: #ffffff;
+$whiteTransparent: rgba(255, 255, 255, 0.44);
 $light-bg: #f8f8f8;
 $light-color: #959595;
 $light-border: #eee;

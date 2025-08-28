@@ -1,5 +1,5 @@
 <template>
-  <UserEdituser />
+  <CentralTenantsAlltenants />
 </template>
 
 <script setup lang="ts">

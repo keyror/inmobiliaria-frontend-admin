@@ -5,6 +5,7 @@ export default defineNuxtPlugin(() => {
     if (auth.token && auth.expiresAt && auth.expiresAt < Date.now()) {
         console.warn('🔒 Token expirado, cerrando sesión automáticamente')
         auth.clearAuth();
+        navigateTo('/Authentication/login')
         return
     }
     // Función que programa el refresh si hay un token y expiresAt

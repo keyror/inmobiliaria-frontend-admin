@@ -16,12 +16,14 @@
                           >
 
                             <template #item-actions="{ item }">
-                              <button @click="editUser(item)" class="btn btn-sm btn-primary m-2">
-                                <i class="fas fa-pen"></i>
-                              </button>
-                              <button @click="deleteUser(item)" class="btn btn-sm btn-danger">
-                                <i class="fa fa-trash"></i>
-                              </button>
+                              <div class="btn-group" role="group" aria-label="Basic example">
+                                <button @click="editUser(item)" type="button" class="btn btn-sm btn-primary">
+                                  <i class="fas fa-pen"></i>
+                                </button>
+                                <button @click="deleteUser(item)" type="button" class="btn btn-sm btn-danger">
+                                  <i class="fa fa-trash"></i>
+                                </button>
+                              </div>
                             </template>
                           </Table>
                         </div>
@@ -34,7 +36,6 @@
 
 <script setup lang="ts">
 import UserService from "@/services/UserService";
-import LoadingService from "~/services/LoadingService";
 import AlertaService from "~/services/AlertService";
 import type {IParamsTable} from "~/interfaces/IParamsTable";
 import {usersHeader} from "~/constants/tableHeaders/UsersHeader";
@@ -46,11 +47,11 @@ const usersData = ref([]);
 
 const exportUsers :IExportOptions = {
   pdf: {
-    url: ApiUrls.USERS_EXPORT_TO_PDF,
+    url: ApiUrls.USERS_EXPORT_TO_PDF_GET,
     extension: Constants.PDF,
   },
   excel :{
-    url: ApiUrls.USERS_EXPORT_TO_EXCEL,
+    url: ApiUrls.USERS_EXPORT_TO_EXCEL_GET,
     extension: Constants.EXCEL,
   }
 }
@@ -74,14 +75,13 @@ const users = async (paramsTable: IParamsTable) => {
         //LoadingService.hide()
         loading.value = false;
       }).catch((error) => {
-    //loading.value = false;
-    LoadingService.hide()
-    AlertaService.showError('Ha ocurrido un error', error);
+        loading.value = false;
+        //LoadingService.hide()
+        AlertaService.showError('Ha ocurrido un error', error);
   })
 }
 
 const editUser = async (item:any) => {
-  console.log("edit ", item)
   navigateTo(`/users/edit/${item.id}`)
 }
 

@@ -5,7 +5,7 @@ import type {IParamsTable} from "~/interfaces/IParamsTable";
 
 class UserService {
     async getUsers(params: IParamsTable): Promise<any> {
-        return useApi(ApiUrls.USERS, { query: params })
+        return useApi(ApiUrls.USERS_GET, { query: params })
     }
 }
 
