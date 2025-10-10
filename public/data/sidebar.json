@@ -44,12 +44,12 @@
           "active":false,
           "children":[
             {
-              "link":"/central/tenants/alltenants",
+              "link":"/central/tenants/all-tenants",
               "title":"Listado tenants",
               "icon":"material-symbols:keyboard-double-arrow-right"
             },
             {
-              "link":"/central/tenants/addtenant",
+              "link":"/central/tenants/add-tenant",
               "title":"Agregar tenant",
               "icon":"material-symbols:keyboard-double-arrow-right"
             }
@@ -68,7 +68,7 @@
                     "icon":"material-symbols:keyboard-double-arrow-right"
                 },
                 {
-                    "link":"/users/adduser",
+                    "link":"/users/add-user",
                     "title":"Add user",
                     "icon":"material-symbols:keyboard-double-arrow-right"
                 },
@@ -79,11 +79,47 @@
                     "label":"new"
                 },
                 {
-                    "link":"/users/allusers",
+                    "link":"/users/all-users",
                     "title":"All users",
                     "icon":"material-symbols:keyboard-double-arrow-right"
                 }
             ]
+        },
+        {
+          "icon":"lucide:lock",
+          "title":"Administrar acceso",
+          "titlePage": "All tenants",
+          "collapse":true,
+          "active":false,
+          "children":[
+            {
+              "link":"/authorization/all-roles",
+              "title":"Gestionar acceso",
+              "icon":"material-symbols:keyboard-double-arrow-right"
+            },
+            {
+              "title": "Roles",
+              "icon": "material-symbols:keyboard-double-arrow-right",
+              "children": [
+                {
+                  "title": "Agregar rol",
+                  "link": "/users/profile1",
+                  "icon": "material-symbols:keyboard-double-arrow-right"
+                }
+              ]
+            },
+            {
+              "title": "Permisos",
+              "icon": "material-symbols:keyboard-double-arrow-right",
+              "children": [
+                {
+                  "title": "Agregar permiso",
+                  "link": "/users/profile2",
+                  "icon": "material-symbols:keyboard-double-arrow-right"
+                }
+              ]
+            }
+          ]
         },
         {
             "icon":"ic:baseline-person-add-alt",
