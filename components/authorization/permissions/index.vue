@@ -176,7 +176,6 @@ const deletePermission = async (item: any) => {
 };
 
 loadPermissions(paramsTable.value);
-console.log("hola");
 </script>
 
 <style scoped>
