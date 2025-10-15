@@ -5,7 +5,7 @@
                 <div class="col-sm-6">
                     <div class="page-header-left">
                         <h3>{{ title }}
-                            <small>Bienvenido al panel de administración</small>
+                            <small>{{ $t('panel.welcome') }}</small>
                         </h3>
                     </div>
                 </div>

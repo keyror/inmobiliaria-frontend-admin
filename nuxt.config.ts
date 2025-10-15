@@ -30,11 +30,19 @@ export default defineNuxtConfig({
     transpile: ['@vuepic/vue-datepicker']
   },
 
-  modules: ['nuxt-icon' , '@pinia/nuxt', 'pinia-plugin-persistedstate/nuxt'],
+  modules: ['nuxt-icon', '@pinia/nuxt', 'pinia-plugin-persistedstate/nuxt', '@nuxtjs/i18n'],
+  i18n: {
+     locales: [
+         {code: 'es', name: 'Español', file: 'es.json'},
+         {code: 'en', name: 'English', file: 'en.json'}
+     ],
+     defaultLocale: 'es',
+     lazy: true, // para cargar archivos de traducción por demanda
+     langDir: 'locales/', // carpeta donde estarán los JSON
+  },
   pinia: {
     storesDirs: ['./store/**', './custom-folder/store/**'],
   },
-
   plugins:[
     {
       src:'@/plugins/usebootstrap.client.ts',

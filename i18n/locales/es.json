@@ -1,0 +1,26 @@
+{
+  "rol": {
+    "created": "Rol creado exitosamente",
+    "updated": "Rol actualizado correctamente",
+    "deleted": "Rol eliminado",
+    "addRol" : "Agregar rol",
+
+    "header": {
+      "id": "ID",
+      "name": "Nombre",
+      "guard": "Guard",
+      "created_at": "Fecha de registro",
+      "actions": "Acciones"
+    }
+
+
+  },
+  "authorization" : {
+    "breadCrumbPage" : "Autorización",
+    "breadCrumbTitle" : "Roles y Permisos"
+  },
+
+  "panel" : {
+    "welcome":"Bienvenido al panel de administración"
+  }
+}

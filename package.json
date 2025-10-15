@@ -17,6 +17,7 @@
     "vue-datamaps": "^0.3.6"
   },
   "dependencies": {
+    "@nuxtjs/i18n": "^10.1.1",
     "@pinia/nuxt": "^0.10.1",
     "@syncfusion/ej2-vue-maps": "^22.2.8",
     "@vuepic/vue-datepicker": "^6.0.1",

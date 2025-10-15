@@ -1,6 +1,6 @@
 <template>
   <div class="page-body">
-    <CommonBreadcrumb page="Autorización" title="Roles y Permisos"/>
+    <CommonBreadcrumb :page="$t('authorization.breadCrumbPage')" :title="$t('authorization.breadCrumbTitle')"/>
 
     <div class="container-fluid">
       <nav>

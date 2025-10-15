@@ -4,7 +4,7 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header pb-0">
-            <h5>Agregar rol</h5>
+            <h5> {{ $t('rol.addRol') }}</h5>
           </div>
           <div class="card-body admin-form">
             <form class="row gx-3" @submit.prevent="save">
@@ -33,7 +33,7 @@
         <div class="property-grid-3 agent-grids ratio2_3">
           <div class="property-2 row column-sm property-label property-grid list-view">
             <Table
-                :headers="rolesHeader"
+                :headers="rolesHeader()"
                 :items="rolesData"
                 :loading="loading"
                 :server-items-length="rolesTotal"
@@ -42,7 +42,7 @@
               <template #item-actions="{ item }">
                 <div aria-label="Acciones" class="btn-group" role="group">
                   <button class="btn btn-dashed  color-2" type="button" @click="openPermissionsModal(item)">
-                    <i class="fas fa-lock"></i>
+                    <i class="fas fa-lock color-1"></i>
                   </button>
                   <button class="btn btn-dashed color-1" type="button" @click="editRole(item)">
                     <i class="fas fa-pen"></i>
