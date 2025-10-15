@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import {defineStore} from 'pinia'
+import {ref} from 'vue'
 import AutenticacionService from '~/services/AuthenticationService';
 import LoadingService from "@/services/LoadingService";
 import AlertaService from "@/services/AlertService";
@@ -32,14 +32,15 @@ export const useAuthStore = defineStore(
              AutenticacionService.logout()
                 .then((response) => {
                     clearAuth()
+                    LoadingService.hide()
                     AlertaService.showSuccess('Operación exitosa', response.message).then((result) => {
                         if (result.isConfirmed) {
-                            LoadingService.hide()
                             navigateTo('/Authentication/login')
                         }
                     });
                 }).catch((error) => {
                     clearAuth()
+                 LoadingService.hide()
                     AlertaService.showError('Ha ocurrido un error', error);
                 })
         }

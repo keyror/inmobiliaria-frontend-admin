@@ -11,15 +11,14 @@
                   :items="tenantsData"
                   @update="tenants"
                   :server-items-length="tenantsTotal"
-                  :loading="loading"
               >
 
                 <template #item-actions="{ item }">
                   <div class="btn-group" role="group" aria-label="Basic example">
-                    <button @click="edit(item)" type="button" class="btn btn-sm btn-primary">
+                    <button class="btn btn-dashed color-1" type="button" @click="edit(item)">
                       <i class="fas fa-pen"></i>
                     </button>
-                    <button @click="deleted(item)" type="button" class="btn btn-sm btn-danger">
+                    <button class="btn btn-dashed color-4" type="button" @click="deleted(item)">
                       <i class="fa fa-trash"></i>
                     </button>
                   </div>
@@ -66,19 +65,15 @@ const exports :IExportOptions = {
 }
 
 const tenantsTotal = ref(0);
-const loading = ref(false);
 
 const tenants = async (paramsTable: IParamsTable) => {
-  //loading.value = true;
   LoadingService.show()
   TenantService.getTenants(paramsTable)
       .then((response) => {
         tenantsData.value = response.data.data
         tenantsTotal.value = response.data.total
         LoadingService.hide()
-        //loading.value = false;
       }).catch((error) => {
-        //loading.value = false;
         LoadingService.hide()
         AlertaService.showError('Ha ocurrido un error', error);
   })
@@ -90,16 +85,13 @@ const deleted = async (item:any) => {
       `Esta seguro de eliminar el registro : ${item.name}`)
   .then((result) => {
     if (result.isConfirmed) {
-      //loading.value = true;
       LoadingService.show()
       TenantService.deleteTenant(item.id)
           .then((response) => {
             AlertaService.showSuccess('Operación exitosa', response.message)
             LoadingService.hide()
-           // loading.value = false;
             tenants(paramsTable.value)
           }).catch((error) => {
-            //loading.value = false;
             LoadingService.hide()
             AlertaService.showError('Ha ocurrido un error', error);
       })
@@ -110,7 +102,6 @@ const deleted = async (item:any) => {
 const edit = async (item:any) => {
   navigateTo(`/central/tenants/edit/${item.id}`)
 }
-
 
 tenants(paramsTable.value)
 

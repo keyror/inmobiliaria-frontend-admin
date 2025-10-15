@@ -1,23 +1,55 @@
 <template>
-  <nav>
-    <div class="nav nav-tabs" id="nav-tab" role="tablist">
-      <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Roles</button>
-      <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Permisos</button>
+  <div class="page-body">
+    <CommonBreadcrumb page="Autorización" title="Roles y Permisos"/>
+
+    <div class="container-fluid">
+      <nav>
+        <div id="nav-tab" class="nav nav-tabs" role="tablist">
+          <button
+              :class="{ active: activeTab === 'roles' }"
+              class="nav-link text-dark"
+              type="button"
+              @click="switchTab('roles')"
+          >
+            Roles
+          </button>
+          <button
+              :class="{ active: activeTab === 'permissions' }"
+              class="nav-link text-dark"
+              type="button"
+              @click="switchTab('permissions')"
+          >
+            Permisos
+          </button>
+        </div>
+      </nav>
+
+      <div class="tab-content mt-4">
+        <div v-show="activeTab === 'roles'">
+          <AuthorizationRoles v-if="loadedTabs.roles"/>
+        </div>
+        <div v-show="activeTab === 'permissions'">
+          <AuthorizationPermissions v-if="loadedTabs.permissions"/>
+        </div>
+      </div>
     </div>
-  </nav>
-  <div class="tab-content" id="nav-tabContent">
-    <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">Roles : aquí debo poder crear roles y listarlo en una tabla, adicional a
-      ello mediante un modal al cual se puede acceder mediante un icono de cada fila, ver los permisson que tiene asignados y asu vez poder asignar los permisos aun rol</div>
-    <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">Permisos: aqui debo poder crear los permisos</div>
   </div>
 </template>
 
 <script setup lang="ts">
+const activeTab = ref<string>('roles')
+
+const loadedTabs = ref<{ [key: string]: boolean }>({
+  roles: true,
+  permissions: false
+})
+
+const switchTab = (tab: string) => {
+  activeTab.value = tab
+  loadedTabs.value[tab] = true // Marca como cargado cuando se activa
+}
+
 useHead({
-  title: 'Sheltos - Admin Dashboard Page'
+  title: 'Gestión de Roles y Permisos'
 })
 </script>
-
-<style scoped>
-
-</style>

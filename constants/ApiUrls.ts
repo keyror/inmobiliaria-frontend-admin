@@ -27,4 +27,18 @@ export class ApiUrls {
     static readonly TENANTS_CREATE_POST = '/tenants';
     static readonly TENANTS_ACTIVATE_PATCH = '/tenants';
     static readonly TENANTS_DEACTIVATE_PATCH = '/tenants';
+
+    // Roles URLs
+    static readonly ROLES_GET = '/roles';
+    static readonly ROLES_UPDATE_PUT = '/roles';
+    static readonly ROLES_DELETE_DELETE = '/roles';
+    static readonly ROLES_CREATE_POST = '/roles';
+    static readonly ROLES_PERMISSIONS_ASSIGN_POST = '/roles/assign-permissions';
+
+
+    // Permissions URLs
+    static readonly PERMISSIONS_GET = '/permissions';
+    static readonly PERMISSIONS_UPDATE_PUT = '/permissions';
+    static readonly PERMISSIONS_DELETE_DELETE = '/permissions';
+    static readonly PERMISSIONS_CREATE_POST = '/permissions';
 }

@@ -11,16 +11,15 @@
                               :items="usersData"
                               @update="users"
                               :server-items-length="usersTotal"
-                              :loading="loading"
                               :export-input="exportUsers"
                           >
 
                             <template #item-actions="{ item }">
                               <div class="btn-group" role="group" aria-label="Basic example">
-                                <button @click="editUser(item)" type="button" class="btn btn-sm btn-primary">
+                                <button class="btn btn-dashed color-1" type="button" @click="editUser(item)">
                                   <i class="fas fa-pen"></i>
                                 </button>
-                                <button @click="deleteUser(item)" type="button" class="btn btn-sm btn-danger">
+                                <button class="btn btn-dashed color-4" type="button" @click="deleteUser(item)">
                                   <i class="fa fa-trash"></i>
                                 </button>
                               </div>
@@ -42,6 +41,7 @@ import {usersHeader} from "~/constants/tableHeaders/UsersHeader";
 import type {IExportOptions} from "~/interfaces/IExportOptions";
 import {Constants} from "~/constants/Constants";
 import {ApiUrls} from "~/constants/ApiUrls";
+import LoadingService from "~/services/LoadingService";
 
 const usersData = ref([]);
 
@@ -64,19 +64,16 @@ const paramsTable = ref<IParamsTable>({
   search: '',
 })
 const usersTotal = ref(0);
-const loading = ref(false);
+
 const users = async (paramsTable: IParamsTable) => {
- // LoadingService.show()
-  loading.value = true;
+  LoadingService.show()
   UserService.getUsers(paramsTable)
       .then((response) => {
         usersData.value = response.data.data
         usersTotal.value = response.data.total
-        //LoadingService.hide()
-        loading.value = false;
+        LoadingService.hide()
       }).catch((error) => {
-        loading.value = false;
-        //LoadingService.hide()
+    LoadingService.hide()
         AlertaService.showError('Ha ocurrido un error', error);
   })
 }
