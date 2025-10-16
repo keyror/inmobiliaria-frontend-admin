@@ -1,6 +1,6 @@
 <template>
     <div class="page-body">
-        <CommonBreadcrumb title="Condominium" page="Types"/> 
+        <CommonBreadcrumb title="Condominium" page="Types"/>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12">
@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { baseUrl } from "@/composable/apiurl";
+import { baseUrl } from "~/composables/apiurl";
 interface listdata{
     id:string;
     img:string[];

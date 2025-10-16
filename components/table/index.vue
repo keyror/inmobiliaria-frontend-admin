@@ -94,7 +94,7 @@
 import type {PropType} from 'vue'
 import type {Header, Item, ServerOptions} from "vue3-easy-data-table";
 import type {IParamsTable} from "~/interfaces/IParamsTable";
-import {useDebounce} from "~/composable/useDebounce";
+import {useDebounce} from "~/composables/useDebounce";
 import type {IExportOption, IExportOptions} from '@/interfaces/IExportOptions';
 import LoadingService from "~/services/LoadingService";
 import AlertaService from "~/services/AlertService";

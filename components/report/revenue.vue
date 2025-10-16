@@ -8,7 +8,7 @@
                 <div class="table-responsive custom-scrollbar">
                     <table class="table table-bordernone">
                         <tbody>
-                            <tr v-for="(item , index) in alldata" :key="index"> 
+                            <tr v-for="(item , index) in alldata" :key="index">
                                 <td>
                                     <div class="media">
                                         <img :src="item.src" class="img-fluid" alt="">
@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { baseUrl } from "@/composable/apiurl";
+import { baseUrl } from "~/composables/apiurl";
 interface manege{
     src:string;
     date:string;

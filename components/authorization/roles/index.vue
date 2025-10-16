@@ -90,6 +90,9 @@ import AlertaService from "~/services/AlertService";
 import type {IParamsTable} from "~/interfaces/IParamsTable";
 import {rolesHeader} from "~/constants/tableHeaders/RolesHeader";
 import LoadingService from "~/services/LoadingService";
+import { usePermissions } from '~/composables/usePermissions'
+
+const { allPermissions, loadPermissions } = usePermissions()
 
 const rolesData = ref([]);
 const rolesTotal = ref(0);
@@ -101,7 +104,6 @@ const newRole = ref({
 });
 
 const selectedRole = ref(null);
-const allPermissions = ref([]);
 const selectedPermissions = ref([]);
 const loadingPermissions = ref(false);
 const showModal = ref(false);
@@ -203,17 +205,6 @@ const deleteRole = async (item: any) => {
       });
 };
 
-// Cargar permisos
-const loadAllPermissions = async () => {
-  RolePermissionService.getPermissions({page: 1, perPage: 100})
-      .then((response) => {
-        allPermissions.value = response.data.data;
-      }).catch((error) => {
-    AlertaService.showError('Ha ocurrido un error', error);
-  });
-};
-
-
 // Abrir modal de permisos
 const openPermissionsModal = async (item: any) => {
   selectedRole.value = item;
@@ -244,7 +235,7 @@ const closePermissionsModal = () => {
 };
 
 loadRoles(paramsTable.value);
-loadAllPermissions();
+loadPermissions();
 </script>
 
 <style scoped>

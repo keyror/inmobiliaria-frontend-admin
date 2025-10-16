@@ -35,7 +35,7 @@
           <div class="property-2 row column-sm property-label property-grid list-view">
             <Table
                 :headers="permissionsHeader"
-                :items="permissionsData"
+                :items="allPermissions"
                 :server-items-length="permissionsTotal"
                 @update="loadPermissions"
             >
@@ -63,9 +63,11 @@ import AlertaService from "~/services/AlertService";
 import type {IParamsTable} from "~/interfaces/IParamsTable";
 import {permissionsHeader} from "~/constants/tableHeaders/PermissionsHeader";
 import LoadingService from "~/services/LoadingService";
+import { usePermissions } from '~/composables/usePermissions'
 
-const permissionsData = ref([]);
-const permissionsTotal = ref(0);
+const { allPermissions, loadPermissions, total } = usePermissions()
+
+const permissionsTotal = ref(total);
 const isEditing = ref(false);
 const editingId = ref(null);
 
@@ -80,20 +82,6 @@ const paramsTable = ref<IParamsTable>({
   sortType: 'desc',
   search: '',
 });
-
-// Cargar permisos
-const loadPermissions = async (params: IParamsTable) => {
-  LoadingService.show();
-  RolePermissionService.getPermissions(params)
-      .then((response) => {
-        permissionsData.value = response.data.data;
-        permissionsTotal.value = response.data.total;
-        LoadingService.hide();
-      }).catch((error) => {
-    LoadingService.hide();
-    AlertaService.showError('Ha ocurrido un error', error);
-  });
-};
 
 // Guardar un nuevo permiso o actualizar uno existente
 const savePermission = async () => {

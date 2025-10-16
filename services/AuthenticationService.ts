@@ -1,5 +1,5 @@
 
-import {useApi} from "~/composable/useApi";
+import {useApi} from "~/composables/useApi";
 import {ApiUrls} from "~/constants/ApiUrls";
 
 class AuthenticationService {

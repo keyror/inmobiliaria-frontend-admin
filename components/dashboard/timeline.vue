@@ -53,7 +53,7 @@
 
 <script setup lang="ts">
 import options from '@/data/chart';
-import { baseUrl } from '@/composable/apiurl';
+import { baseUrl } from '~/composables/apiurl';
 interface main{
     tr:table[]
 }

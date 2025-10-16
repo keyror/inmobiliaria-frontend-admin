@@ -1,6 +1,6 @@
 import {Constants} from "~/constants/Constants";
 import type {IParamsTable} from "~/interfaces/IParamsTable";
-import {useApi} from "~/composable/useApi";
+import {useApi} from "~/composables/useApi";
 
 class SaveFileFromBackService {
     public async captureFile(file: Blob, typeFile: string | undefined, module:string): Promise<void> {

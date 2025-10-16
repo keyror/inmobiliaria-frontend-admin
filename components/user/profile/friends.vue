@@ -52,11 +52,11 @@
             </div>
         </div>
     </div>
- 
+
 </template>
 
 <script setup lang="ts">
-import { baseUrl } from "@/composable/apiurl";
+import { baseUrl } from "~/composables/apiurl";
 interface friend{
     src:string;
     title:string;

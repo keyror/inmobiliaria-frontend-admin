@@ -41,7 +41,7 @@
 useHead({
   title: 'Sheltos - Admin Dashboard Page'
 })
-import {baseUrl} from "@/composable/apiurl";
+import {baseUrl} from "~/composables/apiurl";
 
 interface data {
     label: string[];

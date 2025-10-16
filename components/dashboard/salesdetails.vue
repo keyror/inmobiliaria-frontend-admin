@@ -8,7 +8,7 @@
                     </div>
                     <i v-else :class="item.icon"></i>
                     <div class="media-body">
-                        <span>                           
+                        <span>
                             {{ item.pers?item.task:null }}
                             <span class="font-success">
                                 {{ item.pers?null: item.task }}
@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { baseUrl } from "@/composable/apiurl";
+import { baseUrl } from "~/composables/apiurl";
 interface details{
     icon:string;
     bgcolor?:string;
@@ -36,7 +36,7 @@ interface details{
     head:string;
     status:string;
 }
-const { data } = await useAsyncData('widgetsOne', () => 
+const { data } = await useAsyncData('widgetsOne', () =>
   $fetch(baseUrl + '/data/dashboard.json')
 );
 

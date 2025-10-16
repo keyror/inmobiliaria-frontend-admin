@@ -63,12 +63,12 @@
                     </div>
                 </div>
             </div>
-        </div>                
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { baseUrl } from "@/composable/apiurl";
+import { baseUrl } from "~/composables/apiurl";
 const avtar = ref<string[]>([]);
 const {data} = await useFetch(baseUrl+'/data/user.json');
 watchEffect(() => {

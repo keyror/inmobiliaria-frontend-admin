@@ -27,12 +27,12 @@
                                         <p class="font-roboto">{{ agent.detail }}</p>
                                         <ul class="agent-contact">
                                             <li v-for="(content , index) in agent.content" :key="index" class="d-flex align-items-center">
-                                                <i :class="content.icon"></i> 
+                                                <i :class="content.icon"></i>
                                                 {{ content.content }}
                                                 <span class="phone-number d-block" v-if="agent.name == agentname  && show">{{ content.contact }}</span>
                                                 <span class="character" v-else>{{ content.contact1 }}</span>
                                                 <span class="label label-light label-flat color-2" v-if="content.labels" @click="shownumber(agent.name)">
-                                                   <span style="font-size:14px;"> {{ agent.name == agentname && show?'hide':'show' }} </span>   
+                                                   <span style="font-size:14px;"> {{ agent.name == agentname && show?'hide':'show' }} </span>
                                                 </span>
                                             </li>
                                         </ul>
@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import {baseUrl} from '@/composable/apiurl'
+import {baseUrl} from '~/composables/apiurl'
 interface users{
     src: string;
     label:boolean;
@@ -79,7 +79,7 @@ let show = ref<boolean>(false)
     allagents.value = data.value.allagents|| [];
   }
 });
-    function shownumber(name:string){   
+    function shownumber(name:string){
     show.value = !show.value
     if(show.value ==true){
         agentname.value = name

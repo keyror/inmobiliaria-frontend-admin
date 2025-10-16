@@ -4,7 +4,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="card"> 
+                    <div class="card">
                         <div class="card-header pb-0">
                             <h5>Add property details</h5>
                         </div>
@@ -43,7 +43,7 @@
                                         <label :for="item.c_id" v-for="(item , index) in inputsData.features" :key="index">
                                             <input class="checkbox_animated color-4" :id="item.c_id" type="checkbox" :checked="item.checked"> {{ item.name }}
                                         </label>
-                                        
+
                                     </div>
                                 </div>
                                 <div class="form-btn col-sm-12">
@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { baseUrl } from "@/composable/apiurl";
+import { baseUrl } from "~/composables/apiurl";
 interface check{
     c_id:string;
     name:string;

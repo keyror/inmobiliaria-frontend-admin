@@ -23,8 +23,8 @@
                                         <li v-for="(item , index) in propertydata" :key="index">
                                             <img :src="item.src" class="img-fluid" alt="">
                                             <div>
-                                                <h5>{{ item.totle }}</h5>  
-                                                <span class="light-font">{{ item.type }}</span>                                                                                                          
+                                                <h5>{{ item.totle }}</h5>
+                                                <span class="light-font">{{ item.type }}</span>
                                             </div>
                                         </li>
                                     </ul>
@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { baseUrl } from "@/composable/apiurl";
+import { baseUrl } from "~/composables/apiurl";
 interface property{
     src:string;
     totle:string;
