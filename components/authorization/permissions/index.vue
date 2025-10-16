@@ -100,8 +100,8 @@ const saveNewPermission = async () => {
       .then((response) => {
         AlertaService.showSuccess('Operación exitosa', response.message);
         resetForm();
-        loadPermissions(paramsTable.value);
         LoadingService.hide();
+        loadPermissions(paramsTable.value);
       })
       .catch((error) => {
         LoadingService.hide();
@@ -116,8 +116,8 @@ const updatePermission = async () => {
       .then((response) => {
         AlertaService.showSuccess('Operación exitosa', response.message);
         resetForm();
-        loadPermissions(paramsTable.value);
         LoadingService.hide();
+        loadPermissions(paramsTable.value);
       })
       .catch((error) => {
         LoadingService.hide();

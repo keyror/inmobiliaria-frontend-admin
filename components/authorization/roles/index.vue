@@ -146,8 +146,8 @@ const saveRole = async () => {
       .then((response) => {
         AlertaService.showSuccess('Operación exitosa', response.message);
         resetForm();
-        loadRoles(paramsTable.value);
         LoadingService.hide();
+        loadRoles(paramsTable.value);
       }).catch((error) => {
     LoadingService.hide();
     AlertaService.showError('Ha ocurrido un error', error);
@@ -160,8 +160,8 @@ const updateRole = async () => {
       .then((response) => {
         AlertaService.showSuccess('Operación exitosa', response.message);
         resetForm();
-        loadRoles(paramsTable.value);
         LoadingService.hide();
+        loadRoles(paramsTable.value);
       }).catch((error) => {
     LoadingService.hide();
     AlertaService.showError('Ha ocurrido un error', error);
