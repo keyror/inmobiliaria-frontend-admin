@@ -38,6 +38,7 @@
                 :items="allPermissions"
                 :server-items-length="permissionsTotal"
                 @update="loadPermissions"
+                @reload="reloadDataTable"
             >
               <template #item-actions="{ item }">
                 <div aria-label="Acciones" class="btn-group" role="group">
@@ -162,6 +163,10 @@ const deletePermission = async (item: any) => {
         }
       });
 };
+
+const reloadDataTable = () => {
+  loadPermissions(paramsTable.value);
+}
 
 loadPermissions(paramsTable.value);
 </script>

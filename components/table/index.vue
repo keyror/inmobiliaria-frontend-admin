@@ -2,17 +2,15 @@
   <div class="container-fluid">
     <div class="card">
       <div class="card-header admin-form pb-0">
-        <div class="row g-2 align-items-end">
+        <div class="row g-2 align-items-center">
           <!-- Búsqueda -->
           <div class="col-12 col-md-8 col-lg-6">
-            <div class="form-group mb-0">
-              <CommonInputfieldsTextfield
-                  v-model="searchValue"
-                  classes=""
-                  label=""
-                  placeholder="Buscar..."
-              />
-            </div>
+            <CommonInputfieldsTextfield
+                v-model="searchValue"
+                classes=""
+                label=""
+                placeholder="Buscar..."
+            />
           </div>
 
           <!-- Botones de acción -->
@@ -30,7 +28,7 @@
               </button>
 
               <!-- Botones de exportación -->
-              <div v-if="exportInput" class="d-flex gap-2">
+              <template v-if="exportInput">
                 <button
                     class="btn btn-solid color-3 btn-flat"
                     type="button"
@@ -49,7 +47,7 @@
                   <i class="fas fa-file-pdf"></i>
                   <span class="d-inline d-sm-none ms-1">PDF</span>
                 </button>
-              </div>
+              </template>
             </div>
           </div>
         </div>

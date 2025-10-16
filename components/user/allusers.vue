@@ -12,6 +12,7 @@
                               @update="users"
                               :server-items-length="usersTotal"
                               :export-input="exportUsers"
+                              @reload="reloadDataTable"
                           >
 
                             <template #item-actions="{ item }">
@@ -84,6 +85,10 @@ const editUser = async (item:any) => {
 
 const deleteUser = async (item:any) => {
   console.log("delete ", item)
+}
+
+const reloadDataTable = () => {
+  users(paramsTable.value);
 }
 
 users(paramsTable.value)

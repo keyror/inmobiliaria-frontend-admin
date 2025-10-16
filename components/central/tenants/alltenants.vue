@@ -11,6 +11,7 @@
                   :items="tenantsData"
                   @update="tenants"
                   :server-items-length="tenantsTotal"
+                  @reload="reloadDataTable"
               >
 
                 <template #item-actions="{ item }">
@@ -38,8 +39,6 @@ import AlertaService from "~/services/AlertService";
 import type {IParamsTable} from "~/interfaces/IParamsTable";
 import {tenantsHeader} from "~/constants/tableHeaders/TenantsHeader";
 import sidebar from '@/public/data/sidebar.json';
-import type {IExportOptions} from "~/interfaces/IExportOptions";
-import {Constants} from "~/constants/Constants";
 import LoadingService from "~/services/LoadingService";
 
 const sidebarData = ref(sidebar);
@@ -52,17 +51,6 @@ const paramsTable = ref<IParamsTable>({
   sortType: 'desc',
   search: '',
 })
-
-const exports :IExportOptions = {
-  pdf: {
-    url: '',
-    extension: Constants.PDF,
-  },
-  excel :{
-    url: '',
-    extension: Constants.EXCEL,
-  }
-}
 
 const tenantsTotal = ref(0);
 
@@ -101,6 +89,10 @@ const deleted = async (item:any) => {
 
 const edit = async (item:any) => {
   navigateTo(`/central/tenants/edit/${item.id}`)
+}
+
+const reloadDataTable = () => {
+  tenants(paramsTable.value)
 }
 
 tenants(paramsTable.value)

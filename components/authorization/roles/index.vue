@@ -38,6 +38,7 @@
                 :loading="loading"
                 :server-items-length="rolesTotal"
                 @update="loadRoles"
+                @reload="reloadDataTable"
             >
               <template #item-actions="{ item }">
                 <div aria-label="Acciones" class="btn-group" role="group">
@@ -228,6 +229,12 @@ const savePermissions = async () => {
     AlertaService.showError('Ha ocurrido un error', error);
   });
 };
+
+// Recargar la tabla, por si hay modificaciones en permisos desde la pestaña rol
+const reloadDataTable = () => {
+  loadRoles(paramsTable.value);
+  loadPermissions();
+}
 
 // Función para cerrar el modal
 const closePermissionsModal = () => {
