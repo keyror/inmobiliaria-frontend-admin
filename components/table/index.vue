@@ -2,9 +2,10 @@
   <div class="container-fluid">
     <div class="card">
       <div class="card-header admin-form pb-0">
-        <div class="row">
-          <div class="col-8">
-            <div class="col-md-6 col-sm-6 form-group">
+        <div class="row g-2 align-items-end">
+          <!-- Búsqueda -->
+          <div class="col-12 col-md-8 col-lg-6">
+            <div class="form-group mb-0">
               <CommonInputfieldsTextfield
                   v-model="searchValue"
                   classes=""
@@ -13,15 +14,42 @@
               />
             </div>
           </div>
-          <div class="col-4">
-            <div v-if="exportInput" class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <button class="btn btn-solid color-3 btn-flat me-md-2" type="button"
-                      @click="exportFile(exportInput.excel)">
-                <i class="fas fa-file-excel"></i>
+
+          <!-- Botones de acción -->
+          <div class="col-12 col-md-4 col-lg-6">
+            <div class="d-flex gap-2 justify-content-start justify-content-md-end flex-wrap">
+              <!-- Botón Actualizar -->
+              <button
+                  class="btn btn-gradient btn-pill color-1"
+                  type="button"
+                  @click="reloadData"
+                  title="Actualizar"
+              >
+                <i class="fas fa-sync"></i>
+                <span class="d-inline d-sm-none ms-1">Actualizar</span>
               </button>
-              <button class="btn btn-gradient  btn-flat color-4" type="button" @click="exportFile(exportInput.pdf)">
-                <i class="fas fa-file-pdf"></i>
-              </button>
+
+              <!-- Botones de exportación -->
+              <div v-if="exportInput" class="d-flex gap-2">
+                <button
+                    class="btn btn-solid color-3 btn-flat"
+                    type="button"
+                    @click="exportFile(exportInput.excel)"
+                    title="Exportar a Excel"
+                >
+                  <i class="fas fa-file-excel"></i>
+                  <span class="d-inline d-sm-none ms-1">Excel</span>
+                </button>
+                <button
+                    class="btn btn-gradient btn-flat color-4"
+                    type="button"
+                    @click="exportFile(exportInput.pdf)"
+                    title="Exportar a PDF"
+                >
+                  <i class="fas fa-file-pdf"></i>
+                  <span class="d-inline d-sm-none ms-1">PDF</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -43,10 +71,11 @@
               </template>
             </EasyDataTable>
 
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="listing-option">
-                <div class="d-flex align-items-center">
-                  <span class="me-2">Registros por página :</span>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+              <!-- Opciones de listado -->
+              <div class="listing-option w-100 w-md-auto">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2">
+                  <span class="text-nowrap">Registros por página:</span>
                   <div style="width: 100px;">
                     <CommonInputfieldsStatusfield
                         :data="perPageOptions"
@@ -55,12 +84,13 @@
                         @update:modelValue="updatePerPage"
                     />
                   </div>
-                  <span class="ms-3">{{ paginationText }}</span>
+                  <span class="text-nowrap">{{ paginationText }}</span>
                 </div>
               </div>
 
-              <nav class="theme-pagination">
-                <ul class="pagination mb-0">
+              <!-- Paginación -->
+              <nav class="theme-pagination w-100 w-md-auto d-flex justify-content-center justify-content-md-end">
+                <ul class="pagination mb-0 flex-wrap">
                   <li :class="{ disabled: serverOptions.page === 1 }" class="page-item">
                     <a aria-label="Previous" class="page-link" href="javascript:void(0)"
                        @click="changePage(serverOptions.page - 1)">
@@ -124,7 +154,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits<{
-  (e: 'update', paramsTable: IParamsTable): void
+  (e: 'update', paramsTable: IParamsTable): void,
+  (e: 'reload', reload: boolean): void
 }>()
 
 const internalLoading = ref(false)
@@ -190,6 +221,10 @@ const exportFile = async (exportOption: IExportOption) => {
     LoadingService.hide()
     AlertaService.showError('Ha ocurrido un error', error);
   })
+}
+
+const reloadData = async () => {
+  emit('reload', true)
 }
 
 const debouncedEmit = useDebounce(() => {
