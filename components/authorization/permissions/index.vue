@@ -111,7 +111,7 @@ const saveNewPermission = async () => {
         AlertaService.showError('Ha ocurrido un error', error);
       })
       .finally(() => {
-        LoadingService.hide();
+        //LoadingService.hide();
       });
 };
 
