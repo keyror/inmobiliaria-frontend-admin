@@ -15,20 +15,6 @@
 import loadingService from "~/services/LoadingService";
 
 const isLoading = computed(() => loadingService.isLoading)
-
-let router = useRouter();
-let loader = ref<boolean>(true);
-onMounted(() => {
-  setTimeout(() => {
-    loader.value = false;
-  },);
-})
-watch(() => router , ()=>{
-  loader.value = true;
-  setTimeout(() => {
-    loader.value = false;
-  },);
-} ,{ deep: true },)
 </script>
 
 <style scoped>
@@ -42,7 +28,7 @@ watch(() => router , ()=>{
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
+  pointer-events: auto; /* Cambiado de none a auto */
 }
 
 .loader-backdrop {
@@ -59,12 +45,14 @@ watch(() => router , ()=>{
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   animation: fadeIn 0.3s ease-in-out;
+  pointer-events: auto; /* Asegura que el backdrop también capture clicks */
 }
 
 .loader-content {
   position: relative;
   z-index: 10000;
   animation: scaleIn 0.3s ease-in-out;
+  pointer-events: none; /* El contenido del loader no necesita capturar clicks */
 }
 
 .loader-img {

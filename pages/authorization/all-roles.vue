@@ -29,7 +29,7 @@
           <AuthorizationRoles v-if="loadedTabs.roles"/>
         </div>
         <div v-show="activeTab === 'permissions'">
-          <AuthorizationPermissions v-if="loadedTabs.permissions"/>
+          <AuthorizationPermissions v-if="loadedTabs.permissions" @reload="reloadData"/>
         </div>
       </div>
     </div>
@@ -47,6 +47,17 @@ const loadedTabs = ref<{ [key: string]: boolean }>({
 const switchTab = (tab: string) => {
   activeTab.value = tab
   loadedTabs.value[tab] = true // Marca como cargado cuando se activa
+}
+
+/**
+ * Método para que recarga los roles pero con el permiso creado o actualizado
+ * en la pestaña de permisos.
+ */
+const reloadData = () => {
+  loadedTabs.value.roles = false // Desmonta el componente
+  nextTick(() => {
+    loadedTabs.value.roles = true // Remonta en el siguiente tick
+  })
 }
 
 useHead({

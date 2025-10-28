@@ -64,9 +64,13 @@ import AlertaService from "~/services/AlertService";
 import type {IParamsTable} from "~/interfaces/IParamsTable";
 import {permissionsHeader} from "~/constants/tableHeaders/PermissionsHeader";
 import LoadingService from "~/services/LoadingService";
-import { usePermissions } from '~/composables/usePermissions'
+import { usePermissions } from '~/composables/usePermissions';
 
 const { allPermissions, loadPermissions, total } = usePermissions()
+
+const emit = defineEmits<{
+  (e: 'reload', reload: boolean): void
+}>()
 
 const permissionsTotal = ref(total);
 const isEditing = ref(false);
@@ -98,14 +102,16 @@ const saveNewPermission = async () => {
   LoadingService.show();
   RolePermissionService.createPermission(newPermission.value)
       .then((response) => {
-        AlertaService.showSuccess('Operación exitosa', response.message);
         resetForm();
-        LoadingService.hide();
-        loadPermissions(paramsTable.value);
+        loadPermissions(paramsTable.value, false);
+        reloadDataInPagePrincipal()
+        AlertaService.showSuccess('Operación exitosa', response.message);
       })
       .catch((error) => {
-        LoadingService.hide();
         AlertaService.showError('Ha ocurrido un error', error);
+      })
+      .finally(() => {
+        LoadingService.hide();
       });
 };
 
@@ -116,15 +122,19 @@ const updatePermission = async () => {
       .then((response) => {
         AlertaService.showSuccess('Operación exitosa', response.message);
         resetForm();
-        LoadingService.hide();
         loadPermissions(paramsTable.value);
       })
       .catch((error) => {
-        LoadingService.hide();
         AlertaService.showError('Ha ocurrido un error', error);
+      })
+      .finally(() => {
+        LoadingService.hide();
       });
 };
 
+const reloadDataInPagePrincipal = async () => {
+  emit('reload', true)
+}
 
 // Resetear formulario
 const resetForm = () => {
@@ -154,12 +164,13 @@ const deletePermission = async (item: any) => {
           RolePermissionService.deletePermission(item.id)
               .then((response) => {
                 AlertaService.showSuccess('Operación exitosa', response.message);
-                LoadingService.hide();
                 loadPermissions(paramsTable.value);
               }).catch((error) => {
-            LoadingService.hide();
-            AlertaService.showError('Ha ocurrido un error', error);
-          });
+                AlertaService.showError('Ha ocurrido un error', error);
+              })
+              .finally(() => {
+                LoadingService.hide();
+              });
         }
       });
 };
@@ -168,7 +179,8 @@ const reloadDataTable = () => {
   loadPermissions(paramsTable.value);
 }
 
-loadPermissions(paramsTable.value);
+await loadPermissions(paramsTable.value);
+
 </script>
 
 <style scoped>

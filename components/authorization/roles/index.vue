@@ -124,11 +124,12 @@ const loadRoles = async (params: IParamsTable) => {
       .then((response) => {
         rolesData.value = response.data.data;
         rolesTotal.value = response.data.total;
-        LoadingService.hide();
       }).catch((error) => {
-    LoadingService.hide();
-    AlertaService.showError('Ha ocurrido un error', error);
-  });
+        AlertaService.showError('Ha ocurrido un error', error);
+      })
+      .finally(() => {
+        LoadingService.hide();
+      });
 };
 
 const save = async () => {
@@ -146,12 +147,13 @@ const saveRole = async () => {
       .then((response) => {
         AlertaService.showSuccess('Operación exitosa', response.message);
         resetForm();
-        LoadingService.hide();
         loadRoles(paramsTable.value);
       }).catch((error) => {
-    LoadingService.hide();
-    AlertaService.showError('Ha ocurrido un error', error);
-  });
+        AlertaService.showError('Ha ocurrido un error', error);
+      })
+      .finally(() => {
+        LoadingService.hide();
+      });
 };
 
 const updateRole = async () => {
@@ -160,12 +162,13 @@ const updateRole = async () => {
       .then((response) => {
         AlertaService.showSuccess('Operación exitosa', response.message);
         resetForm();
-        LoadingService.hide();
         loadRoles(paramsTable.value);
       }).catch((error) => {
-    LoadingService.hide();
-    AlertaService.showError('Ha ocurrido un error', error);
-  });
+        AlertaService.showError('Ha ocurrido un error', error);
+      })
+      .finally(() => {
+        LoadingService.hide();
+      });
 };
 
 // Resetear formulario
@@ -196,12 +199,13 @@ const deleteRole = async (item: any) => {
           RolePermissionService.deleteRole(item.id)
               .then((response) => {
                 AlertaService.showSuccess('Operación exitosa', response.message);
-                LoadingService.hide();
                 loadRoles(paramsTable.value);
               }).catch((error) => {
-            LoadingService.hide();
-            AlertaService.showError('Ha ocurrido un error', error);
-          });
+                AlertaService.showError('Ha ocurrido un error', error);
+              })
+              .finally(() => {
+                LoadingService.hide();
+              });
         }
       });
 };
@@ -220,14 +224,15 @@ const savePermissions = async () => {
   LoadingService.show();
   RolePermissionService.assignPermissionsToRole(selectedRole.value.id, selectedPermissions.value)
       .then((response) => {
-        AlertaService.showSuccess('Operación exitosa', 'Permisos asignados correctamente');
+        AlertaService.showSuccess('Operación exitosa', response.message);
         closePermissionsModal();
-        LoadingService.hide();
         loadRoles(paramsTable.value);
       }).catch((error) => {
-    LoadingService.hide();
-    AlertaService.showError('Ha ocurrido un error', error);
-  });
+        AlertaService.showError('Ha ocurrido un error', error);
+      })
+      .finally(() => {
+        LoadingService.hide();
+      });
 };
 
 // Recargar la tabla, por si hay modificaciones en permisos desde la pestaña rol
