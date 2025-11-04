@@ -41,4 +41,16 @@ export class ApiUrls {
     static readonly PERMISSIONS_UPDATE_PUT = '/permissions';
     static readonly PERMISSIONS_DELETE_DELETE = '/permissions';
     static readonly PERMISSIONS_CREATE_POST = '/permissions';
+
+    // People URLs
+    static readonly PEOPLE_GET = '/people';
+    static readonly PEOPLE_SHOW_GET = '/people';
+    static readonly PEOPLE_CREATE_POST = '/people';
+    static readonly PEOPLE_UPDATE_PUT = '/people';
+    static readonly PEOPLE_DELETE_DELETE = '/people';
+
+    // Fiscal Profiles URLs
+    static readonly FISCAL_PROFILES_CREATE_POST = '/fiscal-profiles';
+    static readonly FISCAL_PROFILES_UPDATE_PUT = '/fiscal-profiles';
+    static readonly FISCAL_PROFILES_DELETE_DELETE = '/fiscal-profiles';
 }
