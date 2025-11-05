@@ -62,6 +62,7 @@
                 :loading="isLoading"
                 :server-items-length="serverItemsLength"
                 hide-footer
+                must-sort
                 table-class-name="shadow-sm p-3 bg-body rounded"
                 theme-color="#f24451">
               <template #item-actions="{ ...item }">
@@ -172,7 +173,7 @@ const searchValue = ref('')
 const serverOptions = ref<ServerOptions>({
   page: 1,
   rowsPerPage: 15,
-  sortBy: props.sortBy,
+  sortBy: props.sortBy ?? 'created_at',
   sortType: 'desc',
 })
 
@@ -232,6 +233,7 @@ const debouncedEmit = useDebounce(() => {
 watch(serverOptions, () => {
   internalLoading.value = true
   emit('update', paramsTable.value)
+  console.log('serverOptions', serverOptions.value)
 }, { deep: true })
 
 watch(searchValue, () => {
