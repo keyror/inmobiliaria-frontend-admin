@@ -233,7 +233,6 @@ const debouncedEmit = useDebounce(() => {
 watch(serverOptions, () => {
   internalLoading.value = true
   emit('update', paramsTable.value)
-  console.log('serverOptions', serverOptions.value)
 }, { deep: true })
 
 watch(searchValue, () => {
