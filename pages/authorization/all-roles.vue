@@ -46,7 +46,8 @@ const loadedTabs = ref<{ [key: string]: boolean }>({
 
 const switchTab = (tab: string) => {
   activeTab.value = tab
-  loadedTabs.value[tab] = true // Marca como cargado cuando se activa
+  // Marca como cargado cuando se activa, util cuando se carga data al hacer click a la pestaña
+  loadedTabs.value[tab] = true
 }
 
 /**

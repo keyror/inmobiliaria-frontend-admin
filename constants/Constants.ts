@@ -1,6 +1,14 @@
 export class Constants {
     static readonly PDF: string = "pdf";
     static readonly EXCEL: string = "xlsx";
+
+    //Categorias de deplegables de persona
+    static readonly TAXE_TYPE: string = "taxe_type";
+    static readonly ORGANIZATION_TYPE: string = "organization_type";
+    static readonly DOCUMENT_TYPE: string = "document_type";
+    static readonly USER_STATUS: string = "user_status";
+    static readonly GENDER: string = "gender";
+    static readonly VAT_TYPE: string = "vat_type";
 }
 
 export function getUrl(urlDB: string): string {

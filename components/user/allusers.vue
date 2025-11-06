@@ -36,6 +36,7 @@
 
 <script setup lang="ts">
 import UserService from "@/services/UserService";
+import PersonService from "@/services/PersonService";
 import AlertaService from "~/services/AlertService";
 import type {IParamsTable} from "~/interfaces/IParamsTable";
 import {usersHeader} from "~/constants/tableHeaders/UsersHeader";
@@ -43,6 +44,7 @@ import type {IExportOptions} from "~/interfaces/IExportOptions";
 import {Constants} from "~/constants/Constants";
 import {ApiUrls} from "~/constants/ApiUrls";
 import LoadingService from "~/services/LoadingService";
+import TenantService from "~/services/TenantService";
 
 const usersData = ref([]);
 
@@ -68,7 +70,7 @@ const usersTotal = ref(0);
 
 const users = async (paramsTable: IParamsTable) => {
   LoadingService.show()
-  UserService.getUsers(paramsTable)
+  PersonService.getPeople(paramsTable)
       .then((response) => {
         usersData.value = response.data.data
         usersTotal.value = response.data.total
@@ -84,7 +86,23 @@ const editUser = async (item:any) => {
 }
 
 const deleteUser = async (item:any) => {
-  console.log("delete ", item)
+  AlertaService.showConfirmation(
+      '¿ Esta seguro de realizar esta operación ?',
+      `Esta seguro de eliminar el registro : ${item.full_name}`)
+      .then((result) => {
+        if (result.isConfirmed) {
+          LoadingService.show()
+          PersonService.deletePerson(item.id)
+              .then((response) => {
+                AlertaService.showSuccess('Operación exitosa', response.message)
+                LoadingService.hide()
+                users(paramsTable.value)
+              }).catch((error) => {
+            LoadingService.hide()
+            AlertaService.showError('Ha ocurrido un error', error);
+          })
+        }
+      });
 }
 
 const reloadDataTable = () => {

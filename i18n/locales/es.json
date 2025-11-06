@@ -20,6 +20,11 @@
     "breadCrumbTitle" : "Roles y Permisos"
   },
 
+  "people" : {
+    "breadCrumbPage" : "Detalle Persona",
+    "breadCrumbTitle" : "Gestionar Persona"
+  },
+
   "panel" : {
     "welcome":"Bienvenido al panel de administración"
   }

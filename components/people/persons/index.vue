@@ -1,134 +1,89 @@
 <template>
   <div class="container-fluid">
-    <div class="row mb-4">
-      <div class="col-md-12">
-        <div class="card">
-          <div class="card-header pb-0">
-            <h5>{{ isEditing ? 'Editar Persona' : 'Agregar Persona' }}</h5>
-          </div>
-          <div class="card-body admin-form">
-            <form class="row gx-3" @submit.prevent="save">
-              <CommonInputfieldsTextfield
-                  v-model="formData.first_name"
-                  classes="col-md-6 col-sm-6"
-                  label="Nombres"
-                  placeholder="Ingrese los nombres"
-                  star="*"
-              />
-              <CommonInputfieldsTextfield
-                  v-model="formData.last_name"
-                  classes="col-md-6 col-sm-6"
-                  label="Apellidos"
-                  placeholder="Ingrese los apellidos"
-                  star="*"
-              />
-
-              <CommonInputfieldsTextfield
-                  v-model="formData.company_name"
-                  classes="col-md-6 col-sm-6"
-                  label="Razón Social"
-                  placeholder="Ingrese la razón social (opcional)"
-              />
-
-              <div class="col-md-3 col-sm-6">
-                <label class="form-label">Tipo de Documento <span class="text-danger">*</span></label>
-                <select v-model="formData.document_type_id" class="form-select">
-                  <option value="">Seleccione...</option>
-                  <option value="1">Cédula</option>
-                  <option value="2">Pasaporte</option>
-                  <option value="3">NIT</option>
-                </select>
-              </div>
-
-              <CommonInputfieldsTextfield
-                  v-model="formData.document_number"
-                  classes="col-md-3 col-sm-6"
-                  label="Número de Documento"
-                  placeholder="Número"
-                  star="*"
-              />
-
-              <CommonInputfieldsTextfield
-                  v-model="formData.document_from"
-                  classes="col-md-6 col-sm-6"
-                  label="Lugar de Expedición"
-                  placeholder="Ciudad de expedición"
-                  star="*"
-              />
-
-              <div class="col-md-6 col-sm-6">
-                <label class="form-label">Tipo de Organización <span class="text-danger">*</span></label>
-                <select v-model="formData.organization_type_id" class="form-select">
-                  <option value="">Seleccione...</option>
-                  <option value="1">Persona Natural</option>
-                  <option value="2">Persona Jurídica</option>
-                </select>
-              </div>
-
-              <div class="form-btn mt-3">
-                <button class="btn btn-pill btn-gradient color-4" type="submit">
-                  {{ isEditing ? 'Actualizar' : 'Guardar' }}
-                </button>
-                <button class="btn btn-pill btn-dashed color-4" type="button" @click="resetForm">
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+    <div class="card">
+      <div class="card-header pb-0">
+        <h5> Editar Persona</h5>
       </div>
-    </div>
 
-    <div class="row agent-section property-section user-lists">
-      <div class="col-lg-12">
-        <div class="property-grid-3 agent-grids ratio2_3">
-          <div class="property-2 row column-sm property-label property-grid list-view">
-            <Table
-                :headers="peopleHeader()"
-                :items="peopleData"
-                :loading="loading"
-                :server-items-length="peopleTotal"
-                @update="loadPeople"
-                @reload="reloadDataTable"
-            >
-              <template #item-actions="{ item }">
-                <div aria-label="Acciones" class="btn-group" role="group">
-                  <button class="btn btn-dashed color-1" type="button" @click="editPerson(item)">
-                    <i class="fas fa-pen"></i>
-                  </button>
-                  <button class="btn btn-dashed color-4" type="button" @click="deletePerson(item)">
-                    <i class="fa fa-trash"></i>
-                  </button>
-                </div>
-              </template>
-            </Table>
+      <div class="card-body admin-form">
+        <form class="row gx-3" @submit.prevent="updatePerson">
+
+          <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.first_name" label="Nombres" star="*" />
+          <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.last_name" label="Apellidos" star="*" />
+
+          <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.company_name" label="Razón Social" />
+
+          <CommonInputfieldsSelectfield
+              v-model="formData.document_type_id"
+              :data="lookups.documentTypes"
+              label="Tipo de Documento"
+              classes="col-md-3"
+              :labelField="'alias'"
+              star="*"
+          />
+
+          <CommonInputfieldsTextfield classes="col-md-3" v-model="formData.document_number" label="Número" star="*" />
+
+          <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.document_from" label="Lugar de Expedición" star="*" />
+
+          <CommonInputfieldsSelectfield
+              v-model="formData.organization_type_id"
+              :data="lookups.organizationTypes"
+              label="Tipo de Organización"
+              classes="col-md-6"
+              :labelField="'name'"
+              star="*"
+          />
+
+          <CommonInputfieldsTextfield
+              classes="col-md-6"
+              v-model="formData.birth_date"
+              label="Fecha de Nacimiento"
+              type="date"
+          />
+
+          <CommonInputfieldsSelectfield
+              v-model="formData.gender_type_id"
+              :data="lookups.genders"
+              label="Género"
+              classes="col-md-6"
+              :labelField="'name'"
+              star="*"
+          />
+
+          <div class="form-btn mt-3">
+            <button class="btn btn-pill btn-gradient color-4" type="submit">
+             Actualizar
+            </button>
+
+            <button class="btn btn-pill btn-dashed color-4" type="button" @click="resetForm">
+              Cancelar
+            </button>
           </div>
-        </div>
+
+        </form>
       </div>
     </div>
   </div>
 </template>
-
 <script lang="ts" setup>
 import PersonService from "@/services/PersonService";
-import AlertService from "~/services/AlertService";
-import type {IParamsTable} from "~/interfaces/IParamsTable";
-import {peopleHeader} from "~/constants/tableHeaders/PeopleHeader";
-import LoadingService from "~/services/LoadingService";
+import AlertService from "@/services/AlertService";
+import LoadingService from "@/services/LoadingService";
+import type {ILookup} from "@/interfaces/ILookup";
 
 const props = defineProps<{
-  allData: any
-}>()
+  data: any,
+  lookups: {
+    organizationTypes: ILookup[],
+    documentTypes: ILookup[],
+    genders: ILookup[]
+  }
+}>();
 
-const emit = defineEmits<{
-  (e: 'reload'): void
-}>()
+const emit = defineEmits<{ (e: 'reload'): void }>();
 
-const peopleData = ref([]);
-const peopleTotal = ref(0);
-const loading = ref(false);
-const isEditing = ref(false);
-const editingId = ref(null);
+const editingId = ref();
 
 const formData = ref({
   first_name: '',
@@ -137,132 +92,68 @@ const formData = ref({
   document_type_id: '',
   document_number: '',
   document_from: '',
-  organization_type_id: ''
+  organization_type_id: '',
+  birth_date: '',
+  gender_type_id: '',
 });
 
-const paramsTable = ref<IParamsTable>({
-  page: 1,
-  perPage: 15,
-  sortBy: 'created_at',
-  sortType: 'desc',
-  search: '',
-});
+watch(() => props.data, (newData) => {
+  if (newData) {
+    editingId.value = newData.id;
 
-// Cargar personas
-const loadPeople = async (params: IParamsTable) => {
-  LoadingService.show();
-  PersonService.getPeople(params)
-      .then((response) => {
-        peopleData.value = response.data.data;
-        peopleTotal.value = response.data.total;
-      }).catch((error) => {
-        AlertService.showError('Ha ocurrido un error', error);
-      })
-      .finally(() => {
-        LoadingService.hide();
-      });
-};
-
-const save = async () => {
-  if (isEditing.value) {
-    await updatePerson();
-  } else {
-    await savePerson();
+    formData.value = {
+      first_name: newData.first_name ?? '',
+      last_name: newData.last_name ?? '',
+      company_name: newData.company_name ?? '',
+      document_type_id: newData.document_type_id ?? '',
+      document_number: newData.document_number ?? '',
+      document_from: newData.document_from ?? '',
+      organization_type_id: newData.organization_type_id ?? '',
+      birth_date: newData.birth_date ?? '',
+      gender_type_id: newData.gender_type_id ?? '',
+    };
   }
-}
+}, { immediate: true });
 
-// Guardar una nueva persona
-const savePerson = async () => {
+
+const savePerson = () => {
   LoadingService.show();
   PersonService.createPerson(formData.value)
-      .then((response) => {
-        AlertService.showSuccess('Operación exitosa', response.message);
+      .then(resp => {
+        AlertService.showSuccess('Operación exitosa', resp.message);
         resetForm();
-        loadPeople(paramsTable.value);
         emit('reload');
-      }).catch((error) => {
-        AlertService.showError('Ha ocurrido un error', error);
-      })
-      .finally(() => {
-        LoadingService.hide();
-      });
+      }).catch(err => {
+    AlertService.showError('Error', err);
+  }).finally(() => LoadingService.hide());
 };
 
-const updatePerson = async () => {
+const updatePerson = () => {
   LoadingService.show();
   PersonService.updatePerson(editingId.value, formData.value)
-      .then((response) => {
-        AlertService.showSuccess('Operación exitosa', response.message);
+      .then(resp => {
+        AlertService.showSuccess('Operación exitosa', resp.message);
         resetForm();
-        loadPeople(paramsTable.value);
         emit('reload');
-      }).catch((error) => {
-        AlertService.showError('Ha ocurrido un error', error);
-      })
-      .finally(() => {
-        LoadingService.hide();
-      });
+      }).catch(err => {
+    AlertService.showError('Error', err);
+  }).finally(() => LoadingService.hide());
 };
 
-// Resetear formulario
 const resetForm = () => {
-  formData.value = {
-    first_name: '',
-    last_name: '',
-    company_name: '',
-    document_type_id: '',
-    document_number: '',
-    document_from: '',
-    organization_type_id: ''
-  };
-  isEditing.value = false;
-  editingId.value = null;
+/*formData.value = {
+  first_name: '',
+  last_name: '',
+  company_name: '',
+  document_type_id: '',
+  document_number: '',
+  document_from: '',
+  organization_type_id: '',
+  birth_date: '',
+  gender_type_id: '',
 };
 
-// Editar una persona
-const editPerson = (item: any) => {
-  isEditing.value = true;
-  editingId.value = item.id;
-  formData.value = {
-    first_name: item.first_name,
-    last_name: item.last_name,
-    company_name: item.company_name || '',
-    document_type_id: item.document_type_id,
-    document_number: item.document_number,
-    document_from: item.document_from,
-    organization_type_id: item.organization_type_id
-  };
+editingId.value = null;*/
 };
-
-// Eliminar una persona
-const deletePerson = async (item: any) => {
-  AlertService.showConfirmation(
-      '¿Está seguro de realizar esta operación?',
-      `¿Está seguro de eliminar a: ${item.full_name}?`)
-      .then((result) => {
-        if (result.isConfirmed) {
-          LoadingService.show();
-          PersonService.deletePerson(item.id)
-              .then((response) => {
-                AlertService.showSuccess('Operación exitosa', response.message);
-                loadPeople(paramsTable.value);
-                emit('reload');
-              }).catch((error) => {
-                AlertService.showError('Ha ocurrido un error', error);
-              })
-              .finally(() => {
-                LoadingService.hide();
-              });
-        }
-      });
-};
-
-const reloadDataTable = () => {
-  loadPeople(paramsTable.value);
-}
-
-loadPeople(paramsTable.value);
 </script>
 
-<style scoped>
-</style>

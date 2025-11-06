@@ -57,7 +57,7 @@
         },
         {
             "icon":"lucide:users",
-            "title":"Manage users",
+            "title":"Administrar usuarios",
             "titlePage": "All tenants",
             "collapse":true,
             "active":false,

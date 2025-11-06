@@ -53,4 +53,7 @@ export class ApiUrls {
     static readonly FISCAL_PROFILES_CREATE_POST = '/fiscal-profiles';
     static readonly FISCAL_PROFILES_UPDATE_PUT = '/fiscal-profiles';
     static readonly FISCAL_PROFILES_DELETE_DELETE = '/fiscal-profiles';
+
+    // Desplegables
+    static readonly LOOKUPS_POST = '/lookups';
 }

@@ -9,15 +9,17 @@
         class="form-control"
         :placeholder="placeholder"
         v-model="localValue"
-        required
+        :required="props.required"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue"
+import {boolean} from "zod";
 
 const props = defineProps({
+  required:  { type: Boolean, default: true },
   classes: String,
   placeholder: String,
   label: String,
