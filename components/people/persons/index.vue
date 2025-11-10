@@ -24,6 +24,14 @@
 
           <CommonInputfieldsTextfield classes="col-md-3" v-model="formData.document_number" label="Número" star="*" />
 
+          <CommonInputfieldsTextfield
+              v-model="formData.dv"
+              type="number"
+              classes="col-md-6 col-sm-6"
+              label="Dígito de Verificación (DV)"
+              readonly
+          />
+
           <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.document_from" label="Lugar de Expedición" star="*" />
 
           <CommonInputfieldsSelectfield
@@ -71,6 +79,7 @@ import PersonService from "@/services/PersonService";
 import AlertService from "@/services/AlertService";
 import LoadingService from "@/services/LoadingService";
 import type {ILookup} from "@/interfaces/ILookup";
+import { calculateDV } from "@/composables/useDV";
 
 const props = defineProps<{
   data: any,
@@ -95,7 +104,13 @@ const formData = ref({
   organization_type_id: '',
   birth_date: '',
   gender_type_id: '',
+  dv:0,
 });
+
+watch(() => formData.value.document_number, (nuevoValor) => {
+  formData.value.dv = nuevoValor ? calculateDV(nuevoValor): props.data.dv;
+});
+
 
 watch(() => props.data, (newData) => {
   if (newData) {
@@ -111,6 +126,7 @@ watch(() => props.data, (newData) => {
       organization_type_id: newData.organization_type_id ?? '',
       birth_date: newData.birth_date ?? '',
       gender_type_id: newData.gender_type_id ?? '',
+      dv: calculateDV(newData.document_number) ?? 0,
     };
   }
 }, { immediate: true });
@@ -141,19 +157,7 @@ const updatePerson = () => {
 };
 
 const resetForm = () => {
-/*formData.value = {
-  first_name: '',
-  last_name: '',
-  company_name: '',
-  document_type_id: '',
-  document_number: '',
-  document_from: '',
-  organization_type_id: '',
-  birth_date: '',
-  gender_type_id: '',
-};
-
-editingId.value = null;*/
+  formData.value = { ...props.data};
 };
 </script>
 

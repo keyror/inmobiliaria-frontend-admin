@@ -75,8 +75,6 @@ const formData = ref({
   status_type_id: ''
 });
 
-
-
 // Guardar un nuevo usuario
 const saveUser = async () => {
   LoadingService.show();
@@ -110,13 +108,7 @@ const updateUser = async () => {
 
 // Resetear formulario
 const resetForm = () => {
-/*formData.value = {
-  email: '',
-  password: '',
-  status_type_id: ''
-};
-
-editingId.value = null;*/
+  formData.value = { ...props.data};
 };
 
 

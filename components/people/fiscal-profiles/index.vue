@@ -11,13 +11,6 @@
             <form class="row gx-3" @submit.prevent="updateFiscalProfile">
               <p class="text-red">Pendiente mostrar actividades economicas</p>
 
-              <CommonInputfieldsTextfield
-                  v-model="formData.dv"
-                  classes="col-md-6 col-sm-6"
-                  label="Dígito de Verificación (DV)"
-                  placeholder="Ej: 4"
-              />
-
               <CommonInputfieldsSelectfield
                   v-model="formData.responsible_for_vat_type_id"
                   classes="col-md-6 col-sm-6"
@@ -50,7 +43,6 @@
                   label="Retención ICA (%)"
                   placeholder="Ej: 1.5"
               />
-
 
               <CommonInputfieldsSelectfield
                   v-model="formData.taxe_type_id"
@@ -104,7 +96,6 @@ const formData = ref({
   vat_withholding: '',
   income_tax_withholding: '',
   ica_withholding: '',
-  dv: '',
   taxe_type_id: ''
 });
 
@@ -119,7 +110,6 @@ watch(() => props.data, (val) => {
       vat_withholding: val.vat_withholding ?? '',
       income_tax_withholding: val.income_tax_withholding ?? '',
       ica_withholding: val.ica_withholding ?? '',
-      dv: val.dv ?? '',
       taxe_type_id: val.taxe_type_id ?? ''
     };
   }
@@ -149,17 +139,7 @@ const updateFiscalProfile = () => {
 };
 
 const resetForm = () => {
-  /*formData.value = {
-    person_id: '',
-    tax_regime: '',
-    responsible_for_vat_type_id: '',
-    vat_withholding: '',
-    income_tax_withholding: '',
-    ica_withholding: '',
-    dv: '',
-    taxe_type_id: ''
-  };*/
-  //editingId.value = null;
+  formData.value = { ...props.data};
 };
 
 </script>
