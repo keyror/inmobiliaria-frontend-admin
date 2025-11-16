@@ -8,6 +8,11 @@ export function useApi<T>(
     const config = useRuntimeConfig();
     const auth = useAuthStore();
 
+    // Eliminar campos que van vacios
+    if (opts?.body) {
+        opts.body = cleanPayload(opts.body);
+    }
+
     return $fetch<T>(request, {
         ...opts,
         baseURL: config.public.apiBase,
@@ -29,4 +34,20 @@ export function useApi<T>(
             }
         },
     });
+
+    function cleanPayload(payload: any) {
+        if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+            const cleaned = { ...payload };
+
+            for (const key in cleaned) {
+                if (cleaned[key] === '' || cleaned[key] === null) {
+                    delete cleaned[key]; // elimina el campo
+                }
+            }
+
+            return cleaned;
+        }
+        return payload;
+    }
+
 }

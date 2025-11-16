@@ -35,13 +35,23 @@
       <div class="tab-content mt-4">
         <div v-if="activeTab === 'persons'">
           <PeoplePersons
-              :lookups="lookupsToSend || {}" :data="person"/>
+              :lookups="lookupsToSend || {}" :data="person"
+              :isEditing="true"
+          />
         </div>
         <div v-if="activeTab === 'fiscalProfiles'">
-          <PeopleFiscalProfiles :lookups="fiscalProfilesLookups || {}" :data="person?.fiscal_profile"/>
+          <PeopleFiscalProfiles
+              :lookups="fiscalProfilesLookups || {}"
+              :data="person?.fiscal_profile"
+              :isEditing="true"
+          />
         </div>
         <div v-if="activeTab === 'users'">
-          <PeopleUsers :lookups="lookups[Constants.USER_STATUS] || []"  :data="person?.user"/>
+          <PeopleUsers
+              :lookups="lookups[Constants.USER_STATUS] || []"
+              :data="person?.user"
+              :isEditing="true"
+          />
         </div>
       </div>
     </div>

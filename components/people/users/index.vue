@@ -4,10 +4,10 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header pb-0">
-            <h5>Editar Usuario</h5>
+            <h5>{{props.isEditing ? 'Editar Usuario ' : 'Crear Usuario' }}</h5>
           </div>
           <div class="card-body admin-form">
-            <form autocomplete="off" class="row gx-3" @submit.prevent="updateUser">
+            <form autocomplete="off" class="row gx-3" @submit.prevent="save">
               <CommonInputfieldsTextfield
                   autocomplete="off"
                   v-model="formData.email"
@@ -38,7 +38,7 @@
 
               <div class="form-btn mt-3">
                 <button class="btn btn-pill btn-gradient color-4" type="submit">
-                  Actualizar
+                  {{props.isEditing ? 'Actualizar' : 'Crear' }}
                 </button>
                 <button class="btn btn-pill btn-dashed color-4" type="button" @click="resetForm">
                   Cancelar
@@ -58,10 +58,20 @@ import AlertService from "~/services/AlertService";
 import LoadingService from "~/services/LoadingService";
 import type {ILookup} from "~/interfaces/ILookup";
 
-const props = defineProps<{
-  data: any,
-  lookups: ILookup[]
-}>()
+const props = defineProps({
+  data: {
+    type: Object as PropType<any>,
+    default: () => ({})
+  },
+  lookups: {
+    type: Array as PropType<ILookup[]>,
+    required: true
+  },
+  isEditing: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const emit = defineEmits<{
   (e: 'reload'): void
@@ -74,6 +84,14 @@ const formData = ref({
   password: '',
   status_type_id: ''
 });
+
+const save = () => {
+  if (props.isEditing) {
+    updateUser();
+  } else {
+    saveUser();
+  }
+}
 
 // Guardar un nuevo usuario
 const saveUser = async () => {

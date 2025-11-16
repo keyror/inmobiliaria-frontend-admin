@@ -2,11 +2,11 @@
   <div class="container-fluid">
     <div class="card">
       <div class="card-header pb-0">
-        <h5> Editar Persona</h5>
+        <h5> {{props.isEditing ? 'Editar Persona' : 'Crear Persona' }}</h5>
       </div>
 
       <div class="card-body admin-form">
-        <form class="row gx-3" @submit.prevent="updatePerson">
+        <form class="row gx-3" @submit.prevent="save">
 
           <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.first_name" label="Nombres" star="*" />
           <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.last_name" label="Apellidos" star="*" />
@@ -41,13 +41,18 @@
               star="*"
           />
 
-          <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.company_name" label="Razón Social" />
+          <CommonInputfieldsTextfield
+              classes="col-md-6"
+              v-model="formData.company_name"
+              :required="false"
+              label="Razón Social" />
 
           <CommonInputfieldsTextfield
               classes="col-md-6"
               v-model="formData.birth_date"
               label="Fecha de Nacimiento"
               type="date"
+              star="*"
           />
 
           <CommonInputfieldsSelectfield
@@ -61,7 +66,7 @@
 
           <div class="form-btn mt-3">
             <button class="btn btn-pill btn-gradient color-4" type="submit">
-             Actualizar
+             {{props.isEditing ? 'Actualizar' : 'Crear' }}
             </button>
 
             <button class="btn btn-pill btn-dashed color-4" type="button" @click="resetForm">
@@ -81,14 +86,24 @@ import LoadingService from "@/services/LoadingService";
 import type {ILookup} from "@/interfaces/ILookup";
 import { calculateDV } from "@/composables/useDV";
 
-const props = defineProps<{
-  data: any,
+const props = defineProps({
+  data: {
+    type: Object as PropType<any>,
+    default: () => ({})
+  },
   lookups: {
-    organizationTypes: ILookup[],
-    documentTypes: ILookup[],
-    genders: ILookup[]
+    type: Object as PropType<{
+      organizationTypes: ILookup[],
+      documentTypes: ILookup[],
+      genders: ILookup[]
+    }>,
+    required: true
+  },
+  isEditing: {
+    type: Boolean,
+    default: false
   }
-}>();
+});
 
 const emit = defineEmits<{ (e: 'reload'): void }>();
 
@@ -131,6 +146,13 @@ watch(() => props.data, (newData) => {
   }
 }, { immediate: true });
 
+const save = () => {
+  if (props.isEditing) {
+    updatePerson();
+  } else {
+    savePerson();
+  }
+}
 
 const savePerson = () => {
   LoadingService.show();

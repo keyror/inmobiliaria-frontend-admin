@@ -35,7 +35,8 @@
       <div class="tab-content mt-4">
         <div v-if="activeTab === 'persons'">
           <PeoplePersons
-              :lookups="lookupsToSend || {}" />
+              :lookups="lookupsToSend || {}"
+          />
         </div>
         <div v-if="activeTab === 'fiscalProfiles'">
           <PeopleFiscalProfiles :lookups="fiscalProfilesLookups || {}"/>
