@@ -6,20 +6,12 @@
       <nav>
         <div id="nav-tab" class="nav nav-tabs" role="tablist">
           <button
-              :class="{ active: activeTab === 'users' }"
-              class="nav-link text-dark"
-              type="button"
-              @click="switchTab('users')"
-          >
-            Usuarios
-          </button>
-          <button
               :class="{ active: activeTab === 'persons' }"
               class="nav-link text-dark"
               type="button"
               @click="switchTab('persons')"
           >
-            Personas
+            Persona
           </button>
           <button
               :class="{ active: activeTab === 'fiscalProfiles' }"
@@ -29,18 +21,27 @@
           >
             Perfil Fiscal
           </button>
+          <button
+              :class="{ active: activeTab === 'users' }"
+              class="nav-link text-dark"
+              type="button"
+              @click="switchTab('users')"
+          >
+            Usuario
+          </button>
         </div>
       </nav>
 
       <div class="tab-content mt-4">
-        <div v-show="activeTab === 'users'">
-          <PeopleUsers v-if="loadedTabs.users" :all-data="allData" @reload="reloadData"/>
+        <div v-if="activeTab === 'persons'">
+          <PeoplePersons
+              :lookups="lookupsToSend || {}" />
         </div>
-        <div v-show="activeTab === 'persons'">
-          <PeoplePersons v-if="loadedTabs.persons" :all-data="allData" @reload="reloadData"/>
+        <div v-if="activeTab === 'fiscalProfiles'">
+          <PeopleFiscalProfiles :lookups="fiscalProfilesLookups || {}"/>
         </div>
-        <div v-show="activeTab === 'fiscalProfiles'">
-          <PeopleFiscalProfiles v-if="loadedTabs.fiscalProfiles" :all-data="allData" @reload="reloadData"/>
+        <div v-if="activeTab === 'users'">
+          <PeopleUsers :lookups="lookups[Constants.USER_STATUS] || []"/>
         </div>
       </div>
     </div>
@@ -48,73 +49,59 @@
 </template>
 
 <script setup lang="ts">
-import PersonService from "@/services/PersonService";
 import LoadingService from "~/services/LoadingService";
 import AlertService from "~/services/AlertService";
+import LookupService from "~/services/LookupService";
+import type {IIndexLookupsRequest} from "~/interfaces/IIndexLookupsRequest";
+import {Constants} from "~/constants/Constants";
+import type {ILookupsResponse} from "~/interfaces/ILookup";
 
-const activeTab = ref<string>('users')
+const activeTab = ref<string>('persons')
 
-const loadedTabs = ref<{ [key: string]: boolean }>({
-  users: true,
-  persons: false,
-  fiscalProfiles: false
-})
+const lookups = ref<ILookupsResponse>({});
 
-const allData = ref({
-  users: [],
-  people: [],
-  fiscalProfiles: []
-})
+const lookupsToSend = computed(() => ({
+  organizationTypes: lookups.value[Constants.ORGANIZATION_TYPE],
+  documentTypes: lookups.value[Constants.DOCUMENT_TYPE],
+  genders: lookups.value[Constants.GENDER]
+}));
+
+const fiscalProfilesLookups = computed(() => ({
+  vatType: lookups.value[Constants.VAT_TYPE],
+  taxeType: lookups.value[Constants.TAXE_TYPE],
+}));
+
+const categories = ref<IIndexLookupsRequest>({
+  categories: [
+    Constants.TAXE_TYPE,
+    Constants.ORGANIZATION_TYPE,
+    Constants.DOCUMENT_TYPE,
+    Constants.USER_STATUS,
+    Constants.GENDER,
+    Constants.VAT_TYPE,
+  ]
+});
 
 const switchTab = (tab: string) => {
   activeTab.value = tab
-  loadedTabs.value[tab] = true // Marca como cargado cuando se activa
 }
 
-/**
- * Método para recargar todos los datos desde el API
- */
-const loadAllData = async () => {
+const getLookups = () => {
   LoadingService.show();
-  try {
-    const params = {
-      page: 1,
-      perPage: 1000,
-      sortBy: 'created_at',
-      sortType: 'desc',
-      search: '',
-    };
 
-    allData.value = response.data;
-  } catch (error) {
-    AlertService.showError('Ha ocurrido un error', error);
-  } finally {
-    LoadingService.hide();
-  }
-}
-
-/**
- * Método para recargar datos cuando se crea, actualiza o elimina
- */
-const reloadData = () => {
-  // Recarga los datos
-  loadAllData();
-
-  // Desmonta y remonta los tabs activos
-  Object.keys(loadedTabs.value).forEach(tab => {
-    if (loadedTabs.value[tab] && tab !== activeTab.value) {
-      loadedTabs.value[tab] = false
-      nextTick(() => {
-        loadedTabs.value[tab] = true
+  LookupService.getLookups(categories.value)
+      .then((lookupsResponse) => {
+        lookups.value = lookupsResponse.data;
       })
-    }
-  })
-}
+      .catch((error) => {
+        AlertService.showError('Ha ocurrido un error', error);
+      })
+      .finally(() => {
+        LoadingService.hide();
+      });
+};
 
-// Cargar datos al montar el componente
-onMounted(() => {
-  loadAllData();
-})
+getLookups();
 </script>
 
 <style scoped>

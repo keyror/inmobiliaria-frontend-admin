@@ -12,6 +12,8 @@
         :required="props.required"
         :readonly="props.readonly"
         :disabled="props.disabled"
+        autocomplete="one-time-code"
+        :name="`field-${label}-${Math.random().toString(36).substring(2,7)}`"
     />
   </div>
 </template>

@@ -46,12 +46,16 @@ const props = defineProps({
   labelField: {
     type: String as () => "name" | "alias" | "value",
     default: "name"
+  },
+  concat: {
+    type: Boolean,
+    default: false
   }
 })
 
 const emit = defineEmits(["update:modelValue"])
 
-const selectedLabel = ref<string | undefined>(props.show || "")
+const selectedLabel = ref<string>(props.show || "Selecciona una opción...");
 
 watch(
     () => props.modelValue,
@@ -67,9 +71,18 @@ watch(
 )
 
 function getLabel(item: ILookup) {
-  if (!item) return ""
-  return (item as any)[props.labelField] ?? ""
+  if (!item) return "";
+
+  const baseLabel = (item as any)[props.labelField] ?? "";
+
+  // Si concat es true, y existen alias + name → concatenamos
+  if (props.concat && item.alias && item.name) {
+    return `${item.alias} - ${item.name}`;
+  }
+
+  return baseLabel;
 }
+
 
 function select(item: ILookup) {
   emit("update:modelValue", item.id)

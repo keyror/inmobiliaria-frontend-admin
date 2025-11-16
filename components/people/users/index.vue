@@ -7,7 +7,7 @@
             <h5>Editar Usuario</h5>
           </div>
           <div class="card-body admin-form">
-            <form class="row gx-3" @submit.prevent="updateUser">
+            <form autocomplete="off" class="row gx-3" @submit.prevent="updateUser">
               <CommonInputfieldsTextfield
                   autocomplete="off"
                   v-model="formData.email"

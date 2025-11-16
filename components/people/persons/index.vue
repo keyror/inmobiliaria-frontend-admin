@@ -11,22 +11,20 @@
           <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.first_name" label="Nombres" star="*" />
           <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.last_name" label="Apellidos" star="*" />
 
-          <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.company_name" label="Razón Social" />
-
           <CommonInputfieldsSelectfield
               v-model="formData.document_type_id"
               :data="lookups.documentTypes"
               label="Tipo de Documento"
-              classes="col-md-3"
+              classes="col-md-6"
               :labelField="'alias'"
               star="*"
+              concat
           />
 
-          <CommonInputfieldsTextfield classes="col-md-3" v-model="formData.document_number" label="Número" star="*" />
+          <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.document_number" label="Número" star="*" />
 
           <CommonInputfieldsTextfield
               v-model="formData.dv"
-              type="number"
               classes="col-md-6 col-sm-6"
               label="Dígito de Verificación (DV)"
               readonly
@@ -42,6 +40,8 @@
               :labelField="'name'"
               star="*"
           />
+
+          <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.company_name" label="Razón Social" />
 
           <CommonInputfieldsTextfield
               classes="col-md-6"
@@ -104,7 +104,7 @@ const formData = ref({
   organization_type_id: '',
   birth_date: '',
   gender_type_id: '',
-  dv:0,
+  dv: '',
 });
 
 watch(() => formData.value.document_number, (nuevoValor) => {
@@ -126,7 +126,7 @@ watch(() => props.data, (newData) => {
       organization_type_id: newData.organization_type_id ?? '',
       birth_date: newData.birth_date ?? '',
       gender_type_id: newData.gender_type_id ?? '',
-      dv: calculateDV(newData.document_number) ?? 0,
+      dv: calculateDV(newData.document_number) ?? '',
     };
   }
 }, { immediate: true });

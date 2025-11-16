@@ -1,4 +1,5 @@
-export function calculateDV(numero: string | number): number {
+export function calculateDV(numero: string | number): string {
+    if (!numero) return "";
     const weights = [3, 7, 13, 17, 19, 23, 29, 37, 41, 43, 47, 53, 59, 67, 71];
     const clean = numero.toString().replace(/\D/g, '');
     const reversedDigits = clean.split('').reverse();
@@ -9,5 +10,7 @@ export function calculateDV(numero: string | number): number {
     });
 
     const remainder = sum % 11;
-    return remainder > 1 ? 11 - remainder : remainder;
+    const dv = remainder > 1 ? 11 - remainder : remainder;
+
+    return String(dv);
 }

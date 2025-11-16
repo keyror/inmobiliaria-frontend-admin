@@ -6,14 +6,6 @@
       <nav>
         <div id="nav-tab" class="nav nav-tabs" role="tablist">
           <button
-              :class="{ active: activeTab === 'users' }"
-              class="nav-link text-dark"
-              type="button"
-              @click="switchTab('users')"
-          >
-            Usuarios
-          </button>
-          <button
               :class="{ active: activeTab === 'persons' }"
               class="nav-link text-dark"
               type="button"
@@ -29,19 +21,27 @@
           >
             Perfil Fiscal
           </button>
+          <button
+              :class="{ active: activeTab === 'users' }"
+              class="nav-link text-dark"
+              type="button"
+              @click="switchTab('users')"
+          >
+            Usuarios
+          </button>
         </div>
       </nav>
 
       <div class="tab-content mt-4">
-        <div v-if="activeTab === 'users'">
-          <PeopleUsers :lookups="lookups[Constants.USER_STATUS] || []"  :data="person?.user"/>
-        </div>
         <div v-if="activeTab === 'persons'">
           <PeoplePersons
               :lookups="lookupsToSend || {}" :data="person"/>
         </div>
         <div v-if="activeTab === 'fiscalProfiles'">
           <PeopleFiscalProfiles :lookups="fiscalProfilesLookups || {}" :data="person?.fiscal_profile"/>
+        </div>
+        <div v-if="activeTab === 'users'">
+          <PeopleUsers :lookups="lookups[Constants.USER_STATUS] || []"  :data="person?.user"/>
         </div>
       </div>
     </div>
@@ -58,7 +58,7 @@ import type {IIndexLookupsRequest} from "~/interfaces/IIndexLookupsRequest";
 import {Constants} from "~/constants/Constants";
 import type {ILookupsResponse} from "~/interfaces/ILookup";
 
-const activeTab = ref<string>('users')
+const activeTab = ref<string>('persons')
 
 const route = useRoute()
 const idPersona = route.params.id as string;
