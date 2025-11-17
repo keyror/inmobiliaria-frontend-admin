@@ -50,6 +50,8 @@
                   label="Responsabilidad Fiscal"
                   :data="lookups.taxeType"
                   :labelField="'name'"
+                  :multiple="true"
+                  :searchable="true"
                   star="*"
               />
 
