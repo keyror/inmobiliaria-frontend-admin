@@ -21,14 +21,6 @@
           >
             Perfil Fiscal
           </button>
-          <button
-              :class="{ active: activeTab === 'users' }"
-              class="nav-link text-dark"
-              type="button"
-              @click="switchTab('users')"
-          >
-            Usuarios
-          </button>
         </div>
       </nav>
 
@@ -36,21 +28,12 @@
         <div v-if="activeTab === 'persons'">
           <PeoplePersons
               :lookups="lookupsToSend || {}" :data="person"
-              :isEditing="true"
           />
         </div>
         <div v-if="activeTab === 'fiscalProfiles'">
           <PeopleFiscalProfiles
               :lookups="fiscalProfilesLookups || {}"
               :data="person?.fiscal_profile"
-              :isEditing="true"
-          />
-        </div>
-        <div v-if="activeTab === 'users'">
-          <PeopleUsers
-              :lookups="lookups[Constants.USER_STATUS] || []"
-              :data="person?.user"
-              :isEditing="true"
           />
         </div>
       </div>
@@ -60,25 +43,20 @@
 
 <script setup lang="ts">
 import '@vuepic/vue-datepicker/dist/main.css'
-import PersonService from "@/services/PersonService";
 import LoadingService from "~/services/LoadingService";
 import AlertService from "~/services/AlertService";
-import LookupService from "@/services/LookupService";
+import LookupService from "~/services/LookupService";
 import type {IIndexLookupsRequest} from "~/interfaces/IIndexLookupsRequest";
 import {Constants} from "~/constants/Constants";
 import type {ILookupsResponse} from "~/interfaces/ILookup";
 
 const activeTab = ref<string>('persons')
 
-const route = useRoute()
-const idPersona = route.params.id as string;
-
 const categories = ref<IIndexLookupsRequest>({
   categories: [
     Constants.TAXE_TYPE,
     Constants.ORGANIZATION_TYPE,
     Constants.DOCUMENT_TYPE,
-    Constants.USER_STATUS,
     Constants.GENDER,
     Constants.VAT_TYPE,
   ]
@@ -111,11 +89,9 @@ const getPerson = async () => {
 
   Promise.all([
     LookupService.getLookups(categories.value),
-    PersonService.getPerson(idPersona)
   ])
-      .then(([lookupsResponse, personResponse]) => {
+      .then(([lookupsResponse]) => {
         lookups.value = lookupsResponse.data;
-        person.value = personResponse.data;
       })
       .catch((error) => {
         AlertService.showError('Ha ocurrido un error', error);

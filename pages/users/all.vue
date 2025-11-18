@@ -1,10 +1,10 @@
 <template>
-    <UserAllusers/>
+  <UserAll />
 </template>
 
 <script setup lang="ts">
 useHead({
-  title: 'Gestión de Personas'
+  title: 'Gestión de Usuarios'
 })
 </script>
 

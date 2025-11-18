@@ -1,5 +1,7 @@
 <template>
-  <div class="container-fluid">
+  <div class="page-body">
+    <CommonBreadcrumb :title="props.isEditing ? 'Editar' :'Crear'" page="Administrar Usuario"/>
+    <div class="container-fluid">
     <div class="row mb-4">
       <div class="col-md-12">
         <div class="card">
@@ -24,7 +26,18 @@
                   label="Contraseña"
                   placeholder="Ingrese la contraseña"
                   type="password"
-                  :required="false"
+                  :required="!props.isEditing"
+                  :star="''"
+              />
+
+              <CommonInputfieldsTextfield
+                  autocomplete="off"
+                  v-model="formData.password_confirmation"
+                  classes="col-md-6 col-sm-6"
+                  label="Confirmar Contraseña"
+                  placeholder="Confirme la contraseña"
+                  type="password"
+                  :required="!props.isEditing"
                   :star="''"
               />
 
@@ -50,40 +63,47 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import UserService from "@/services/UserService";
+import UserService from "~/services/UserService";
 import AlertService from "~/services/AlertService";
 import LoadingService from "~/services/LoadingService";
 import type {ILookup} from "~/interfaces/ILookup";
+import LookupService from "~/services/LookupService";
+import type {IIndexLookupsRequest} from "~/interfaces/IIndexLookupsRequest";
+import {Constants} from "~/constants/Constants";
+
+const categories = ref<IIndexLookupsRequest>({
+  categories: [
+    Constants.USER_STATUS
+  ]
+});
+
+const route = useRoute()
+const idUser = route.params.id as string;
 
 const props = defineProps({
-  data: {
-    type: Object as PropType<any>,
-    default: () => ({})
-  },
-  lookups: {
-    type: Array as PropType<ILookup[]>,
-    required: true
-  },
   isEditing: {
     type: Boolean,
     default: false
   }
 });
 
-const emit = defineEmits<{
-  (e: 'reload'): void
-}>()
-
 const editingId = ref();
 
-const formData = ref({
+const lookups = ref<ILookup[]>([]);
+
+const initialForm = {
   email: '',
   password: '',
+  password_confirmation: '',
   status_type_id: ''
-});
+};
+
+const formData = ref({ ...initialForm});
+const formDataOriginal = ref({ ...initialForm});
 
 const save = () => {
   if (props.isEditing) {
@@ -93,6 +113,44 @@ const save = () => {
   }
 }
 
+const getLookups = async () => {
+  return LookupService.getLookups(categories.value)
+      .then((lookupsResponse) => {
+        lookups.value = lookupsResponse.data[Constants.USER_STATUS];
+      });
+};
+
+/**
+* Método para obtener el usuario
+*/
+const getUser = async () => {
+  return UserService.getUser(idUser)
+      .then((personResponse) => {
+        formData.value = { ...personResponse.data };
+        formDataOriginal.value = { ...personResponse.data };
+      });
+};
+
+const init = () => {
+  LoadingService.show();
+  const tasks = [];
+  tasks.push(getLookups());
+
+  if (props.isEditing) {
+    tasks.push(getUser());
+  }
+
+  Promise.all(tasks)
+      .catch((error) => {
+        AlertService.showError('Ha ocurrido un error', error);
+      })
+      .finally(() => {
+        LoadingService.hide();
+      });
+};
+
+
+
 // Guardar un nuevo usuario
 const saveUser = async () => {
   LoadingService.show();
@@ -100,7 +158,6 @@ const saveUser = async () => {
       .then((response) => {
         AlertService.showSuccess('Operación exitosa', response.message);
         resetForm();
-        emit('reload');
       }).catch((error) => {
         AlertService.showError('Ha ocurrido un error', error);
       })
@@ -115,7 +172,7 @@ const updateUser = async () => {
       .then((response) => {
         AlertService.showSuccess('Operación exitosa', response.message);
         resetForm();
-        emit('reload');
+        getUser()
       }).catch((error) => {
         AlertService.showError('Ha ocurrido un error', error);
       })
@@ -126,43 +183,10 @@ const updateUser = async () => {
 
 // Resetear formulario
 const resetForm = () => {
-  formData.value = { ...props.data};
+  formData.value = { ...formDataOriginal.value};
 };
 
-
-// Eliminar un usuario
-const deleteUser = async (item: any) => {
-AlertService.showConfirmation(
-    '¿Está seguro de realizar esta operación?',
-    `¿Está seguro de eliminar el usuario: ${item.email}?`)
-    .then((result) => {
-      if (result.isConfirmed) {
-        LoadingService.show();
-        UserService.deleteUser(item.id)
-            .then((response) => {
-              AlertService.showSuccess('Operación exitosa', response.message);
-              emit('reload');
-            }).catch((error) => {
-              AlertService.showError('Ha ocurrido un error', error);
-            })
-            .finally(() => {
-              LoadingService.hide();
-            });
-      }
-    });
-};
-
-watch(() => props.data, (newData) => {
-if (newData) {
-  formData.value = {
-    email: newData.email ?? '',
-    password: '', // siempre vacío al editar
-    status_type_id: newData.status_type_id ?? ''
-  };
-
-  editingId.value = newData.id;
-}
-}, { immediate: true });
+init();
 </script>
 
 <style scoped>

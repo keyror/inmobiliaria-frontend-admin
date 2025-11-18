@@ -8,6 +8,10 @@ class UserService {
         return useApi(ApiUrls.USERS_GET, {query: params});
     }
 
+    async getUser(id: string | number): Promise<any> {
+        return useApi(`${ApiUrls.USERS_SHOW_GET}/${id}`);
+    }
+
     async createUser(payload: any): Promise<any> {
         return useApi(ApiUrls.USERS_CREATE_POST, {method: "POST", body: payload});
     }

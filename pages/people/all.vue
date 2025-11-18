@@ -1,10 +1,10 @@
 <template>
-    <UserAdduser/>
+  <PeopleAll />
 </template>
 
 <script setup lang="ts">
 useHead({
-  title: 'Sheltos - Admin Dashboard Page'
+  title: 'Gestión de Personas'
 })
 </script>
 

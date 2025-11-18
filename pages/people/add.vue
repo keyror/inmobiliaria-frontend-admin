@@ -1,5 +1,5 @@
 <template>
-  <UserEdit :isEditing="true" />
+  <PeopleAdd/>
 </template>
 
 <script setup lang="ts">
