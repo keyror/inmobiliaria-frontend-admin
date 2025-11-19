@@ -6,4 +6,5 @@ export interface IExportOption {
 export interface IExportOptions {
     pdf: IExportOption;
     excel: IExportOption;
+    name: string;
 }

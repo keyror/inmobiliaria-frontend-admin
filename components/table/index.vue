@@ -212,10 +212,12 @@ const paramsTable = computed<IParamsTable>(() => ({
 }))
 
 const exportFile = async (exportOption: IExportOption) => {
+  LoadingService.show()
   SaveFileFromBackService.getExport(paramsTable.value, exportOption.url)
       .then((response) => {
+        SaveFileFromBackService.captureFile(response,exportOption.extension,props.exportInput?.name ?? 'archivo')
+        LoadingService.hide()
         AlertaService.showSuccess('Operación Exitosa','Archivo descargado correctamente.');
-        SaveFileFromBackService.captureFile(response,exportOption.extension,'usuarios')
       }).catch((error) => {
     LoadingService.hide()
     AlertaService.showError('Ha ocurrido un error', error);

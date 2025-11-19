@@ -47,6 +47,7 @@ import LoadingService from "~/services/LoadingService";
 const usersData = ref([]);
 
 const exportUsers :IExportOptions = {
+  name: `usuarios_${Date.now()}`,
   pdf: {
     url: ApiUrls.USERS_EXPORT_TO_PDF_GET,
     extension: Constants.PDF,
