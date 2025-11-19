@@ -10,7 +10,7 @@ class SaveFileFromBackService {
         const blob = new Blob([file], { type: responseType });
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
-        link.download = module +'.'+ ext;
+        link.download = module +'_' + new Date().toLocaleDateString() + '.'+ ext;
         link.click();
     }
 
