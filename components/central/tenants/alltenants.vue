@@ -14,7 +14,7 @@
                   @reload="reloadDataTable"
               >
 
-                <template #item-actions="{ item }">
+                <template #item-actions="item">
                   <div class="btn-group" role="group" aria-label="Basic example">
                     <button class="btn btn-dashed color-1" type="button" @click="edit(item)">
                       <i class="fas fa-pen"></i>

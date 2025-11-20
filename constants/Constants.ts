@@ -9,6 +9,8 @@ export class Constants {
     static readonly USER_STATUS: string = "user_status";
     static readonly GENDER: string = "gender";
     static readonly VAT_TYPE: string = "vat_type";
+    static readonly ACTIVO: string = "ACTIVO";
+    static readonly INACTIVO: string = "INACTIVO";
 }
 
 export function getUrl(urlDB: string): string {

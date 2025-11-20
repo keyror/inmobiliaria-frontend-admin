@@ -65,7 +65,15 @@
                 must-sort
                 table-class-name="shadow-sm p-3 bg-body rounded"
                 theme-color="#f24451">
-              <template #item-actions="{ ...item }">
+              <template
+                  v-for="name in Object.keys($slots)"
+                  :key="name"
+                  v-slot:[name]="slotProps"
+              >
+                <slot :name="name" v-bind="slotProps" />
+              </template>
+
+              <template #item-actions="item">
                 <slot :item="item" name="item-actions"/>
               </template>
             </EasyDataTable>

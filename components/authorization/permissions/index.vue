@@ -40,7 +40,7 @@
                 @update="loadPermissions"
                 @reload="reloadDataTable"
             >
-              <template #item-actions="{ item }">
+              <template #item-actions="item">
                 <div aria-label="Acciones" class="btn-group" role="group">
                   <button class="btn btn-dashed color-1" type="button" @click="editPermission(item)">
                     <i class="fas fa-pen"></i>

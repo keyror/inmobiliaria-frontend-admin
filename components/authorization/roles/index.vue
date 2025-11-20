@@ -40,7 +40,7 @@
                 @update="loadRoles"
                 @reload="reloadDataTable"
             >
-              <template #item-actions="{ item }">
+              <template #item-actions="item">
                 <div aria-label="Acciones" class="btn-group" role="group">
                   <button class="btn btn-dashed  color-2" type="button" @click="openPermissionsModal(item)">
                     <i class="fas fa-lock color-1"></i>

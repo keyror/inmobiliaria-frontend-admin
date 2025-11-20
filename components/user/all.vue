@@ -14,8 +14,32 @@
                   :export-input="exportUsers"
                   @reload="reloadDataTable"
               >
+                <template #item-status.name="{ status }">
+                  <span
+                      v-if="status.name == Constants.ACTIVO"
+                      class="label label-light label-flat color-3 me-1"
+                  >
+                    {{ status.name }}
+                  </span>
 
-                <template #item-actions="{ item }">
+                  <span  v-if="status.name == Constants.INACTIVO"
+                         class="label label-light label-flat color-4"
+                  >
+                     {{ status.name }}
+                  </span>
+                </template>
+
+                <template #item-roles="{ roles }">
+                  <span
+                      v-for="role in roles"
+                      :key="role.id"
+                      class="label label-light label-flat color-3 me-1"
+                  >
+                    {{ role.name }}
+                  </span>
+                </template>
+
+                <template #item-actions="item">
                   <div class="btn-group" role="group" aria-label="Basic example">
                     <button class="btn btn-dashed color-1" type="button" @click="editUser(item)">
                       <i class="fas fa-pen"></i>

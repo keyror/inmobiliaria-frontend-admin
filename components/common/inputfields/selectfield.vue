@@ -20,7 +20,6 @@
           class="dropdown-menu text-start w-100 p-2"
           @click="multiple ? $event.stopPropagation() : null"
       >
-
         <!-- Buscador opcional -->
         <input
             v-if="searchable"
@@ -40,62 +39,36 @@
             @click="select(item)"
         >
           <span>{{ getLabel(item) }}</span>
-
-          <!-- ✔ Chulo -->
-          <i
-              v-if="isSelected(item.id)"
-              class="fas fa-check text-success"
-          ></i>
+          <i v-if="isSelected(item.id)" class="fas fa-check text-success"></i>
         </a>
 
         <!-- Botón limpiar -->
-        <div
-            v-if="multiple && selectedValues.length"
-            class="mt-2 text-end"
-        >
-          <button class="btn btn-pill btn-dashed color-4" type="button"@click="clearAll">
+        <div v-if="multiple && selectedValues.length" class="mt-2 text-end">
+          <button class="btn btn-pill btn-dashed color-4" type="button" @click="clearAll">
             Limpiar
           </button>
         </div>
       </div>
     </div>
 
-    <div
-        v-if="multiple && selectedValues.length"
-        class="mt-1 d-flex flex-wrap gap-1"
-    >
+    <!-- TAGS -->
+    <div v-if="multiple && selectedValues.length" class="mt-1 d-flex flex-wrap gap-1">
       <span
           v-for="id in selectedValues"
           :key="id"
           class="label label-light label-flat color-3 d-flex align-items-center gap-2"
       >
-        {{ getLabel(data.find(it => it.id === id)!) }}
+        {{ getLabel(data.find(it => it.id === id)) }}
       </span>
     </div>
-
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, watch, computed } from "vue"
 import type { PropType } from "vue"
 import type { ILookup } from "~/interfaces/ILookup"
 
-
-/**
- * Props del componente
- *
- * @param classes - Clases CSS adicionales para el contenedor
- * @param label - Etiqueta del campo
- * @param star - Indicador de campo requerido (ej: "*")
- * @param data - Array de opciones disponibles
- * @param modelValue - Valor(es) seleccionado(s): string para modo simple, string[] para múltiple
- * @param multiple - Permite selección múltiple
- * @param show - Texto placeholder cuando no hay selección
- * @param labelField - Campo del objeto a usar como etiqueta ("name", "alias", "value")
- * @param concat - Si true, concatena alias + name en la etiqueta
- * @param searchable - Habilita el campo de búsqueda
- * @param onSearch - Callback para búsqueda server-side. Si se proporciona, desactiva el filtro local
- *                   y delega la búsqueda al componente padre*/
 const props = defineProps({
   classes: String,
   label: String,
@@ -107,7 +80,7 @@ const props = defineProps({
   },
 
   modelValue: {
-    type: [String, Array] as PropType<string | string[]>,
+    type: [String, Array, Object] as PropType<any>,
     default: () => []
   },
 
@@ -147,11 +120,31 @@ const emit = defineEmits(["update:modelValue"])
 const search = ref("")
 const selectedLabel = ref(props.show)
 
-/* =============================
-      Filtro de búsqueda
-============================= */
+/* ============================================================
+      NORMALIZADOR INTERNO (OBJETOS → IDs)
+============================================================ */
+const normalizedModel = computed(() => {
+  const mv = props.modelValue
+
+  if (Array.isArray(mv)) {
+    if (mv.length && typeof mv[0] === "object" && "id" in mv[0]) {
+      return mv.map((o: any) => o.id)
+    }
+    return mv
+  }
+
+  if (mv && typeof mv === "object" && "id" in mv) {
+    return mv.id
+  }
+
+  return mv
+})
+
+/* ============================================================
+      BUSCADOR
+============================================================ */
 function emitSearch() {
-  if (props.onSearch) props.onSearch(search.value) // Server side
+  if (props.onSearch) props.onSearch(search.value)
 }
 
 const filteredData = computed(() => {
@@ -162,13 +155,12 @@ const filteredData = computed(() => {
   )
 })
 
-/* =============================
-      Obtener etiqueta
-============================= */
-function getLabel(item: ILookup) {
+/* ============================================================
+      LABEL
+============================================================ */
+function getLabel(item: any) {
   if (!item) return ""
-
-  const base = (item as any)[props.labelField] ?? ""
+  const base = item[props.labelField] ?? ""
 
   if (props.concat && item.alias && item.name) {
     return `${item.alias} - ${item.name}`
@@ -177,20 +169,17 @@ function getLabel(item: ILookup) {
   return base
 }
 
-/* =============================
-      Saber si está seleccionado
-============================= */
+/* ============================================================
+      SELECCIÓN
+============================================================ */
 function isSelected(id: string) {
-  return Array.isArray(props.modelValue) && props.modelValue.includes(id)
+  return Array.isArray(normalizedModel.value) && normalizedModel.value.includes(id)
 }
 
-/* =============================
-      Seleccionar
-============================= */
 function select(item: ILookup) {
   if (props.multiple) {
-    let values = Array.isArray(props.modelValue)
-        ? [...props.modelValue]
+    let values = Array.isArray(normalizedModel.value)
+        ? [...normalizedModel.value]
         : []
 
     const index = values.indexOf(item.id)
@@ -205,9 +194,9 @@ function select(item: ILookup) {
   }
 }
 
-/* =============================
-      Actualizar label MULTI
-============================= */
+/* ============================================================
+      LABEL MULTIPLE
+============================================================ */
 function updateSelectedLabel(values: string[]) {
   if (!values.length) {
     selectedLabel.value = props.show
@@ -221,35 +210,52 @@ function updateSelectedLabel(values: string[]) {
   selectedLabel.value = labels.join(", ")
 }
 
-/* =============================
-      Tags
-============================= */
+/* ============================================================
+      TAGS
+============================================================ */
 const selectedValues = computed(() =>
-    Array.isArray(props.modelValue) ? props.modelValue : []
+    Array.isArray(normalizedModel.value) ? normalizedModel.value : []
 )
-computed(() =>
-    props.data
-        .filter(item => selectedValues.value.includes(item.id))
-        .map(item => getLabel(item))
-);
 
-
+/* ============================================================
+      LIMPIAR
+============================================================ */
 function clearAll() {
   emit("update:modelValue", [])
   updateSelectedLabel([])
 }
 
-/* =============================
-      Watch
-============================= */
+/* ============================================================
+      WATCH: sincroniza selección inicial
+============================================================ */
 watch(
-    () => props.modelValue,
-    newVal => {
+    () => normalizedModel.value,
+    (newVal) => {
       if (props.multiple) {
         updateSelectedLabel(Array.isArray(newVal) ? newVal : [])
       } else {
         const found = props.data.find(item => item.id === newVal)
         selectedLabel.value = found ? getLabel(found) : props.show
+      }
+    },
+    { immediate: true }
+)
+
+/* ============================================================
+     Normaliza hacia afuera (OBJETOS → IDs)
+============================================================ */
+watch(
+    () => props.modelValue,
+    (value) => {
+      // MULTIPLE: array de objetos → emitir array de IDs
+      if (Array.isArray(value) && value.length && typeof value[0] === "object" && "id" in value[0]) {
+        const ids = value.map((o: any) => o.id)
+        emit("update:modelValue", ids)
+      }
+
+      // SINGLE: objeto → emitir id
+      if (!Array.isArray(value) && value && typeof value === "object" && "id" in value) {
+        emit("update:modelValue", value.id)
       }
     },
     { immediate: true }
