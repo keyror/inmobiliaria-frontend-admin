@@ -1,5 +1,5 @@
 <template>
-  <div :class="classes">
+  <div class="form-group" :class="classes">
     <label>
       {{ label }}
       <span class="font-danger" v-if="star">{{ star }}</span>
@@ -38,9 +38,18 @@
             :key="item.id"
             @click="select(item)"
         >
-          <span>{{ getLabel(item) }}</span>
-          <i v-if="isSelected(item.id)" class="fas fa-check text-success"></i>
+          <!-- Texto truncado -->
+          <span class="text-truncate d-inline-block" style="max-width: calc(100% - 25px);">
+            {{ getLabel(item) }}
+          </span>
+
+          <!-- Ícono check -->
+          <i
+              v-if="isSelected(item.id)"
+              class="fas fa-check text-success ms-2 flex-shrink-0"
+          ></i>
         </a>
+
 
         <!-- Botón limpiar -->
         <div v-if="multiple && selectedValues.length" class="mt-2 text-end">
@@ -95,13 +104,18 @@ const props = defineProps({
   },
 
   labelField: {
-    type: String as PropType<"name" | "alias" | "value">,
+    type: String as PropType<"name" | "alias" | "code" | "value">,
     default: "name"
   },
 
   concat: {
     type: Boolean,
     default: false
+  },
+
+  concatField: {
+    type: String,
+    default: "alias"
   },
 
   searchable: {
@@ -162,8 +176,8 @@ function getLabel(item: any) {
   if (!item) return ""
   const base = item[props.labelField] ?? ""
 
-  if (props.concat && item.alias && item.name) {
-    return `${item.alias} - ${item.name}`
+  if (props.concat && item.name) {
+    return `${item[props.concatField]} - ${item.name}`
   }
 
   return base
