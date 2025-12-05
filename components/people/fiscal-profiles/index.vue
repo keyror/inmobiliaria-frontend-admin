@@ -1,167 +1,132 @@
 <template>
-  <div class="container-fluid">
-    <div class="row mb-4">
-      <div class="col-md-12">
-        <div class="card">
-          <div class="card-header pb-0">
-            <h5>{{props.isEditing ? ' Editar Perfil Fiscal' : 'Crear Perfil Fiscal' }}</h5>
-          </div>
-
-          <div class="card-body admin-form">
-            <form class="row gx-3" @submit.prevent="save">
-              <p class="text-red">Pendiente mostrar actividades economicas</p>
-
-              <CommonInputfieldsSelectfield
-                  v-model="formData.responsible_for_vat_type_id"
-                  classes="col-md-6 col-sm-6"
-                  label="Responsable IVA"
-                  :data="lookups.vatType"
-                  :labelField="'name'"
-                  star="*"
-              />
-
-              <CommonInputfieldsTextfield
-                  v-model="formData.vat_withholding"
-                  type="number"
-                  classes="col-md-6 col-sm-6"
-                  label="Retención IVA (%)"
-                  placeholder="Ej: 19"
-              />
-
-              <CommonInputfieldsTextfield
-                  v-model="formData.income_tax_withholding"
-                  type="number"
-                  classes="col-md-6 col-sm-6"
-                  label="Retención de Renta (%)"
-                  placeholder="Ej: 11"
-              />
-
-              <CommonInputfieldsTextfield
-                  v-model="formData.ica_withholding"
-                  type="number"
-                  classes="col-md-6 col-sm-6"
-                  label="Retención ICA (%)"
-                  placeholder="Ej: 1.5"
-              />
-
-              <CommonInputfieldsSelectfield
-                  v-model="formData.taxe_type_id"
-                  classes="col-md-6 col-sm-6"
-                  label="Responsabilidad Fiscal"
-                  :data="lookups.taxeType"
-                  :labelField="'name'"
-                  :multiple="true"
-                  :searchable="true"
-                  star="*"
-              />
-
-              <div class="form-btn mt-3">
-                <button class="btn btn-pill btn-gradient color-4" type="submit">
-                  {{props.isEditing ? 'Actualizar' : 'Crear' }}
-                </button>
-                <button class="btn btn-pill btn-dashed color-4" type="button" @click="resetForm">
-                  Cancelar
-                </button>
-              </div>
-
-            </form>
-          </div>
-
-        </div>
-      </div>
-    </div>
+  <div class="card-header ps-0">
+    <h5>{{ props.isEditing ? ' Editar Perfil Fiscal' : 'Crear Perfil Fiscal' }}</h5>
   </div>
+  <form class="row gx-3" @submit.prevent="sendForm">
+    <CommonInputfieldsSelectfield
+        v-model="form.economic_activities"
+        classes="col-md-6 col-sm-6"
+        label="Actividades ecónomicas"
+        :data="lookups.economicActivity"
+        :labelField="'name'"
+        concat
+        :concatField="'code'"
+        :multiple="true"
+        :searchable="true"
+        star="*"
+    />
+
+    <CommonInputfieldsSelectfield
+        v-model="form.taxe_types"
+        classes="col-md-6 col-sm-6"
+        label="Responsabilidad Fiscal"
+        :data="lookups.taxeType"
+        :labelField="'name'"
+        :multiple="true"
+        :searchable="true"
+        star="*"
+    />
+
+    <CommonInputfieldsSelectfield
+        v-model="form.responsible_for_vat_type_id"
+        classes="col-md-6 col-sm-6"
+        label="Responsable IVA"
+        :data="lookups.vatType"
+        :labelField="'name'"
+        star="*"
+    />
+
+    <CommonInputfieldsTextfield
+        v-model="form.vat_withholding"
+        type="number"
+        classes="col-md-6 col-sm-6"
+        label="Retención IVA (%)"
+        placeholder="Ej: 19"
+    />
+
+    <CommonInputfieldsTextfield
+        v-model="form.income_tax_withholding"
+        type="number"
+        classes="col-md-6 col-sm-6"
+        label="Retención en la Fuente (%)"
+        placeholder="Ej: 11"
+    />
+
+    <CommonInputfieldsTextfield
+        v-model="form.ica_withholding"
+        type="number"
+        classes="col-md-6 col-sm-6"
+        label="Retención ICA (%)"
+        placeholder="Ej: 1.5"
+    />
+
+    <CommonInputfieldsTextfield
+        v-model="form.rental_fee"
+        type="number"
+        classes="col-md-6 col-sm-6"
+        label="Canon de arrendamiento"
+        placeholder="Ej: 1.5"
+    />
+  </form>
 </template>
-
 <script lang="ts" setup>
-import PersonService from "@/services/PersonService";
-import AlertService from "~/services/AlertService";
-import LoadingService from "~/services/LoadingService";
-import type {ILookup} from "~/interfaces/ILookup";
+import type { ILookup } from "~/interfaces/ILookup";
+import type { IFiscalProfile } from "~/interfaces/IFiscalProfile";
+import * as yup from 'yup'
 
-const props = defineProps({
-  data: {
-    type: Object as PropType<any>,
-    default: () => ({})
-  },
+const props = defineProps<{
+  data?: IFiscalProfile,
   lookups: {
-    type: Object as PropType<{
-      vatType: ILookup[],
-      taxeType: ILookup[]
-    }>,
-    required: true
+    vatType: ILookup[],
+    taxeType: ILookup[],
+    economicActivity: ILookup[]
   },
-  isEditing: {
-    type: Boolean,
-    default: false
-  }
-});
+  isEditing?: boolean
+}>();
 
-const emit = defineEmits<{ (e: 'reload'): void }>();
+const emit = defineEmits<{
+  (e: "sendForm", fiscalProfile: Partial<IFiscalProfile>): void;
+  (e: "reload"): void;
+}>();
 
-const editingId = ref();
+const initialForm: Partial<IFiscalProfile> = {
+  tax_regime: "",
+  responsible_for_vat_type_id: "",
+  vat_withholding: "",
+  income_tax_withholding: "",
+  ica_withholding: "",
+  taxe_type_id: "",
+  taxe_types: [],
+  rental_fee: ""
+};
 
-const formData = ref({
-  person_id: '',
-  tax_regime: '',
-  responsible_for_vat_type_id: '',
-  vat_withholding: '',
-  income_tax_withholding: '',
-  ica_withholding: '',
-  taxe_type_id: ''
-});
+const form = ref({ ...initialForm });
+const formOriginal = ref({ ...initialForm });
 
-watch(() => props.data, (val) => {
-  if (val) {
-    editingId.value = val.id;
+watch(() => props.data, (newData) => {
+      if (newData) {
+        const modAttributes = {
+          ...newData,
+          taxe_types: newData.taxe_types?.map(t => t.type.id) ?? []
+        }
 
-    formData.value = {
-      person_id: val.person?.id ?? '',
-      tax_regime: val.tax_regime ?? '',
-      responsible_for_vat_type_id: val.responsible_for_vat_type_id ?? '',
-      vat_withholding: val.vat_withholding ?? '',
-      income_tax_withholding: val.income_tax_withholding ?? '',
-      ica_withholding: val.ica_withholding ?? '',
-      taxe_type_id: val.taxe_type_id ?? ''
-    };
-  }
+        form.value = { ...modAttributes };
+        formOriginal.value = { ...modAttributes };
+      }
 }, { immediate: true });
 
-const save = () => {
-  if (props.isEditing) {
-    updateFiscalProfile();
-  } else {
-    createFiscalProfile();
-  }
-}
-
-const createFiscalProfile = () => {
-  LoadingService.show();
-  PersonService.createFiscalProfile(formData.value)
-      .then((res) => {
-        AlertService.showSuccess("Operación exitosa", res.message);
-        resetForm();
-        emit('reload');
-      })
-      .finally(() => LoadingService.hide());
+const sendForm = () => {
+  emit("sendForm", form.value);
 };
 
-const updateFiscalProfile = () => {
-  LoadingService.show();
-  PersonService.updateFiscalProfile(editingId.value, formData.value)
-      .then((res) => {
-        AlertService.showSuccess("Operación exitosa", res.message);
-        resetForm();
-        emit('reload');
-      })
-      .finally(() => LoadingService.hide());
+const reset = () => {
+  form.value = { ...formOriginal.value };
 };
 
-const resetForm = () => {
-  formData.value = { ...props.data};
-};
-
+defineExpose({
+  sendForm,
+  reset
+});
 </script>
-
 <style scoped>
 </style>
