@@ -1,6 +1,6 @@
 <template>
   <div class="page-body">
-    <CommonBreadcrumb title="All users" page="Manage users"/>
+    <CommonBreadcrumb title="Listado personas" page="Administrar personas"/>
     <div class="container-fluid">
       <div class="row agent-section property-section user-lists">
         <div class="col-lg-12">
@@ -44,17 +44,10 @@ import {Constants} from "~/constants/Constants";
 import {ApiUrls} from "~/constants/ApiUrls";
 import LoadingService from "~/services/LoadingService";
 
-
-const props = defineProps({
-  isEditing: {
-    type: Boolean,
-    default: false
-  }
-});
-
 const data = ref([]);
 
 const exportUsers :IExportOptions = {
+  name: "personas",
   pdf: {
     url: ApiUrls.USERS_EXPORT_TO_PDF_GET,
     extension: Constants.PDF,

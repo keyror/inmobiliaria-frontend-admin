@@ -1,185 +1,135 @@
 <template>
-  <div class="container-fluid">
-    <div class="card">
-      <div class="card-header pb-0">
-        <h5> {{props.isEditing ? 'Editar Persona' : 'Crear Persona' }}</h5>
-      </div>
-
-      <div class="card-body admin-form">
-        <form class="row gx-3" @submit.prevent="save">
-
-          <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.first_name" label="Nombres" star="*" />
-          <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.last_name" label="Apellidos" star="*" />
-
-          <CommonInputfieldsSelectfield
-              v-model="formData.document_type_id"
-              :data="lookups.documentTypes"
-              label="Tipo de Documento"
-              classes="col-md-6"
-              :labelField="'alias'"
-              star="*"
-              concat
-          />
-
-          <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.document_number" label="Número" star="*" />
-
-          <CommonInputfieldsTextfield
-              v-model="formData.dv"
-              classes="col-md-6 col-sm-6"
-              label="Dígito de Verificación (DV)"
-              readonly
-          />
-
-          <CommonInputfieldsTextfield classes="col-md-6" v-model="formData.document_from" label="Lugar de Expedición" star="*" />
-
-          <CommonInputfieldsSelectfield
-              v-model="formData.organization_type_id"
-              :data="lookups.organizationTypes"
-              label="Tipo de Organización"
-              classes="col-md-6"
-              :labelField="'name'"
-              star="*"
-          />
-
-          <CommonInputfieldsTextfield
-              classes="col-md-6"
-              v-model="formData.company_name"
-              :required="false"
-              label="Razón Social" />
-
-          <CommonInputfieldsTextfield
-              classes="col-md-6"
-              v-model="formData.birth_date"
-              label="Fecha de Nacimiento"
-              type="date"
-              star="*"
-          />
-
-          <CommonInputfieldsSelectfield
-              v-model="formData.gender_type_id"
-              :data="lookups.genders"
-              label="Género"
-              classes="col-md-6"
-              :labelField="'name'"
-              star="*"
-          />
-
-          <div class="form-btn mt-3">
-            <button class="btn btn-pill btn-gradient color-4" type="submit">
-             {{props.isEditing ? 'Actualizar' : 'Crear' }}
-            </button>
-
-            <button class="btn btn-pill btn-dashed color-4" type="button" @click="resetForm">
-              Cancelar
-            </button>
-          </div>
-
-        </form>
-      </div>
-    </div>
+  <div class="card-header ps-0">
+    <h5> {{ props.isEditing ? 'Editar Persona' : 'Crear Persona' }}</h5>
   </div>
+  <form class="row gx-3" @submit.prevent="sendForm">
+
+    <CommonInputfieldsTextfield classes="col-md-6" v-model="form.first_name" label="Nombres" star="*"/>
+    <CommonInputfieldsTextfield classes="col-md-6" v-model="form.last_name" label="Apellidos" star="*"/>
+
+    <CommonInputfieldsSelectfield
+        v-model="form.document_type_id"
+        :data="lookups.documentTypes"
+        label="Tipo de Documento"
+        classes="col-md-6"
+        :labelField="'alias'"
+        star="*"
+        concat
+    />
+
+    <CommonInputfieldsTextfield classes="col-md-6" v-model="form.document_number" label="Número" star="*"/>
+
+    <CommonInputfieldsTextfield
+        v-model="form.dv"
+        classes="col-md-6 col-sm-6"
+        label="Dígito de Verificación (DV)"
+        readonly
+    />
+
+    <CommonInputfieldsTextfield classes="col-md-6" v-model="form.document_from" label="Lugar de Expedición"
+                                star="*"/>
+
+    <CommonInputfieldsSelectfield
+        v-model="form.organization_type_id"
+        :data="lookups.organizationTypes"
+        label="Tipo de Organización"
+        classes="col-md-6"
+        :labelField="'name'"
+        star="*"
+    />
+
+    <CommonInputfieldsTextfield
+        classes="col-md-6"
+        v-model="form.company_name"
+        :required="false"
+        label="Razón Social"/>
+
+    <CommonInputfieldsTextfield
+        classes="col-md-6"
+        v-model="form.birth_date"
+        label="Fecha de Nacimiento"
+        type="date"
+        star="*"
+    />
+
+    <CommonInputfieldsSelectfield
+        v-model="form.gender_type_id"
+        :data="lookups.genders"
+        label="Género"
+        classes="col-md-6"
+        :labelField="'name'"
+        star="*"
+    />
+  </form>
 </template>
 <script lang="ts" setup>
-import PersonService from "@/services/PersonService";
-import AlertService from "@/services/AlertService";
-import LoadingService from "@/services/LoadingService";
 import type {ILookup} from "@/interfaces/ILookup";
-import { calculateDV } from "@/composables/useDV";
+import {calculateDV} from "@/composables/useDV";
+import type {IPerson} from "~/interfaces/IPerson";
 
-const props = defineProps({
-  data: {
-    type: Object as PropType<any>,
-    default: () => ({})
-  },
+const props = defineProps<{
+  data?: IPerson,
   lookups: {
-    type: Object as PropType<{
-      organizationTypes: ILookup[],
-      documentTypes: ILookup[],
-      genders: ILookup[]
-    }>,
-    required: true
+    organizationTypes: ILookup[]
+    documentTypes: ILookup[]
+    genders: ILookup[]
   },
-  isEditing: {
-    type: Boolean,
-    default: false
-  }
+  isEditing?: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'sendForm', person: Partial<IPerson>): void
+  (e: 'reload'): void
+}>()
+
+const initialForm: Partial<IPerson> = {
+  first_name: "",
+  last_name: "",
+  company_name: "",
+  document_type_id: "",
+  document_number: "",
+  document_from: "",
+  organization_type_id: "",
+  birth_date: "",
+  gender_type_id: "",
+  dv: "0"
+};
+
+const form = ref({ ...initialForm })
+const formOriginal = ref({ ...initialForm })
+
+
+watch(() => form.value.document_number, (nuevoValor) => {
+  form.value.dv = nuevoValor ? calculateDV(nuevoValor) : "";
 });
-
-const emit = defineEmits<{ (e: 'reload'): void }>();
-
-const editingId = ref();
-
-const formData = ref({
-  first_name: '',
-  last_name: '',
-  company_name: '',
-  document_type_id: '',
-  document_number: '',
-  document_from: '',
-  organization_type_id: '',
-  birth_date: '',
-  gender_type_id: '',
-  dv: '',
-});
-
-watch(() => formData.value.document_number, (nuevoValor) => {
-  formData.value.dv = nuevoValor ? calculateDV(nuevoValor): props.data.dv;
-});
-
 
 watch(() => props.data, (newData) => {
   if (newData) {
-    editingId.value = newData.id;
-
-    formData.value = {
-      first_name: newData.first_name ?? '',
-      last_name: newData.last_name ?? '',
-      company_name: newData.company_name ?? '',
-      document_type_id: newData.document_type_id ?? '',
-      document_number: newData.document_number ?? '',
-      document_from: newData.document_from ?? '',
-      organization_type_id: newData.organization_type_id ?? '',
-      birth_date: newData.birth_date ?? '',
-      gender_type_id: newData.gender_type_id ?? '',
-      dv: calculateDV(newData.document_number) ?? '',
+    const modAttributes = {
+      ...initialForm,
+      ...newData,
+      dv: newData.document_number ?? calculateDV(newData.document_number)
     };
+
+    form.value = { ...modAttributes };
+    formOriginal.value = { ...modAttributes };
   }
 }, { immediate: true });
 
-const save = () => {
-  if (props.isEditing) {
-    updatePerson();
-  } else {
-    savePerson();
-  }
+const sendForm = () => {
+  emit('sendForm', form.value)
 }
 
-const savePerson = () => {
-  LoadingService.show();
-  PersonService.createPerson(formData.value)
-      .then(resp => {
-        AlertService.showSuccess('Operación exitosa', resp.message);
-        resetForm();
-        emit('reload');
-      }).catch(err => {
-    AlertService.showError('Error', err);
-  }).finally(() => LoadingService.hide());
-};
+const reset = () => {
+  form.value = { ...formOriginal.value }
+}
 
-const updatePerson = () => {
-  LoadingService.show();
-  PersonService.updatePerson(editingId.value, formData.value)
-      .then(resp => {
-        AlertService.showSuccess('Operación exitosa', resp.message);
-        resetForm();
-        emit('reload');
-      }).catch(err => {
-    AlertService.showError('Error', err);
-  }).finally(() => LoadingService.hide());
-};
-
-const resetForm = () => {
-  formData.value = { ...props.data};
-};
+defineExpose({
+  sendForm,
+  reset
+});
 </script>
+<style scoped>
+</style>
+
 

@@ -25,18 +25,39 @@
       </nav>
 
       <div class="tab-content mt-4">
-        <div v-if="activeTab === 'persons'">
-          <PeoplePersons
-              :lookups="lookupsToSend || {}" :data="person"
-              :isEditing="props.isEditing"
-          />
-        </div>
-        <div v-if="activeTab === 'fiscalProfiles'">
-          <PeopleFiscalProfiles
-              :lookups="fiscalProfilesLookups || {}"
-              :data="person?.fiscal_profile"
-              :isEditing="props.isEditing"
-          />
+        <div class="container-fluid">
+          <div class="card">
+            <div class="card-body admin-form">
+              <div v-show="activeTab === 'persons'">
+                <PeoplePersons
+                    ref="personRef"
+                    @sendForm="getFormPerson"
+                    :lookups="lookupsToSend || {}"
+                    :data="person"
+                    :isEditing="props.isEditing"
+                />
+              </div>
+              <div v-show="activeTab === 'fiscalProfiles'">
+                <PeopleFiscalProfiles
+                    ref="fiscalProfileRef"
+                    @sendForm="getFormFiscalProfile"
+                    :lookups="fiscalProfilesLookups || {}"
+                    :data="person?.fiscal_profile"
+                    :isEditing="props.isEditing"
+                    @formInvalid="isFiscalValid = false"
+                />
+              </div>
+              <div class="form-btn mt-3">
+                <button class="btn btn-pill btn-gradient color-4" @click="save">
+                  {{props.isEditing ? 'Actualizar' : 'Crear' }}
+                </button>
+
+                <button class="btn btn-pill btn-dashed color-4" type="button" @click="cancel">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -52,6 +73,9 @@ import LookupService from "~/services/LookupService";
 import type {IIndexLookupsRequest} from "~/interfaces/IIndexLookupsRequest";
 import {Constants} from "~/constants/Constants";
 import type {ILookupsResponse} from "~/interfaces/ILookup";
+import type {IPerson} from "~/interfaces/IPerson";
+import type {IFiscalProfile} from "~/interfaces/IFiscalProfile";
+import {PeopleFiscalProfiles, type PeoplePersons} from "#components";
 
 const props = defineProps({
   isEditing: {
@@ -59,6 +83,10 @@ const props = defineProps({
     default: false
   }
 });
+
+const form = ref({});
+const personRef = ref<InstanceType<typeof PeoplePersons> | null>(null);
+const fiscalProfileRef = ref<InstanceType<typeof PeopleFiscalProfiles> | null>(null);
 
 const activeTab = ref<string>('persons')
 
@@ -72,6 +100,7 @@ const categories = ref<IIndexLookupsRequest>({
     Constants.DOCUMENT_TYPE,
     Constants.GENDER,
     Constants.VAT_TYPE,
+    Constants.ECONOMIC_ACTIVITY
   ]
 });
 
@@ -79,8 +108,49 @@ const lookups = ref<ILookupsResponse>({});
 
 const person = ref<any>({});
 
+const isPersonValid = ref<boolean | null>(null);       // null = aún no validado
+const isFiscalValid = ref<boolean | null>(null);
+
+
 const switchTab = (tab: string) => {
   activeTab.value = tab
+}
+
+const getFormPerson = (data: Partial<IPerson>) => {
+  isPersonValid.value = true;
+  console.log(data,'persona');
+}
+
+const getFormFiscalProfile = (data: Partial<IFiscalProfile> | { invalidForm:true }) => {
+  isFiscalValid.value = true;
+  console.log(data,'perfil fiscal');
+}
+
+const save = () => {
+  // Resetear estado antes de validar
+  isPersonValid.value = null;
+  isFiscalValid.value = null;
+
+  // Disparar validación
+  personRef.value?.sendForm();
+  fiscalProfileRef.value?.sendForm();
+
+  // Esperar siguiente ciclo para asegurar respuesta de ambos formularios
+  nextTick(() => {
+    if (isPersonValid.value === false || isFiscalValid.value === false) {
+      AlertService.showFormError();
+      return;
+    }
+
+    // Si ambos son válidos:
+    console.log("Datos válidos:", 'formPersonData.value', 'formFiscalData.value');
+    // Haz aquí el submit final al backend
+  });
+};
+
+const cancel = () => {
+  personRef.value?.reset();
+  fiscalProfileRef.value?.reset();
 }
 
 const lookupsToSend = computed(() => ({
@@ -92,6 +162,7 @@ const lookupsToSend = computed(() => ({
 const fiscalProfilesLookups = computed(() => ({
   vatType: lookups.value[Constants.VAT_TYPE],
   taxeType: lookups.value[Constants.TAXE_TYPE],
+  economicActivity: lookups.value[Constants.ECONOMIC_ACTIVITY],
 }));
 
 const getLookups = async () => {
@@ -125,8 +196,6 @@ const init = () => {
         LoadingService.hide();
       });
 };
-
-
 
 // Cargar datos al montar el componente
 init();

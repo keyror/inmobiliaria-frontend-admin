@@ -81,6 +81,21 @@ class AlertService {
         return errors || '';
     }
 
+    public async showFormError(): Promise<SweetAlertResult> {
+        return Swal.fire({
+            icon: 'error',
+            title: "Errores en el formulario",
+            text: "Revisa los campos antes de continuar.",
+            confirmButtonText: 'OK',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            customClass: {
+                container: 'swal2-custom-z-index'
+            }
+        });
+    }
+
+
 }
 
 export default new AlertService();

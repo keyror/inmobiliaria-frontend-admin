@@ -42,6 +42,8 @@
         classes="col-md-6 col-sm-6"
         label="Retención IVA (%)"
         placeholder="Ej: 19"
+        :rules="fiscalProfileSchema.vat_withholding"
+        name="vat_withholding"
     />
 
     <CommonInputfieldsTextfield
@@ -72,7 +74,11 @@
 <script lang="ts" setup>
 import type { ILookup } from "~/interfaces/ILookup";
 import type { IFiscalProfile } from "~/interfaces/IFiscalProfile";
-import * as yup from 'yup'
+import { useValidator } from "@/composables/useValidator";
+import AlertService from "~/services/AlertService";
+import { fiscalProfileSchema } from "@/utils/validations/ficalProfile.schema"
+
+const { validateForm } = useValidator();
 
 const props = defineProps<{
   data?: IFiscalProfile,
@@ -85,7 +91,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "sendForm", fiscalProfile: Partial<IFiscalProfile>): void;
+  (e: "sendForm", payload: Partial<IFiscalProfile>): void;
+  (e: "formInvalid", payload: boolean): void;
   (e: "reload"): void;
 }>();
 
@@ -116,6 +123,13 @@ watch(() => props.data, (newData) => {
 }, { immediate: true });
 
 const sendForm = () => {
+  const isValid = validateForm(form.value, fiscalProfileSchema);
+
+  if (!isValid) {
+    emit("formInvalid", true);
+    return;
+  }
+
   emit("sendForm", form.value);
 };
 

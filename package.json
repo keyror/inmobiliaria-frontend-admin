@@ -35,6 +35,7 @@
     "vue3-google-map": "^0.17.1",
     "vue3-openlayers": "^11.6.2",
     "vuejs3-datepicker": "^1.0.19",
-    "vuevectormap": "^2.1.1"
+    "vuevectormap": "^2.1.1",
+    "yup": "^1.7.1"
   }
 }

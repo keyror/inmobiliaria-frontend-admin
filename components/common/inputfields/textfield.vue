@@ -13,13 +13,16 @@
         :readonly="props.readonly"
         :disabled="props.disabled"
         autocomplete="one-time-code"
-        :name="`field-${label}-${Math.random().toString(36).substring(2,7)}`"
+        :name="props.name ?? `field-${label}-${Math.random().toString(36).substring(2,7)}`"
+        @blur="validate"
     />
+    <CommonErrorfield :name="props.name  ?? `field-${label}-${Math.random().toString(36).substring(2,7)}`" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue"
+import { useValidator } from "@/composables/useValidator";
 
 const props = defineProps({
   required:  { type: Boolean, default: true },
@@ -31,7 +34,9 @@ const props = defineProps({
   type: String,
   clean: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
-  readonly: { type: Boolean, default: false }
+  readonly: { type: Boolean, default: false },
+  name: String,
+  rules: { type: Array, default: () => [] },
 })
 
 const emit = defineEmits(["update:modelValue"])
@@ -49,6 +54,12 @@ const localValue = computed({
     emit("update:modelValue", newVal)
   }
 })
+
+const { validateField } = useValidator();
+
+function validate() {
+  validateField(props.name, localValue.value, props.rules);
+}
 </script>
 
 <style scoped>
