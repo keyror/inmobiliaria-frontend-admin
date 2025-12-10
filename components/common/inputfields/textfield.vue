@@ -1,12 +1,13 @@
 <template>
-  <div class="form-group" :class="classes">
-    <label>
+  <div class="form-group" :class="[classes, { 'was-validated': errors[props.name] }]">
+  <label>
       {{ label }}
       <span class="font-danger" v-if="star">{{ star }}</span>
     </label>
     <input
         :type="type ? type : 'text'"
         class="form-control"
+        :class="{ 'is-invalid': errors[props.name] }"
         :placeholder="placeholder"
         v-model="localValue"
         :required="props.required"
@@ -55,7 +56,7 @@ const localValue = computed({
   }
 })
 
-const { validateField } = useValidator();
+const { validateField, errors } = useValidator();
 
 function validate() {
   validateField(props.name, localValue.value, props.rules);

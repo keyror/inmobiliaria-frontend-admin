@@ -6,10 +6,19 @@ export function useValidator() {
 
     // Definimos reglas base
     const rulesMap: any = {
-        required: (value: any, msg?: string) =>
-            value !== null && value !== undefined && value !== ""
-                ? true
-                : msg || "Campo obligatorio",
+        required: (value: any, msg?: string) => {
+            // Validación para strings vacíos, null, undefined
+            if (value === null || value === undefined || value === "") {
+                return msg || "Campo obligatorio";
+            }
+
+            // Validación para arrays vacíos
+            if (Array.isArray(value) && value.length === 0) {
+                return msg || "Campo obligatorio";
+            }
+
+            return true;
+        },
 
         min: (value: any, minValue: number, msg?: string) =>
             Number(value) >= minValue
@@ -123,9 +132,14 @@ export function useValidator() {
         return isValid;
     }
 
+    function resetErrors() {
+        Object.keys(errors).forEach(key => errors[key] = "");
+    }
+
     return {
         errors,
         validateField,
         validateForm,
+        resetErrors,
     };
 }

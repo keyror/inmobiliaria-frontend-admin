@@ -14,6 +14,8 @@
         :multiple="true"
         :searchable="true"
         star="*"
+        :rules="fiscalProfileSchema.economic_activities"
+        name="economic_activities"
     />
 
     <CommonInputfieldsSelectfield
@@ -34,6 +36,8 @@
         :data="lookups.vatType"
         :labelField="'name'"
         star="*"
+        :rules="fiscalProfileSchema.responsible_for_vat_type_id"
+        name="responsible_for_vat_type_id"
     />
 
     <CommonInputfieldsTextfield
@@ -75,10 +79,9 @@
 import type { ILookup } from "~/interfaces/ILookup";
 import type { IFiscalProfile } from "~/interfaces/IFiscalProfile";
 import { useValidator } from "@/composables/useValidator";
-import AlertService from "~/services/AlertService";
 import { fiscalProfileSchema } from "@/utils/validations/ficalProfile.schema"
 
-const { validateForm } = useValidator();
+const { validateForm, resetErrors } = useValidator();
 
 const props = defineProps<{
   data?: IFiscalProfile,
@@ -135,6 +138,7 @@ const sendForm = () => {
 
 const reset = () => {
   form.value = { ...formOriginal.value };
+  resetErrors();
 };
 
 defineExpose({

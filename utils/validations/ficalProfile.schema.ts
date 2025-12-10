@@ -5,4 +5,12 @@ export const fiscalProfileSchema = {
         { max: 100, message: "El valor máximo permitido es 100%" },
         { between: [0, 100], message: "El valor debe estar entre 0% y 100%" }
     ],
+
+    economic_activities: [
+        { required: true},
+    ],
+
+    responsible_for_vat_type_id: [
+        { required: true},
+    ],
 };
