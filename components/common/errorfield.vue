@@ -1,6 +1,5 @@
 <template>
   <p v-if="errors[name]" class="text-danger small mt-1">
-    {{errors}}
     {{ errors[name] }}
   </p>
 </template>
