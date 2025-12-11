@@ -172,28 +172,33 @@ const buttonActive = computed(() => {
 <template>
   <div>
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-      <input
-          v-model="searchTerm"
-          class="form-control search-input"
-          placeholder="Buscar módulo o permiso (ej: .view, .create)..."
-          type="text"
-      />
-
-      <!-- Botón súper inteligente único -->
-      <button
-          :class="[
+      <div class="row w-100">
+        <div class="col">
+          <CommonInputfieldsTextfield
+              v-model="searchTerm"
+              classes=""
+              label=""
+              placeholder="Buscar módulo o permiso..."
+          />
+        </div>
+        <div class="col">
+          <br>
+          <button
+              :class="[
             'btn btn-pill',
             buttonActive ? 'btn-dashed color-4' : 'btn-gradient color-4',
             hasSelectedOutsideFilter ? 'btn-warning-glow' : ''
           ]"
-          :title="hasSelectedOutsideFilter
+              :title="hasSelectedOutsideFilter
             ? 'Tienes permisos seleccionados fuera de esta búsqueda. Click para mantener solo los filtrados.'
             : ''"
-          type="button"
-          @click="toggleSmart"
-      >
-        {{ buttonText }}
-      </button>
+              type="button"
+              @click="toggleSmart"
+          >
+            {{ buttonText }}
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Mostrar resultados filtrados en 2 columnas -->
@@ -257,10 +262,6 @@ const buttonActive = computed(() => {
 </template>
 
 <style scoped>
-.search-input {
-  max-width: 400px;
-  min-width: 250px;
-}
 
 .module-card {
   background-color: #fafafa;
@@ -327,10 +328,6 @@ h6 {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .search-input {
-    max-width: 100%;
-  }
-
   .d-flex.justify-content-between {
     flex-direction: column;
     align-items: stretch !important;

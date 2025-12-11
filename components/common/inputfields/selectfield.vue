@@ -6,7 +6,7 @@
     </label>
 
     <!-- Dropdown principal -->
-    <div class="dropdown w-100" :class="{ 'is-invalid': errors[props.name] }" ref="dropdownRef">
+    <div class="dropdown w-100" :class="{ 'is-invalid': errors[props.name] }">
       <span
           class="dropdown-toggle font-rubik d-flex justify-content-between align-items-center w-100"
           :class="{ 'is-invalid': errors[props.name] }"
@@ -15,7 +15,7 @@
           @blur="validate"
           ref="dropdownToggle"
       >
-        <span class="text-truncate">{{ selectedLabel }}</span>
+        <span class="text-truncate">{{ displayLabel }}</span>
         <i class="fas fa-angle-down"></i>
       </span>
 
@@ -31,7 +31,7 @@
             type="text"
             class="form-control mb-2 search-input"
             placeholder="Buscar..."
-            @input="emitSearch"
+            @input="onSearch?.(search)"
             @click.stop
             autocomplete="off"
         />
@@ -51,7 +51,7 @@
         </a>
 
         <!-- Botón limpiar (solo para múltiple) -->
-        <div v-if="multiple && selectedValues.length" class="mt-2 text-end">
+        <div v-if="multiple && selectedIds.length" class="mt-2 text-end">
           <button class="btn btn-pill btn-dashed color-4" type="button" @click.stop="clearAll">
             Limpiar
           </button>
@@ -60,9 +60,9 @@
     </div>
 
     <!-- Tags para selección múltiple -->
-    <div v-if="multiple && selectedValues.length" class="mt-1 d-flex flex-wrap gap-1">
+    <div v-if="multiple && selectedIds.length" class="mt-1 d-flex flex-wrap gap-1">
       <span
-          v-for="id in selectedValues"
+          v-for="id in selectedIds"
           :key="id"
           class="label label-light label-flat color-3 d-flex align-items-center gap-2"
       >
@@ -70,12 +70,12 @@
       </span>
     </div>
 
-    <CommonErrorfield :name="props.name ?? `field-${label}-${Math.random().toString(36).substring(2,7)}`" />
+    <CommonErrorfield :name="fieldName" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, onMounted, onUnmounted } from "vue"
+import { ref, computed, onMounted, onUnmounted } from "vue"
 import type { PropType } from "vue"
 import type { ILookup } from "~/interfaces/ILookup"
 import { useValidator } from "~/composables/useValidator"
@@ -84,42 +84,15 @@ const props = defineProps({
   classes: String,
   label: String,
   star: String,
-  data: {
-    type: Array as PropType<ILookup[]>,
-    default: () => []
-  },
-  modelValue: {
-    type: [String, Array, Object] as PropType<any>,
-    default: () => []
-  },
-  multiple: {
-    type: Boolean,
-    default: false
-  },
-  show: {
-    type: String,
-    default: "Selecciona una opción..."
-  },
-  labelField: {
-    type: String as PropType<"name" | "alias" | "code" | "value">,
-    default: "name"
-  },
-  concat: {
-    type: Boolean,
-    default: false
-  },
-  concatField: {
-    type: String,
-    default: "alias"
-  },
-  searchable: {
-    type: Boolean,
-    default: false
-  },
-  onSearch: {
-    type: Function as PropType<(term: string) => void>,
-    default: null
-  },
+  data: { type: Array as PropType<ILookup[]>, default: () => [] },
+  modelValue: { type: [String, Array, Object] as PropType<any>, default: () => [] },
+  multiple: { type: Boolean, default: false },
+  show: { type: String, default: "Selecciona una opción..." },
+  labelField: { type: String as PropType<"name" | "alias" | "code" | "value">, default: "name" },
+  concat: { type: Boolean, default: false },
+  concatField: { type: String, default: "alias" },
+  searchable: { type: Boolean, default: false },
+  onSearch: { type: Function as PropType<(term: string) => void>, default: null },
   name: String,
   rules: { type: Array, default: () => [] },
 })
@@ -127,233 +100,136 @@ const props = defineProps({
 const { validateField, errors } = useValidator()
 const emit = defineEmits(["update:modelValue"])
 
-// Estado del componente
 const search = ref("")
-const selectedLabel = ref(props.show)
-const touched = ref(false) // Controla si el campo ha sido interactuado
-
-// Referencias del DOM
+const touched = ref(false)
 const componentRef = ref<HTMLElement | null>(null)
-const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownToggle = ref<HTMLElement | null>(null)
 const dropdownMenu = ref<HTMLElement | null>(null)
 
-// Normaliza el modelo para manejar tanto objetos como IDs
-const normalizedModel = computed(() => {
-  const mv = props.modelValue
+// Nombre del campo con fallback
+const fieldName = computed(() =>
+    props.name ?? `field-${props.label}-${Math.random().toString(36).substring(2,7)}`
+)
 
-  if (Array.isArray(mv)) {
-    if (mv.length && typeof mv[0] === "object" && "id" in mv[0]) {
-      return mv.map((o: any) => o.id)
+// Normaliza el modelo (objetos → IDs)
+const normalizedValue = computed({
+  get() {
+    const mv = props.modelValue
+    if (Array.isArray(mv)) {
+      return mv.length && typeof mv[0] === "object" && "id" in mv[0]
+          ? mv.map((o: any) => o.id)
+          : mv
     }
-    return mv
-  }
-
-  if (mv && typeof mv === "object" && "id" in mv) {
-    return mv.id
-  }
-
-  return mv
-})
-
-// Cierra el dropdown (maneja Bootstrap y clases directamente)
-function closeDropdown() {
-  if (!dropdownToggle.value || !dropdownMenu.value) return
-
-  try {
-    // Intenta usar la API de Bootstrap si está disponible
-    if (window.bootstrap?.Dropdown) {
-      const bsDropdown = window.bootstrap.Dropdown.getInstance(dropdownToggle.value)
-      if (bsDropdown) {
-        bsDropdown.hide()
-        return
-      }
-    }
-
-    // Fallback: manipula las clases directamente
-    dropdownMenu.value.classList.remove('show')
-    dropdownToggle.value.classList.remove('show')
-    dropdownToggle.value.setAttribute('aria-expanded', 'false')
-
-    // Limpia el backdrop si existe
-    const backdrop = document.querySelector('.dropdown-backdrop')
-    if (backdrop) backdrop.remove()
-  } catch (error) {
-    console.error('Error al cerrar dropdown:', error)
-  }
-}
-
-// Detecta clicks fuera del componente para cerrar el dropdown
-function handleClickOutside(event: MouseEvent) {
-  const target = event.target as Node
-
-  if (componentRef.value && !componentRef.value.contains(target)) {
-    if (dropdownMenu.value?.classList.contains('show')) {
-      closeDropdown()
+    return mv && typeof mv === "object" && "id" in mv ? mv.id : mv
+  },
+  set(value) {
+    emit("update:modelValue", value)
+    if (touched.value && props.rules.length) {
+      validateField(props.name, value, props.rules)
     }
   }
-}
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside, true)
 })
 
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside, true)
-})
+// IDs seleccionados (para múltiple)
+const selectedIds = computed(() =>
+    Array.isArray(normalizedValue.value) ? normalizedValue.value : []
+)
 
-// Emite evento de búsqueda
-function emitSearch() {
-  if (props.onSearch) props.onSearch(search.value)
-}
+// Label a mostrar en el dropdown
+const displayLabel = computed(() => {
+  if (props.multiple) {
+    if (!selectedIds.value.length) return props.show
+    const labels = props.data
+        .filter(item => selectedIds.value.includes(item.id))
+        .map(getLabel)
+    return labels.join(", ")
+  }
+
+  const found = props.data.find(item => item.id === normalizedValue.value)
+  return found ? getLabel(found) : props.show
+})
 
 // Filtra opciones según búsqueda
 const filteredData = computed(() => {
-  if (!props.searchable) return props.data
-
-  return props.data.filter(item =>
-      getLabel(item).toLowerCase().includes(search.value.toLowerCase())
-  )
+  if (!props.searchable || !search.value) return props.data
+  const term = search.value.toLowerCase()
+  return props.data.filter(item => getLabel(item).toLowerCase().includes(term))
 })
 
 // Obtiene el label del item
 function getLabel(item: any) {
   if (!item) return ""
   const base = item[props.labelField] ?? ""
-
-  if (props.concat && item.name) {
-    return `${item[props.concatField]} - ${item.name}`
-  }
-
-  return base
+  return props.concat && item.name ? `${item[props.concatField]} - ${item.name}` : base
 }
 
 // Verifica si un item está seleccionado
-function isSelected(id: string) {
-  return Array.isArray(normalizedModel.value) && normalizedModel.value.includes(id)
-}
+const isSelected = (id: string) => selectedIds.value.includes(id)
 
-// Maneja la selección de items
+// Maneja la selección
 function select(item: ILookup) {
-  touched.value = true // Marca como tocado al interactuar
+  touched.value = true
 
   if (props.multiple) {
-    // Modo múltiple: agrega/quita del array
-    let values = Array.isArray(normalizedModel.value) ? [...normalizedModel.value] : []
+    const values = [...selectedIds.value]
     const index = values.indexOf(item.id)
-
-    if (index === -1) {
-      values.push(item.id)
-    } else {
-      values.splice(index, 1)
-    }
-
-    emit("update:modelValue", values)
-    updateSelectedLabel(values)
-    validateField(props.name, values, props.rules)
+    index === -1 ? values.push(item.id) : values.splice(index, 1)
+    normalizedValue.value = values
   } else {
-    // Modo simple: reemplaza el valor y cierra
-    emit("update:modelValue", item.id)
-    selectedLabel.value = getLabel(item)
-    validateField(props.name, item.id, props.rules)
-    setTimeout(() => closeDropdown(), 50)
+    normalizedValue.value = item.id
+    setTimeout(closeDropdown, 50)
   }
 }
-
-// Actualiza el label cuando hay múltiples selecciones
-function updateSelectedLabel(values: string[]) {
-  if (!values.length) {
-    selectedLabel.value = props.show
-    return
-  }
-
-  const labels = props.data
-      .filter(item => values.includes(item.id))
-      .map(item => getLabel(item))
-
-  selectedLabel.value = labels.join(", ")
-}
-
-// Valores seleccionados para mostrar tags
-const selectedValues = computed(() =>
-    Array.isArray(normalizedModel.value) ? normalizedModel.value : []
-)
 
 // Limpia todas las selecciones
 function clearAll() {
-  touched.value = true // Marca como tocado al limpiar
-  const emptyValue = props.multiple ? [] : ""
-  emit("update:modelValue", emptyValue)
-
-  if (props.multiple) {
-    updateSelectedLabel([])
-  } else {
-    selectedLabel.value = props.show
-  }
-
-  // Valida después de limpiar
-  if (props.name && props.rules && props.rules.length > 0) {
-    setTimeout(() => {
-      validateField(props.name, emptyValue, props.rules)
-    }, 0)
-  }
+  touched.value = true
+  normalizedValue.value = props.multiple ? [] : ""
 }
 
-// Sincroniza el label cuando cambia el modelo
-watch(
-    () => normalizedModel.value,
-    (newVal) => {
-      if (props.multiple) {
-        const values = Array.isArray(newVal) ? newVal : []
-        updateSelectedLabel(values)
-        // Solo validar si el campo ya tiene un error previo
-        if (props.name && errors[props.name]) {
-          validateField(props.name, values, props.rules)
-        }
-      } else {
-        const found = props.data.find(item => item.id === newVal)
-        selectedLabel.value = found ? getLabel(found) : props.show
-        // Solo validar si el campo ya tiene un error previo
-        if (props.name && errors[props.name]) {
-          validateField(props.name, newVal, props.rules)
-        }
-      }
-    },
-    { immediate: true }
-)
-
-// Normaliza objetos a IDs cuando se reciben del v-model
-watch(
-    () => props.modelValue,
-    (value) => {
-      // Array de objetos → array de IDs
-      if (Array.isArray(value) && value.length && typeof value[0] === "object" && "id" in value[0]) {
-        const ids = value.map((o: any) => o.id)
-        emit("update:modelValue", ids)
-      }
-
-      // Objeto → ID
-      if (!Array.isArray(value) && value && typeof value === "object" && "id" in value) {
-        emit("update:modelValue", value.id)
-      }
-    },
-    { immediate: true }
-)
-
-// Valida el campo manualmente
+// Valida el campo
 function validate() {
-  if (touched.value) {
-    validateField(props.name, props.modelValue, props.rules)
+  if (touched.value && props.rules.length) {
+    validateField(props.name, normalizedValue.value, props.rules)
   }
 }
+
+// Cierra el dropdown
+function closeDropdown() {
+  if (!dropdownToggle.value || !dropdownMenu.value) return
+
+  try {
+    const bsDropdown = window.bootstrap?.Dropdown?.getInstance(dropdownToggle.value)
+    if (bsDropdown) {
+      bsDropdown.hide()
+    } else {
+      dropdownMenu.value.classList.remove('show')
+      dropdownToggle.value.classList.remove('show')
+      dropdownToggle.value.setAttribute('aria-expanded', 'false')
+      document.querySelector('.dropdown-backdrop')?.remove()
+    }
+  } catch (error) {
+    console.error('Error al cerrar dropdown:', error)
+  }
+}
+
+// Detecta clicks fuera
+function handleClickOutside(event: MouseEvent) {
+  if (componentRef.value &&
+      !componentRef.value.contains(event.target as Node) &&
+      dropdownMenu.value?.classList.contains('show')) {
+    closeDropdown()
+  }
+}
+
+onMounted(() => document.addEventListener('click', handleClickOutside, true))
+onUnmounted(() => document.removeEventListener('click', handleClickOutside, true))
 
 function resetTouched() {
   touched.value = false
 }
 
-defineExpose({
-  resetTouched
-})
+defineExpose({ resetTouched })
 </script>
 
 <style scoped>
@@ -368,23 +244,14 @@ defineExpose({
   box-shadow: none !important;
 }
 
-.search-input:focus {
-  background-image: none !important;
-  border-color: #86b7fe !important;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
-}
-
-/* Asegura que no se apliquen estilos de validación */
+.search-input:focus,
 .search-input.is-valid,
-.search-input:valid {
+.search-input:valid,
+.search-input.is-valid:focus,
+.search-input:valid:focus {
   background-image: none !important;
   border-color: #ced4da !important;
   padding-right: 0.75rem !important;
-}
-
-.search-input.is-valid:focus,
-.search-input:valid:focus {
-  border-color: #86b7fe !important;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+  box-shadow: none !important;
 }
 </style>

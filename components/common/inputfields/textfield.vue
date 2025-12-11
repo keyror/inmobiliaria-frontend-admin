@@ -6,7 +6,7 @@
     </label>
     <input
         :type="type ? type : 'text'"
-        class="form-control"
+        class="form-control input-field"
         :class="{ 'is-invalid': errors[props.name] }"
         :placeholder="placeholder"
         v-model="localValue"
@@ -64,4 +64,21 @@ function validate() {
 </script>
 
 <style scoped>
+.input-field {
+  background-image: none !important;
+  padding-right: 0.75rem !important;
+  border-color: #ced4da !important;
+  box-shadow: none !important;
+}
+
+.input-field:focus,
+.input-field.is-valid,
+.input-field:valid,
+.input-field.is-valid:focus,
+.input-field:valid:focus {
+  background-image: none !important;
+  border-color: #ced4da !important;
+  padding-right: 0.75rem !important;
+  box-shadow: none !important;
+}
 </style>
