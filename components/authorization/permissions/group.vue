@@ -30,7 +30,6 @@ const filteredModules = computed(() => {
   const term = searchTerm.value.trim().toLowerCase()
   if (!term) return grouped.value
 
-  // Filtra módulos o permisos que coincidan con el término
   const filtered = {}
   for (const module in grouped.value) {
     if (module.toLowerCase().includes(term)) {
@@ -87,25 +86,17 @@ const toggleSmart = () => {
   const hasFilter = searchTerm.value.trim() !== ''
 
   if (!hasFilter) {
-    // Sin filtro: seleccionar/deseleccionar todos
     const allIds = props.permissions.map(p => p.id)
     const allSelected = allIds.every(id => props.selectedPermissions.includes(id))
     emit('update:selectedPermissions', allSelected ? [] : allIds)
   } else {
     const filtered = filteredPermissionIds.value
 
-    // Con filtro: 3 estados posibles
     if (allFilteredSelected.value && !hasSelectedOutsideFilter.value) {
-      // Estado 1: Todos los filtrados están seleccionados y no hay otros
-      // Acción: Deseleccionar los filtrados
       emit('update:selectedPermissions', [])
     } else if (hasSelectedOutsideFilter.value) {
-      // Estado 2: Hay permisos seleccionados fuera del filtro
-      // Acción: Mantener SOLO los filtrados
       emit('update:selectedPermissions', [...filtered])
     } else {
-      // Estado 3: No todos los filtrados están seleccionados
-      // Acción: Agregar los filtrados a la selección actual
       let selected = [...props.selectedPermissions]
       filtered.forEach(id => {
         if (!selected.includes(id)) selected.push(id)
@@ -147,7 +138,6 @@ const buttonText = computed(() => {
         ? 'Deseleccionar todos'
         : 'Seleccionar todos'
   } else {
-    // Con filtro, 3 estados
     if (allFilteredSelected.value && !hasSelectedOutsideFilter.value) {
       return 'Deseleccionar filtrados'
     } else if (hasSelectedOutsideFilter.value) {
@@ -167,13 +157,20 @@ const buttonActive = computed(() => {
     return allFilteredSelected.value && !hasSelectedOutsideFilter.value
   }
 })
+
+// Contar permisos seleccionados por módulo
+const getSelectedCount = (module) => {
+  const modulePerms = filteredModules.value[module]
+  return modulePerms.filter(p => props.selectedPermissions.includes(p.id)).length
+}
 </script>
 
 <template>
   <div>
+    <!-- Barra de búsqueda y botón principal -->
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-      <div class="row w-100">
-        <div class="col">
+      <div class="row w-100 g-2">
+        <div class="col-12 col-md-8">
           <CommonInputfieldsTextfield
               v-model="searchTerm"
               classes=""
@@ -181,17 +178,16 @@ const buttonActive = computed(() => {
               placeholder="Buscar módulo o permiso..."
           />
         </div>
-        <div class="col">
-          <br>
+        <div class="col-12 col-md-4 d-flex align-items-end">
           <button
               :class="[
-            'btn btn-pill',
-            buttonActive ? 'btn-dashed color-4' : 'btn-gradient color-4',
-            hasSelectedOutsideFilter ? 'btn-warning-glow' : ''
-          ]"
+                'btn btn-pill w-100',
+                buttonActive ? 'btn-dashed color-4' : 'btn-gradient color-4',
+                hasSelectedOutsideFilter ? 'btn-warning-glow' : ''
+              ]"
               :title="hasSelectedOutsideFilter
-            ? 'Tienes permisos seleccionados fuera de esta búsqueda. Click para mantener solo los filtrados.'
-            : ''"
+                ? 'Tienes permisos seleccionados fuera de esta búsqueda. Click para mantener solo los filtrados.'
+                : ''"
               type="button"
               @click="toggleSmart"
           >
@@ -201,51 +197,72 @@ const buttonActive = computed(() => {
       </div>
     </div>
 
-    <!-- Mostrar resultados filtrados en 2 columnas -->
+    <!-- Acordeón con módulos en 2 columnas -->
     <div v-if="Object.keys(filteredModules).length > 0" class="row g-3">
       <div
-          v-for="(perms, module) in filteredModules"
+          v-for="(perms, module, index) in filteredModules"
           :key="module"
           class="col-12 col-lg-6"
       >
-        <div class="module-card border rounded p-3 h-100">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="color-4 text-capitalize mb-0">
-              <i class="bi bi-folder-fill me-2"></i>{{ module }}
-            </h6>
-            <button
-                :class="perms.every(p => selectedPermissions.includes(p.id))
-                    ? 'btn btn-sm btn-pill btn-dashed color-4'
-                    : 'btn btn-sm btn-pill btn-gradient color-4'"
-                type="button"
-                @click="toggleModule(module)"
-            >
-              {{
-                perms.every(p => selectedPermissions.includes(p.id))
-                    ? 'Deseleccionar'
-                    : 'Seleccionar'
-              }}
-            </button>
-          </div>
-
-          <div class="permissions-list">
-            <div class="form-group mb-0">
-              <div class="additional-checkbox">
-                <label
-                    v-for="perm in perms"
-                    :key="perm.id"
-                    :for="`perm-${perm.id}`"
-                    class="permission-label"
-                >
-                  <input
-                      :id="`perm-${perm.id}`"
-                      :checked="selectedPermissions.includes(perm.id)"
-                      class="checkbox_animated color-4"
-                      type="checkbox"
-                      @change="toggle(perm.id)"
+        <div class="accordion accordion-compact" :id="`accordion-${module}`">
+          <div class="accordion-item">
+            <h2 class="accordion-header" :id="`heading-${module}`">
+              <button
+                  class="accordion-button collapsed"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  :data-bs-target="`#collapse-${module}`"
+                  aria-expanded="false"
+                  :aria-controls="`collapse-${module}`"
+              >
+                <div class="d-flex justify-content-between align-items-center w-100 me-2">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-folder-fill me-2 color-4"></i>
+                    <span class="text-capitalize fw-semibold module-name">{{ module }}</span>
+                    <span class="badge ms-2" :class="getSelectedCount(module) === perms.length ? 'bg-success' : 'bg-secondary'">
+                      {{ getSelectedCount(module) }}/{{ perms.length }}
+                    </span>
+                  </div>
+                  <button
+                      :class="perms.every(p => selectedPermissions.includes(p.id))
+                          ? 'btn btn-sm btn-pill btn-dashed color-4'
+                          : 'btn btn-sm btn-pill btn-gradient color-4'"
+                      type="button"
+                      @click.stop="toggleModule(module)"
                   >
-                  <span class="permission-name">{{ perm.name }}</span>
-                </label>
+                    <i :class="perms.every(p => selectedPermissions.includes(p.id)) ? 'fas fa-check-double' : 'fas fa-plus'"></i>
+                  </button>
+                </div>
+              </button>
+            </h2>
+            <div
+                :id="`collapse-${module}`"
+                class="accordion-collapse collapse"
+                :aria-labelledby="`heading-${module}`"
+                :data-bs-parent="`#accordion-${module}`"
+            >
+              <div class="accordion-body p-2">
+                <div class="permissions-list-compact">
+                  <div class="form-group mb-0">
+                    <div class="additional-checkbox">
+                      <label
+                          v-for="perm in perms"
+                          :key="perm.id"
+                          :for="`perm-${perm.id}`"
+                          class="permission-label"
+                      >
+                        <input
+                            :id="`perm-${perm.id}`"
+                            :checked="selectedPermissions.includes(perm.id)"
+                            class="checkbox_animated color-4"
+                            type="checkbox"
+                            @change="toggle(perm.id)"
+                        >
+                        <span class="permission-name">{{ perm.name }}</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -262,83 +279,86 @@ const buttonActive = computed(() => {
 </template>
 
 <style scoped>
-
-.module-card {
+.accordion-button {
   background-color: #fafafa;
-  transition: transform 0.2s, box-shadow 0.2s;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
 }
 
-.module-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+.accordion-button:not(.collapsed) {
+  background-color: #f0f0f0;
+  color: inherit;
+  box-shadow: none;
 }
 
-h6 {
-  font-weight: 600;
-  font-size: 1rem;
+.accordion-button:focus {
+  box-shadow: none;
+  border-color: rgba(0,0,0,.125);
 }
 
-.permissions-list {
-  max-height: 400px;
+.accordion-item {
+  border-radius: 0.375rem !important;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+.accordion-body {
+  padding: 0.75rem;
+  background-color: #fefefe;
+}
+
+.permissions-list-compact {
+  max-height: 250px;
   overflow-y: auto;
 }
 
 .permission-label {
   display: flex;
   align-items: center;
-  padding: 0.4rem 0;
+  padding: 0.35rem 0.5rem;
   cursor: pointer;
   transition: background-color 0.2s;
   border-radius: 4px;
-  padding-left: 0.5rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.15rem;
 }
 
 .permission-label:hover {
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 .permission-name {
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   margin-left: 0.5rem;
 }
 
-.gap-2 {
-  gap: 0.5rem;
+.module-name {
+  font-size: 0.95rem;
 }
 
-/* Estilos para el scroll */
-.permissions-list::-webkit-scrollbar {
-  width: 6px;
+.badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
 }
 
-.permissions-list::-webkit-scrollbar-track {
+.permissions-list-compact::-webkit-scrollbar {
+  width: 5px;
+}
+
+.permissions-list-compact::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 10px;
 }
 
-.permissions-list::-webkit-scrollbar-thumb {
+.permissions-list-compact::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 10px;
 }
 
-.permissions-list::-webkit-scrollbar-thumb:hover {
+.permissions-list-compact::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .d-flex.justify-content-between {
-    flex-direction: column;
-    align-items: stretch !important;
-  }
-
-  .d-flex.justify-content-between button {
-    width: 100%;
-  }
-}
-
-/* Efecto de brillo cuando hay permisos fuera del filtro */
 .btn-warning-glow {
   animation: pulse-warning 2s infinite;
   border: 2px solid #ffc107 !important;
@@ -350,6 +370,32 @@ h6 {
   }
   50% {
     box-shadow: 0 0 0 8px rgba(255, 193, 7, 0);
+  }
+}
+
+@media (max-width: 991px) {
+  .col-lg-6 {
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .accordion-button {
+    font-size: 0.85rem;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .accordion-button .btn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .module-name {
+    font-size: 0.85rem;
+  }
+
+  .permission-name {
+    font-size: 0.8rem;
   }
 }
 </style>
