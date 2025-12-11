@@ -178,7 +178,8 @@ const getSelectedCount = (module) => {
               placeholder="Buscar módulo o permiso..."
           />
         </div>
-        <div class="col-12 col-md-4 d-flex align-items-end">
+        <div class="col-12 col-md-4">
+          <br>
           <button
               :class="[
                 'btn btn-pill w-100',
