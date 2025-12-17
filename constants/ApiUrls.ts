@@ -56,4 +56,5 @@ export class ApiUrls {
 
     // Desplegables
     static readonly LOOKUPS_POST = '/lookups';
+    static readonly LOOKUPS_COUNTRY_COLOMBIA = '/lookups/co';
 }

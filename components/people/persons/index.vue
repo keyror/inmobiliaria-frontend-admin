@@ -4,8 +4,22 @@
   </div>
   <form class="row gx-3" @submit.prevent="sendForm">
 
-    <CommonInputfieldsTextfield classes="col-md-6" v-model="form.first_name" label="Nombres" star="*"/>
-    <CommonInputfieldsTextfield classes="col-md-6" v-model="form.last_name" label="Apellidos" star="*"/>
+    <CommonInputfieldsTextfield
+        classes="col-md-6"
+        v-model="form.first_name"
+        label="Nombres"
+        :rules="person.first_name"
+        name="first_name"
+        star="*"
+    />
+    <CommonInputfieldsTextfield
+        classes="col-md-6"
+        v-model="form.last_name"
+        :rules="person.last_name"
+        name="last_name"
+        label="Apellidos"
+        star="*"
+    />
 
     <CommonInputfieldsSelectfield
         v-model="form.document_type_id"
@@ -15,9 +29,18 @@
         :labelField="'alias'"
         star="*"
         concat
+        :rules="person.document_type_id"
+        name="document_type_id"
     />
 
-    <CommonInputfieldsTextfield classes="col-md-6" v-model="form.document_number" label="Número" star="*"/>
+    <CommonInputfieldsTextfield
+        classes="col-md-6"
+        v-model="form.document_number"
+        label="Número"
+        star="*"
+        :rules="person.document_number"
+        name="document_number"
+    />
 
     <CommonInputfieldsTextfield
         v-model="form.dv"
@@ -26,8 +49,17 @@
         readonly
     />
 
-    <CommonInputfieldsTextfield classes="col-md-6" v-model="form.document_from" label="Lugar de Expedición"
-                                star="*"/>
+    <CommonInputfieldsSelectfield
+        v-model="form.document_from_id"
+        :data="lookups.cities"
+        label="Lugar de Expedición"
+        classes="col-md-6"
+        :labelField="'name'"
+        star="*"
+        searchable
+        :rules="person.document_from_id"
+        name="document_from"
+    />
 
     <CommonInputfieldsSelectfield
         v-model="form.organization_type_id"
@@ -36,6 +68,8 @@
         classes="col-md-6"
         :labelField="'name'"
         star="*"
+        :rules="person.organization_type_id"
+        name="organization_type_id"
     />
 
     <CommonInputfieldsTextfield
@@ -50,6 +84,8 @@
         label="Fecha de Nacimiento"
         type="date"
         star="*"
+        :rules="person.birth_date"
+        name="birth_date"
     />
 
     <CommonInputfieldsSelectfield
@@ -59,6 +95,8 @@
         classes="col-md-6"
         :labelField="'name'"
         star="*"
+        :rules="person.gender_type_id"
+        name="gender_type_id"
     />
   </form>
 </template>
@@ -66,19 +104,25 @@
 import type {ILookup} from "@/interfaces/ILookup";
 import {calculateDV} from "@/composables/useDV";
 import type {IPerson} from "~/interfaces/IPerson";
+import { useValidator } from "@/composables/useValidator";
+import {person} from "~/utils/validations/person.schema";
+
+const { validateForm, resetErrors } = useValidator();
 
 const props = defineProps<{
   data?: IPerson,
   lookups: {
     organizationTypes: ILookup[]
     documentTypes: ILookup[]
-    genders: ILookup[]
+    genders: ILookup[],
+    cities: ILookup[],
   },
   isEditing?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'sendForm', person: Partial<IPerson>): void
+  (e: "formInvalid", payload: boolean): void;
   (e: 'reload'): void
 }>()
 
@@ -88,7 +132,7 @@ const initialForm: Partial<IPerson> = {
   company_name: "",
   document_type_id: "",
   document_number: "",
-  document_from: "",
+  document_from_id: "",
   organization_type_id: "",
   birth_date: "",
   gender_type_id: "",
@@ -117,11 +161,19 @@ watch(() => props.data, (newData) => {
 }, { immediate: true });
 
 const sendForm = () => {
-  emit('sendForm', form.value)
+  const isValid = validateForm(form.value, person);
+
+  if (!isValid) {
+    emit("formInvalid", true);
+    return;
+  }
+
+  emit("sendForm", form.value);
 }
 
 const reset = () => {
   form.value = { ...formOriginal.value }
+  resetErrors();
 }
 
 defineExpose({

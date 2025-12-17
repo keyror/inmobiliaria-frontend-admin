@@ -45,12 +45,10 @@ export function useValidator() {
                 ? true
                 : msg || `Debe tener máximo ${length} caracteres`,
 
-
         numeric: (value: any, msg?: string) =>
             /^[0-9]+$/.test(String(value))
                 ? true
                 : msg || "Solo se permiten números",
-
 
         between: (value: number, min: number, max: number, msg?: string) =>
             value >= min && value <= max
@@ -61,8 +59,6 @@ export function useValidator() {
             pattern.test(value)
                 ? true
                 : msg || "Formato inválido",
-
-
     };
 
     function normalizeRule(ruleObj: any) {
@@ -120,8 +116,13 @@ export function useValidator() {
         }
     }
 
-
-    function validateForm(form: any, schema: any) {
+    /**
+     * Valida un formulario simple (objeto)
+     * @param form - Objeto con los datos del formulario
+     * @param schema - Schema de validación
+     * @returns true si el formulario es válido, false en caso contrario
+     */
+    function validateSimpleForm(form: any, schema: any) {
         let isValid = true;
 
         Object.keys(schema).forEach((field) => {
@@ -130,6 +131,74 @@ export function useValidator() {
         });
 
         return isValid;
+    }
+
+    /**
+     * Valida un array de objetos con campos dinámicos
+     * @param items - Array de objetos a validar
+     * @param schema - Schema de validación
+     * @returns true si todos los items son válidos, false en caso contrario
+     */
+    function validateDynamicForm(items: any[], schema: any) {
+        let allValid = true;
+
+        items.forEach((item, index) => {
+            // Validar cada campo del item con un nombre único
+            Object.keys(schema).forEach((field) => {
+                const fieldName = `${field}_${index}`;
+                validateField(fieldName, item[field], schema[field]);
+
+                if (errors[fieldName]) {
+                    allValid = false;
+                }
+            });
+        });
+
+        return allValid;
+    }
+
+    /**
+     * Valida un formulario (simple o dinámico)
+     * Detecta automáticamente si es un array (dinámico) o un objeto (simple)
+     * @param form - Objeto o array de objetos a validar
+     * @param schema - Schema de validación
+     * @returns true si el formulario es válido, false en caso contrario
+     */
+    function validateForm(form: any, schema: any) {
+        // Detectar automáticamente si es un array (dinámico) o un objeto (simple)
+        if (Array.isArray(form)) {
+            return validateDynamicForm(form, schema);
+        } else {
+            return validateSimpleForm(form, schema);
+        }
+    }
+
+    /**
+     * Resetea solo los errores de campos dinámicos con un prefijo específico
+     * @param prefix - Prefijo de los campos a resetear (ej: 'bank_id')
+     */
+    function resetDynamicErrors(prefix?: string) {
+        if (prefix) {
+            Object.keys(errors).forEach(key => {
+                if (key.startsWith(prefix)) {
+                    errors[key] = "";
+                }
+            });
+        } else {
+            resetErrors();
+        }
+    }
+
+    /**
+     * Limpia errores de un índice específico en campos dinámicos
+     * @param index - Índice del item eliminado
+     */
+    function cleanErrorsByIndex(index: number) {
+        Object.keys(errors).forEach(key => {
+            if (key.endsWith(`_${index}`)) {
+                delete errors[key];
+            }
+        });
     }
 
     function resetErrors() {
@@ -141,5 +210,7 @@ export function useValidator() {
         validateField,
         validateForm,
         resetErrors,
+        resetDynamicErrors,
+        cleanErrorsByIndex,
     };
 }

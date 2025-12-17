@@ -10,6 +10,7 @@ export class Constants {
     static readonly GENDER: string = "gender";
     static readonly VAT_TYPE: string = "vat_type";
     static readonly ECONOMIC_ACTIVITY : string = "economic_activity";
+    static readonly CITY : string = "city";
     static readonly ACTIVO: string = "ACTIVO";
     static readonly INACTIVO: string = "INACTIVO";
 }

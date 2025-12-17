@@ -27,6 +27,8 @@
         :multiple="true"
         :searchable="true"
         star="*"
+        :rules="fiscalProfileSchema.taxe_types"
+        name="taxe_types"
     />
 
     <CommonInputfieldsSelectfield
@@ -46,8 +48,6 @@
         classes="col-md-6 col-sm-6"
         label="Retención IVA (%)"
         placeholder="Ej: 19"
-        :rules="fiscalProfileSchema.vat_withholding"
-        name="vat_withholding"
     />
 
     <CommonInputfieldsTextfield

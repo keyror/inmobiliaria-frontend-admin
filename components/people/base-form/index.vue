@@ -21,6 +21,30 @@
           >
             Perfil Fiscal
           </button>
+          <button
+              :class="{ active: activeTab === 'accountBank' }"
+              class="nav-link text-dark"
+              type="button"
+              @click="switchTab('accountBank')"
+          >
+            Cuentas bancarias
+          </button>
+          <button
+              :class="{ active: activeTab === 'addresses' }"
+              class="nav-link text-dark"
+              type="button"
+              @click="switchTab('addresses')"
+          >
+            Direcciones
+          </button>
+          <button
+              :class="{ active: activeTab === 'contacts' }"
+              class="nav-link text-dark"
+              type="button"
+              @click="switchTab('contacts')"
+          >
+            Contactos
+          </button>
         </div>
       </nav>
 
@@ -35,6 +59,7 @@
                     :lookups="lookupsToSend || {}"
                     :data="person"
                     :isEditing="props.isEditing"
+                    @formInvalid="isFiscalValid = false"
                 />
               </div>
               <div v-show="activeTab === 'fiscalProfiles'">
@@ -47,21 +72,51 @@
                     @formInvalid="isFiscalValid = false"
                 />
               </div>
-              <div class="form-btn mt-3">
-                <button class="btn btn-pill btn-gradient color-4" @click="save">
-                  {{props.isEditing ? 'Actualizar' : 'Crear' }}
-                </button>
+              <div v-show="activeTab === 'accountBank'">
+                <PeopleAccountBank
+                    ref="accountBankRef"
+                    @sendForm="getFormAccountBank"
+                    :lookups="mockAccountBankLookups"
+                    :data="mockAccountBankData"
+                    :isEditing="props.isEditing"
+                    @formInvalid="isAccountBankValid = false"
+                />
 
-                <button class="btn btn-pill btn-dashed color-4" type="button" @click="cancel">
-                  Cancelar
-                </button>
+              </div>
+              <div v-show="activeTab === 'addresses'">
+                <PeopleAddresses
+                    ref="addressesRef"
+                    @sendForm="getFormAddresses"
+                    :lookups="{}"
+                    :data="[]"
+                    :isEditing="props.isEditing"
+                    @formInvalid="isAddressValid = false"
+                />
+              </div>
+                <div v-show="activeTab === 'contacts'">
+                  <PeopleContacts
+                      ref="contactsRef"
+                      @sendForm="getFormContacts"
+                      :data="[]"
+                      :isEditing="props.isEditing"
+                      @formInvalid="isContactValid = false"
+                  />
+                </div>
+                <div class="form-btn mt-3">
+                  <button class="btn btn-pill btn-gradient color-4" @click="save">
+                    {{ props.isEditing ? 'Actualizar' : 'Crear' }}
+                  </button>
+
+                  <button class="btn btn-pill btn-dashed color-4" type="button" @click="cancel">
+                    Cancelar
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -72,10 +127,17 @@ import AlertService from "~/services/AlertService";
 import LookupService from "~/services/LookupService";
 import type {IIndexLookupsRequest} from "~/interfaces/IIndexLookupsRequest";
 import {Constants} from "~/constants/Constants";
-import type {ILookupsResponse} from "~/interfaces/ILookup";
+import type {ILookup, ILookupsResponse} from "~/interfaces/ILookup";
 import type {IPerson} from "~/interfaces/IPerson";
 import type {IFiscalProfile} from "~/interfaces/IFiscalProfile";
-import {PeopleFiscalProfiles, type PeoplePersons} from "#components";
+import type {IAccountBank} from "~/interfaces/IAccountBank";
+import {
+  PeopleFiscalProfiles,
+  PeopleAccountBank,
+  type PeoplePersons,
+  PeopleAddresses,
+  PeopleContacts
+} from "#components";
 
 const props = defineProps({
   isEditing: {
@@ -84,9 +146,92 @@ const props = defineProps({
   }
 });
 
+const mockAccountBankData = [
+  {
+    bank_id: "1",
+    account_type_id: "1",
+    account_number: "1234567890"
+  },
+  {
+    bank_id: "2",
+    account_type_id: "2",
+    account_number: "0987654321"
+  }
+];
+
+const mockAccountBankLookups: {
+  banks: ILookup[];
+  typeAccountBank: ILookup[];
+} = {
+  banks: [
+    {
+      id: "1",
+      name: "Bancolombia",
+      value: "bancolombia",
+      category: "banks",
+      alias: null,
+      is_active: true,
+      created_at: "",
+      updated_at: "",
+      deleted_at: null
+    },
+    {
+      id: "2",
+      name: "Davivienda",
+      value: "davivienda",
+      category: "banks",
+      alias: null,
+      is_active: true,
+      created_at: "",
+      updated_at: "",
+      deleted_at: null
+    },
+    {
+      id: "3",
+      name: "BBVA",
+      value: "bbva",
+      category: "banks",
+      alias: null,
+      is_active: true,
+      created_at: "",
+      updated_at: "",
+      deleted_at: null
+    }
+  ],
+
+  typeAccountBank: [
+    {
+      id: "1",
+      name: "Cuenta de Ahorros",
+      value: "savings",
+      category: "account_banks",
+      alias: null,
+      is_active: true,
+      created_at: "",
+      updated_at: "",
+      deleted_at: null
+    },
+    {
+      id: "2",
+      name: "Cuenta Corriente",
+      value: "checking",
+      category: "account_banks",
+      alias: null,
+      is_active: true,
+      created_at: "",
+      updated_at: "",
+      deleted_at: null
+    }
+  ]
+};
+
+
 const form = ref({});
 const personRef = ref<InstanceType<typeof PeoplePersons> | null>(null);
 const fiscalProfileRef = ref<InstanceType<typeof PeopleFiscalProfiles> | null>(null);
+const accountBankRef = ref<InstanceType<typeof PeopleAccountBank> | null>(null);
+const addressesRef = ref<InstanceType<typeof PeopleAddresses> | null>(null);
+const contactsRef = ref<InstanceType<typeof PeopleContacts> | null>(null);
 
 const activeTab = ref<string>('persons')
 
@@ -100,7 +245,8 @@ const categories = ref<IIndexLookupsRequest>({
     Constants.DOCUMENT_TYPE,
     Constants.GENDER,
     Constants.VAT_TYPE,
-    Constants.ECONOMIC_ACTIVITY
+    Constants.ECONOMIC_ACTIVITY,
+    Constants.CITY
   ]
 });
 
@@ -110,6 +256,9 @@ const person = ref<any>({});
 
 const isPersonValid = ref<boolean | null>(null);       // null = aún no validado
 const isFiscalValid = ref<boolean | null>(null);
+const isAccountBankValid = ref<boolean | null>(null);
+const isAddressValid = ref<boolean | null>(null);
+const isContactValid = ref<boolean | null>(null);
 
 
 const switchTab = (tab: string) => {
@@ -118,26 +267,44 @@ const switchTab = (tab: string) => {
 
 const getFormPerson = (data: Partial<IPerson>) => {
   isPersonValid.value = true;
-  console.log(data,'persona');
+  console.log(data, 'persona');
 }
 
-const getFormFiscalProfile = (data: Partial<IFiscalProfile> | { invalidForm:true }) => {
+const getFormFiscalProfile = (data: Partial<IFiscalProfile> | { invalidForm: true }) => {
   isFiscalValid.value = true;
-  console.log(data,'perfil fiscal');
+  console.log(data, 'perfil fiscal');
+}
+
+const getFormAccountBank = (data: IAccountBank[]) => {
+  isAccountBankValid.value = true;
+  console.log(data, 'banco');
+}
+
+const getFormAddresses = (data: any[]) => {
+  isAddressValid.value = true;
+  console.log(data, 'direcciones');
+}
+
+const getFormContacts = (data: any[]) => {
+  isContactValid.value = true;
+  console.log(data, 'contactos');
 }
 
 const save = () => {
-  // Resetear estado antes de validar
-  isPersonValid.value = null;
-  isFiscalValid.value = null;
-
   // Disparar validación
   personRef.value?.sendForm();
   fiscalProfileRef.value?.sendForm();
+  accountBankRef.value?.sendForm();
+  addressesRef.value?.sendForm();
+  contactsRef.value?.sendForm();
 
-  // Esperar siguiente ciclo para asegurar respuesta de ambos formularios
+  // Esperar siguiente ciclo para asegurar respuesta de los formularios
   nextTick(() => {
-    if (isPersonValid.value === false || isFiscalValid.value === false) {
+    if (isPersonValid.value === false
+        || isFiscalValid.value === false
+        || isAccountBankValid.value === false
+        || isAddressValid.value === false
+        || isContactValid.value === false) {
       AlertService.showFormError();
       return;
     }
@@ -156,7 +323,8 @@ const cancel = () => {
 const lookupsToSend = computed(() => ({
   organizationTypes: lookups.value[Constants.ORGANIZATION_TYPE],
   documentTypes: lookups.value[Constants.DOCUMENT_TYPE],
-  genders: lookups.value[Constants.GENDER]
+  genders: lookups.value[Constants.GENDER],
+  cities: lookups.value[Constants.CITY],
 }));
 
 const fiscalProfilesLookups = computed(() => ({
@@ -171,6 +339,7 @@ const getLookups = async () => {
         lookups.value = lookupsResponse.data;
       });
 };
+
 
 const getPerson = async () => {
   return PersonService.getPerson(idPersona)

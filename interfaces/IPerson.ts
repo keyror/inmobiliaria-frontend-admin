@@ -6,7 +6,7 @@ export interface IPerson {
     company_name?: string;
     document_type_id: string;
     document_number: string;
-    document_from: string;
+    document_from_id: string;
     organization_type_id: string;
     birth_date: string;
     gender_type_id: string;
