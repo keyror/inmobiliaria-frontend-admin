@@ -20,7 +20,8 @@
       </span>
 
       <div
-          class="dropdown-menu text-start w-100 p-2"
+          class="dropdown-menu text-start w-100 p-2 overflow-auto"
+          style="max-height: 300px;"
           @click="multiple ? $event.stopPropagation() : null"
           ref="dropdownMenu"
       >
