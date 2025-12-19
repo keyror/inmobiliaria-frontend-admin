@@ -9,8 +9,16 @@ export class Constants {
     static readonly USER_STATUS: string = "user_status";
     static readonly GENDER: string = "gender";
     static readonly VAT_TYPE: string = "vat_type";
-    static readonly ECONOMIC_ACTIVITY : string = "economic_activity";
-    static readonly CITY : string = "city";
+    static readonly ECONOMIC_ACTIVITY: string = "economic_activity";
+    static readonly CITY: string = "city";
+    static readonly COUNTRY: string = "country";
+    static readonly DEPARTMENT: string = "department";
+    static readonly ACCOUNT_BANKS: string = "account_banks";
+    static readonly BANKS: string = "banks";
+    static readonly ROAD_TYPE: string = "road_type";
+    static readonly LETTER: string = "letter";
+    static readonly ORIENTATION: string = "orientation";
+    static readonly STRATUM: string = "stratum";
     static readonly ACTIVO: string = "ACTIVO";
     static readonly INACTIVO: string = "INACTIVO";
 }

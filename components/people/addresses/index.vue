@@ -35,7 +35,7 @@
                 v-model="address.addressParts.viaType"
                 classes="col-md-2 col-sm-4"
                 label="Tipo de vía"
-                :data="addressTypes"
+                :data="lookups.roadTypes"
                 :labelField="'name'"
                 star="*"
                 :name="`via_type_${index}`"
@@ -57,7 +57,7 @@
                 v-model="address.addressParts.letra1"
                 classes="col-md-1 col-sm-4"
                 label="Letra"
-                :data="letters"
+                :data="lookups.letters"
                 :labelField="'name'"
                 :name="`letra1_${index}`"
                 @update:modelValue="buildAddress(index)"
@@ -67,7 +67,7 @@
                 v-model="address.addressParts.orientation1"
                 classes="col-md-1 col-sm-4"
                 label="Orient."
-                :data="orientations"
+                :data="lookups.orientations"
                 :labelField="'name'"
                 :name="`orientation1_${index}`"
                 @update:modelValue="buildAddress(index)"
@@ -88,7 +88,7 @@
                 v-model="address.addressParts.letra2"
                 classes="col-md-1 col-sm-4"
                 label="Letra"
-                :data="letters"
+                :data="lookups.letters"
                 :labelField="'name'"
                 :name="`letra2_${index}`"
                 @update:modelValue="buildAddress(index)"
@@ -98,7 +98,7 @@
                 v-model="address.addressParts.orientation2"
                 classes="col-md-1 col-sm-4"
                 label="Orient."
-                :data="orientations"
+                :data="lookups.orientations"
                 :labelField="'name'"
                 :name="`orientation2_${index}`"
                 @update:modelValue="buildAddress(index)"
@@ -133,12 +133,11 @@
             placeholder="Ej: Apartamento 301, Torre 2"
             :name="`complement_${index}`"
           />
-
           <CommonInputfieldsSelectfield
             v-model="address.country"
             classes="col-md-6 col-sm-6"
             label="País"
-            :data="lookups.countries"
+            :data="lookups.country"
             :labelField="'name'"
             :searchable="true"
             star="*"
@@ -156,13 +155,14 @@
             star="*"
             :rules="addressSchema.department"
             :name="`department_${index}`"
+            @update:modelValue="onDepartmentChange(index)"
           />
 
           <CommonInputfieldsSelectfield
             v-model="address.city"
             classes="col-md-6 col-sm-6"
             label="Ciudad"
-            :data="lookups.cities"
+            :data="getFilteredCities(index)"
             :labelField="'name'"
             :searchable="true"
             star="*"
@@ -192,7 +192,7 @@
             v-model="address.stratum"
             classes="col-md-4 col-sm-6"
             label="Estrato"
-            :data="stratums"
+            :data="lookups.strata"
             :labelField="'name'"
             :name="`stratum_${index}`"
           />
@@ -229,9 +229,13 @@ const { validateForm, resetErrors } = useValidator();
 const props = defineProps<{
   data?: IAddress[],
   lookups: {
-    countries: ILookup[],
+    roadTypes: ILookup[],
+    letters: ILookup[],
+    orientations: ILookup[],
+    strata: ILookup[],
+    country: ILookup[],
+    cities: ILookup[],
     departments: ILookup[],
-    cities: ILookup[]
   },
   isEditing?: boolean
 }>();
@@ -310,20 +314,53 @@ watch(() => props.data, (newData) => {
   }
 }, { immediate: true });
 
+// Función helper para obtener el nombre del lookup
+const getLookupName = (lookupArray: ILookup[], id: string) => {
+  const item = lookupArray.find(lookup => lookup.id === id);
+  return item ? item.name : '';
+};
+
 const buildAddress = (index: number) => {
   const parts = addressesList.value[index].addressParts;
   let address = '';
 
-  if (parts.viaType) address += parts.viaType;
+  // Construir la dirección usando los nombres de los lookups
+  if (parts.viaType) {
+    const viaTypeName = getLookupName(props.lookups.roadTypes, parts.viaType);
+    address += viaTypeName;
+  }
+
   if (parts.viaNumber) address += ' ' + parts.viaNumber;
-  if (parts.letra1) address += parts.letra1;
-  if (parts.orientation1) address += ' ' + parts.orientation1;
+
+  if (parts.letra1) {
+    const letra1Name = getLookupName(props.lookups.letters, parts.letra1);
+    address += letra1Name;
+  }
+
+  if (parts.orientation1) {
+    const orientation1Name = getLookupName(props.lookups.orientations, parts.orientation1);
+    address += ' ' + orientation1Name;
+  }
+
   if (parts.number2) address += ' # ' + parts.number2;
-  if (parts.letra2) address += parts.letra2;
-  if (parts.orientation2) address += ' ' + parts.orientation2;
+
+  if (parts.letra2) {
+    const letra2Name = getLookupName(props.lookups.letters, parts.letra2);
+    address += letra2Name;
+  }
+
+  if (parts.orientation2) {
+    const orientation2Name = getLookupName(props.lookups.orientations, parts.orientation2);
+    address += ' ' + orientation2Name;
+  }
+
   if (parts.number3) address += ' - ' + parts.number3;
 
   addressesList.value[index].address = address.trim();
+};
+
+const onDepartmentChange = (index: number) => {
+  addressesList.value[index].city = "";
 };
 
 const addAddress = () => {
@@ -335,6 +372,24 @@ const removeAddress = (index: number) => {
     addressesList.value.splice(index, 1);
     resetErrors();
   }
+};
+
+const getFilteredCities = (index: number) => {
+  const departmentId = addressesList.value[index].department;
+
+  if (!departmentId) return [];
+
+  // Buscar el departamento seleccionado para obtener su alias
+  const selectedDepartment = props.lookups.departments.find(dept => dept.id === departmentId);
+
+  if (!selectedDepartment || !selectedDepartment.alias) return [];
+
+  // Filtrar ciudades cuyo code coincida con el alias del departamento (en mayúsculas)
+  const departmentAlias = selectedDepartment.alias.toUpperCase();
+
+  return props.lookups.cities.filter(city =>
+      city.code && city.code.toUpperCase() === departmentAlias
+  );
 };
 
 const setPrincipal = (index: number) => {
@@ -362,7 +417,6 @@ const reset = () => {
   addressesList.value = addressesListOriginal.value.map(address => ({ ...address }));
   resetErrors();
 };
-
 defineExpose({
   sendForm,
   reset

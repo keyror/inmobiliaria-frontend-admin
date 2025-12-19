@@ -76,7 +76,7 @@
                 <PeopleAccountBank
                     ref="accountBankRef"
                     @sendForm="getFormAccountBank"
-                    :lookups="mockAccountBankLookups"
+                    :lookups="accountBankLookups"
                     :data="mockAccountBankData"
                     :isEditing="props.isEditing"
                     @formInvalid="isAccountBankValid = false"
@@ -87,7 +87,7 @@
                 <PeopleAddresses
                     ref="addressesRef"
                     @sendForm="getFormAddresses"
-                    :lookups="{}"
+                    :lookups="addressesLookups"
                     :data="[]"
                     :isEditing="props.isEditing"
                     @formInvalid="isAddressValid = false"
@@ -127,7 +127,7 @@ import AlertService from "~/services/AlertService";
 import LookupService from "~/services/LookupService";
 import type {IIndexLookupsRequest} from "~/interfaces/IIndexLookupsRequest";
 import {Constants} from "~/constants/Constants";
-import type {ILookup, ILookupsResponse} from "~/interfaces/ILookup";
+import type {ILookupsResponse} from "~/interfaces/ILookup";
 import type {IPerson} from "~/interfaces/IPerson";
 import type {IFiscalProfile} from "~/interfaces/IFiscalProfile";
 import type {IAccountBank} from "~/interfaces/IAccountBank";
@@ -159,72 +159,6 @@ const mockAccountBankData = [
   }
 ];
 
-const mockAccountBankLookups: {
-  banks: ILookup[];
-  typeAccountBank: ILookup[];
-} = {
-  banks: [
-    {
-      id: "1",
-      name: "Bancolombia",
-      value: "bancolombia",
-      category: "banks",
-      alias: null,
-      is_active: true,
-      created_at: "",
-      updated_at: "",
-      deleted_at: null
-    },
-    {
-      id: "2",
-      name: "Davivienda",
-      value: "davivienda",
-      category: "banks",
-      alias: null,
-      is_active: true,
-      created_at: "",
-      updated_at: "",
-      deleted_at: null
-    },
-    {
-      id: "3",
-      name: "BBVA",
-      value: "bbva",
-      category: "banks",
-      alias: null,
-      is_active: true,
-      created_at: "",
-      updated_at: "",
-      deleted_at: null
-    }
-  ],
-
-  typeAccountBank: [
-    {
-      id: "1",
-      name: "Cuenta de Ahorros",
-      value: "savings",
-      category: "account_banks",
-      alias: null,
-      is_active: true,
-      created_at: "",
-      updated_at: "",
-      deleted_at: null
-    },
-    {
-      id: "2",
-      name: "Cuenta Corriente",
-      value: "checking",
-      category: "account_banks",
-      alias: null,
-      is_active: true,
-      created_at: "",
-      updated_at: "",
-      deleted_at: null
-    }
-  ]
-};
-
 
 const form = ref({});
 const personRef = ref<InstanceType<typeof PeoplePersons> | null>(null);
@@ -246,7 +180,15 @@ const categories = ref<IIndexLookupsRequest>({
     Constants.GENDER,
     Constants.VAT_TYPE,
     Constants.ECONOMIC_ACTIVITY,
-    Constants.CITY
+    Constants.CITY,
+    Constants.ACCOUNT_BANKS,
+    Constants.BANKS,
+    Constants.ROAD_TYPE,
+    Constants.LETTER,
+    Constants.ORIENTATION,
+    Constants.STRATUM,
+    Constants.COUNTRY,
+    Constants.DEPARTMENT
   ]
 });
 
@@ -332,6 +274,21 @@ const fiscalProfilesLookups = computed(() => ({
   taxeType: lookups.value[Constants.TAXE_TYPE],
   economicActivity: lookups.value[Constants.ECONOMIC_ACTIVITY],
 }));
+
+const accountBankLookups = computed(() => ({
+  banks: lookups.value[Constants.BANKS],
+  typeAccountBank: lookups.value[Constants.ACCOUNT_BANKS],
+}))
+
+const addressesLookups = computed(() => ({
+  roadTypes: lookups.value[Constants.ROAD_TYPE],
+  letters: lookups.value[Constants.LETTER],
+  orientations: lookups.value[Constants.ORIENTATION],
+  strata: lookups.value[Constants.STRATUM],
+  country: lookups.value[Constants.COUNTRY],
+  cities: lookups.value[Constants.CITY],
+  departments: lookups.value[Constants.DEPARTMENT],
+}))
 
 const getLookups = async () => {
   return LookupService.getLookups(categories.value)
