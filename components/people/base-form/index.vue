@@ -231,7 +231,7 @@ const getFormFiscalProfile = (data: Partial<IFiscalProfile> | { invalidForm: boo
   }
 
   isFiscalValid.value = true;
-  personToSaveData.value.perfilFiscal = data;
+  personToSaveData.value.fiscal_profile = data;
 }
 
 const getFormAccountBank = (data: IAccountBank[]| { invalidForm: boolean }) => {
@@ -241,7 +241,7 @@ const getFormAccountBank = (data: IAccountBank[]| { invalidForm: boolean }) => {
   }
 
   isAccountBankValid.value = true;
-  personToSaveData.value.accountBanks = data
+  personToSaveData.value.account_banks = data
   console.log(data, 'banco');
 }
 

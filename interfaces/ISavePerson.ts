@@ -6,8 +6,8 @@ import type {IAccountBank} from "~/interfaces/IAccountBank";
 
 export interface ISavePerson {
     person?: Partial<IPerson>,
-    perfilFiscal?: Partial<IFiscalProfile>,
+    fiscal_profile?: Partial<IFiscalProfile>,
     addresses?: IAddress[],
     contacts?: IContact[],
-    accountBanks?: IAccountBank[]
+    account_banks?: IAccountBank[]
 }
