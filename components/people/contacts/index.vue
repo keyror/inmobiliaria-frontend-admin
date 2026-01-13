@@ -58,20 +58,13 @@
             :name="`email_${index}`"
           />
 
-          <div class="col-md-12 col-sm-12">
-            <div class="form-check">
-              <input
-                v-model="contact.is_principal"
-                class="form-check-input"
-                type="checkbox"
-                :id="`is_principal_contact_${index}`"
-                @change="setPrincipal(index)"
-              />
-              <label class="form-check-label" :for="`is_principal_contact_${index}`">
-                Contacto Principal
-              </label>
-            </div>
-          </div>
+          <CommonInputfieldsCheckbox
+              v-model="contact.is_principal"
+              classes="col-md-12"
+              label=" Contacto Principal"
+              :name="`is_principal_contact_${index}`"
+              @change="setPrincipal(index)"
+          />
         </form>
       </div>
     </div>
@@ -136,13 +129,12 @@ const setPrincipal = (index: number) => {
 const sendForm = () => {
   let allValid = true;
 
-  const isValid = validateForm(contactsList.value, contactSchema);
-  if (!isValid) {
+  const isValid = validateForm(contactsList.value, contactSchema, true);
+  if (isValid) {
+    emit("sendForm", contactsList.value);
+  } else {
     emit("formInvalid", true);
-    return;
   }
-
-  emit("sendForm", contactsList.value);
 };
 
 const reset = () => {

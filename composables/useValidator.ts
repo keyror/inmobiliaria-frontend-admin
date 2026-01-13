@@ -7,18 +7,25 @@ export function useValidator() {
     // Definimos reglas base
     const rulesMap: any = {
         required: (value: any, msg?: string) => {
-            // Validación para strings vacíos, null, undefined
+
+            // 👇 CHECKBOX (boolean)
+            if (typeof value === "boolean") {
+                return value === true ? true : msg || "Campo obligatorio";
+            }
+
+            // strings, null, undefined
             if (value === null || value === undefined || value === "") {
                 return msg || "Campo obligatorio";
             }
 
-            // Validación para arrays vacíos
+            // arrays vacíos
             if (Array.isArray(value) && value.length === 0) {
                 return msg || "Campo obligatorio";
             }
 
             return true;
         },
+
 
         min: (value: any, minValue: number, msg?: string) =>
             Number(value) >= minValue
@@ -59,6 +66,7 @@ export function useValidator() {
             pattern.test(value)
                 ? true
                 : msg || "Formato inválido",
+
     };
 
     function normalizeRule(ruleObj: any) {
@@ -162,11 +170,12 @@ export function useValidator() {
      * Detecta automáticamente si es un array (dinámico) o un objeto (simple)
      * @param form - Objeto o array de objetos a validar
      * @param schema - Schema de validación
+     * @param dinamicForm - dinamicForm
      * @returns true si el formulario es válido, false en caso contrario
      */
-    function validateForm(form: any, schema: any) {
+    function validateForm(form: any, schema: any, dinamicForm = false) {
         // Detectar automáticamente si es un array (dinámico) o un objeto (simple)
-        if (Array.isArray(form)) {
+        if (Array.isArray(form) && dinamicForm) {
             return validateDynamicForm(form, schema);
         } else {
             return validateSimpleForm(form, schema);

@@ -128,12 +128,12 @@ watch(() => props.data, (newData) => {
 const sendForm = () => {
   const isValid = validateForm(form.value, fiscalProfileSchema);
 
-  if (!isValid) {
+  if (isValid) {
+    emit("sendForm", form.value);
+  } else {
     emit("formInvalid", true);
-    return;
   }
 
-  emit("sendForm", form.value);
 };
 
 const reset = () => {

@@ -60,20 +60,13 @@
               :rules="accountBankSchema.account_number"
               :name="`account_number_${index}`"
           />
-          <div class="col-md-12 col-sm-12">
-            <div class="form-check">
-              <input
-                  v-model="account.is_principal"
-                  class="form-check-input"
-                  type="checkbox"
-                  :id="`is_principal_contact_${index}`"
-                  @change="setPrincipal(index)"
-              />
-              <label class="form-check-label" :for="`is_principal_contact_${index}`">
-                Contacto Principal
-              </label>
-            </div>
-          </div>
+          <CommonInputfieldsCheckbox
+              v-model="account.is_principal"
+              classes="col-md-12"
+              label="Cuenta Principal"
+              :name="`is_principal_${index}`"
+              @change="setPrincipal(index)"
+          />
         </form>
       </div>
     </div>
@@ -143,14 +136,13 @@ const setPrincipal = (index: number) => {
 
 const sendForm = () => {
   // validateForm detecta automáticamente que es un array y valida como dinámico
-  const isValid = validateForm(accountsList.value, accountBankSchema);
+  const isValid = validateForm(accountsList.value, accountBankSchema, true);
 
-  if (!isValid) {
+  if (isValid) {
+    emit("sendForm", accountsList.value);
+  } else {
     emit("formInvalid", true);
-    return;
   }
-
-  emit("sendForm", accountsList.value);
 };
 
 const reset = () => {

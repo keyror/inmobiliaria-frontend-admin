@@ -22,10 +22,6 @@ export const person = {
         { required: true, message: "Campo obligatorio"},
     ],
 
-    document_from: [
-        { required: true, message: "Campo obligatorio"},
-    ],
-
     organization_type_id: [
         { required: true, message: "Campo obligatorio"},
     ],

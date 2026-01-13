@@ -58,7 +58,7 @@
         star="*"
         searchable
         :rules="person.document_from_id"
-        name="document_from"
+        name="document_from_id"
     />
 
     <CommonInputfieldsSelectfield
@@ -162,13 +162,11 @@ watch(() => props.data, (newData) => {
 
 const sendForm = () => {
   const isValid = validateForm(form.value, person);
-
-  if (!isValid) {
+  if (isValid) {
+    emit("sendForm", form.value);
+  } else {
     emit("formInvalid", true);
-    return;
   }
-
-  emit("sendForm", form.value);
 }
 
 const reset = () => {

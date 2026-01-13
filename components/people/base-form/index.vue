@@ -59,7 +59,7 @@
                     :lookups="lookupsToSend || {}"
                     :data="person"
                     :isEditing="props.isEditing"
-                    @formInvalid="isFiscalValid = false"
+                    @formInvalid="isPersonValid = false"
                 />
               </div>
               <div v-show="activeTab === 'fiscalProfiles'">
@@ -138,6 +138,7 @@ import {
   PeopleAddresses,
   PeopleContacts
 } from "#components";
+import type {ISavePerson} from "~/interfaces/ISavePerson";
 
 const props = defineProps({
   isEditing: {
@@ -195,12 +196,22 @@ const categories = ref<IIndexLookupsRequest>({
 const lookups = ref<ILookupsResponse>({});
 
 const person = ref<any>({});
+const personToSaveData = ref<ISavePerson>({});
 
-const isPersonValid = ref<boolean | null>(null);       // null = aún no validado
+const isPersonValid = ref<boolean | null>(null);
 const isFiscalValid = ref<boolean | null>(null);
 const isAccountBankValid = ref<boolean | null>(null);
 const isAddressValid = ref<boolean | null>(null);
 const isContactValid = ref<boolean | null>(null);
+
+const formStatusMap = {
+  persons: isPersonValid,
+  fiscalProfiles: isFiscalValid,
+  accountBank: isAccountBankValid,
+  addresses: isAddressValid,
+  contacts: isContactValid
+} as const;
+
 
 
 const switchTab = (tab: string) => {
@@ -209,26 +220,50 @@ const switchTab = (tab: string) => {
 
 const getFormPerson = (data: Partial<IPerson>) => {
   isPersonValid.value = true;
+  personToSaveData.value.person = data;
   console.log(data, 'persona');
 }
 
-const getFormFiscalProfile = (data: Partial<IFiscalProfile> | { invalidForm: true }) => {
+const getFormFiscalProfile = (data: Partial<IFiscalProfile> | { invalidForm: boolean }) => {
+  if ('invalidForm' in data) {
+    isFiscalValid.value = false;
+    return;
+  }
+
   isFiscalValid.value = true;
-  console.log(data, 'perfil fiscal');
+  personToSaveData.value.perfilFiscal = data;
 }
 
-const getFormAccountBank = (data: IAccountBank[]) => {
+const getFormAccountBank = (data: IAccountBank[]| { invalidForm: boolean }) => {
+  if ('invalidForm' in data) {
+    isAccountBankValid.value = false;
+    return;
+  }
+
   isAccountBankValid.value = true;
+  personToSaveData.value.accountBanks = data
   console.log(data, 'banco');
 }
 
-const getFormAddresses = (data: any[]) => {
+const getFormAddresses = (data: any[]| { invalidForm: boolean }) => {
+  if ('invalidForm' in data) {
+    isAddressValid.value = false;
+    return;
+  }
+
   isAddressValid.value = true;
+  personToSaveData.value.addresses = data
   console.log(data, 'direcciones');
 }
 
-const getFormContacts = (data: any[]) => {
+const getFormContacts = (data: any[]| { invalidForm: boolean }) => {
+  if ('invalidForm' in data) {
+    isContactValid.value = false;
+    return;
+  }
+
   isContactValid.value = true;
+  personToSaveData.value.contacts = data
   console.log(data, 'contactos');
 }
 
@@ -242,24 +277,25 @@ const save = () => {
 
   // Esperar siguiente ciclo para asegurar respuesta de los formularios
   nextTick(() => {
-    if (isPersonValid.value === false
-        || isFiscalValid.value === false
-        || isAccountBankValid.value === false
-        || isAddressValid.value === false
-        || isContactValid.value === false) {
-      AlertService.showFormError();
-      return;
-    }
+      const invalidForm = getInvalidForm();
+
+      if (invalidForm) {
+        switchTab(invalidForm);
+        AlertService.showFormError();
+        return;
+      }
 
     // Si ambos son válidos:
-    console.log("Datos válidos:", 'formPersonData.value', 'formFiscalData.value');
-    // Haz aquí el submit final al backend
+    console.log("Datos válidos: se puede enviar al backend ", personToSaveData.value);
   });
 };
 
 const cancel = () => {
   personRef.value?.reset();
   fiscalProfileRef.value?.reset();
+  accountBankRef.value?.reset();
+  addressesRef.value?.reset();
+  contactsRef.value?.reset();
 }
 
 const lookupsToSend = computed(() => ({
@@ -322,6 +358,19 @@ const init = () => {
         LoadingService.hide();
       });
 };
+
+const getInvalidForm = (): keyof typeof formStatusMap | null => {
+  const entries = Object.entries(formStatusMap) as [
+    keyof typeof formStatusMap,
+    typeof isPersonValid
+  ][];
+
+  const invalid = entries.find(([_, ref]) => ref.value === false);
+
+  return invalid?.[0] ?? null;
+};
+
+
 
 // Cargar datos al montar el componente
 init();
