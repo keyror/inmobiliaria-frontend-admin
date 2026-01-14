@@ -100,12 +100,10 @@ const emit = defineEmits<{
 }>();
 
 const initialForm: Partial<IFiscalProfile> = {
-  tax_regime: "",
   responsible_for_vat_type_id: "",
   vat_withholding: "",
   income_tax_withholding: "",
   ica_withholding: "",
-  taxe_type_id: "",
   taxe_types: [],
   rental_fee: ""
 };

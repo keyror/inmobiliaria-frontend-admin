@@ -3,15 +3,15 @@ export const addressSchema = {
         { required: true, message: "Campo obligatorio" },
     ],
 
-    country: [
+    country_id: [
         { required: true, message: "Campo obligatorio" },
     ],
 
-    department: [
+    department_id: [
         { required: true, message: "Campo obligatorio" },
     ],
 
-    city: [
+    city_id: [
         { required: true, message: "Campo obligatorio" },
     ],
     via_type: [

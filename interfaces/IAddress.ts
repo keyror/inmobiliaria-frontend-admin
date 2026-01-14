@@ -1,12 +1,12 @@
 export interface IAddress {
     id?: string;
     address: string;
-    city: string;
-    department: string;
-    country: string;
+    city_id: string;
+    department_id: string;
+    country_id: string;
     zip_code?: string;
     sector?: string;
-    stratum?: string;
+    stratum_id?: string;
     complement?: string;
     person_id?: string;
     company_id?: string;

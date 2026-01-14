@@ -77,7 +77,7 @@
                     ref="accountBankRef"
                     @sendForm="getFormAccountBank"
                     :lookups="accountBankLookups"
-                    :data="mockAccountBankData"
+                    :data="[]"
                     :isEditing="props.isEditing"
                     @formInvalid="isAccountBankValid = false"
                 />
@@ -93,30 +93,30 @@
                     @formInvalid="isAddressValid = false"
                 />
               </div>
-                <div v-show="activeTab === 'contacts'">
-                  <PeopleContacts
-                      ref="contactsRef"
-                      @sendForm="getFormContacts"
-                      :data="[]"
-                      :isEditing="props.isEditing"
-                      @formInvalid="isContactValid = false"
-                  />
-                </div>
-                <div class="form-btn mt-3">
-                  <button class="btn btn-pill btn-gradient color-4" @click="save">
-                    {{ props.isEditing ? 'Actualizar' : 'Crear' }}
-                  </button>
+              <div v-show="activeTab === 'contacts'">
+                <PeopleContacts
+                    ref="contactsRef"
+                    @sendForm="getFormContacts"
+                    :data="[]"
+                    :isEditing="props.isEditing"
+                    @formInvalid="isContactValid = false"
+                />
+              </div>
+              <div class="form-btn mt-3">
+                <button class="btn btn-pill btn-gradient color-4" @click="save">
+                  {{ props.isEditing ? 'Actualizar' : 'Crear' }}
+                </button>
 
-                  <button class="btn btn-pill btn-dashed color-4" type="button" @click="cancel">
-                    Cancelar
-                  </button>
-                </div>
+                <button class="btn btn-pill btn-dashed color-4" type="button" @click="cancel">
+                  Cancelar
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -147,21 +147,7 @@ const props = defineProps({
   }
 });
 
-const mockAccountBankData = [
-  {
-    bank_id: "1",
-    account_type_id: "1",
-    account_number: "1234567890"
-  },
-  {
-    bank_id: "2",
-    account_type_id: "2",
-    account_number: "0987654321"
-  }
-];
 
-
-const form = ref({});
 const personRef = ref<InstanceType<typeof PeoplePersons> | null>(null);
 const fiscalProfileRef = ref<InstanceType<typeof PeopleFiscalProfiles> | null>(null);
 const accountBankRef = ref<InstanceType<typeof PeopleAccountBank> | null>(null);
@@ -213,7 +199,6 @@ const formStatusMap = {
 } as const;
 
 
-
 const switchTab = (tab: string) => {
   activeTab.value = tab
 }
@@ -234,7 +219,7 @@ const getFormFiscalProfile = (data: Partial<IFiscalProfile> | { invalidForm: boo
   personToSaveData.value.fiscal_profile = data;
 }
 
-const getFormAccountBank = (data: IAccountBank[]| { invalidForm: boolean }) => {
+const getFormAccountBank = (data: IAccountBank[] | { invalidForm: boolean }) => {
   if ('invalidForm' in data) {
     isAccountBankValid.value = false;
     return;
@@ -245,7 +230,7 @@ const getFormAccountBank = (data: IAccountBank[]| { invalidForm: boolean }) => {
   console.log(data, 'banco');
 }
 
-const getFormAddresses = (data: any[]| { invalidForm: boolean }) => {
+const getFormAddresses = (data: any[] | { invalidForm: boolean }) => {
   if ('invalidForm' in data) {
     isAddressValid.value = false;
     return;
@@ -256,7 +241,7 @@ const getFormAddresses = (data: any[]| { invalidForm: boolean }) => {
   console.log(data, 'direcciones');
 }
 
-const getFormContacts = (data: any[]| { invalidForm: boolean }) => {
+const getFormContacts = (data: any[] | { invalidForm: boolean }) => {
   if ('invalidForm' in data) {
     isContactValid.value = false;
     return;
@@ -275,19 +260,33 @@ const save = () => {
   addressesRef.value?.sendForm();
   contactsRef.value?.sendForm();
 
-  // Esperar siguiente ciclo para asegurar respuesta de los formularios
-  nextTick(() => {
-      const invalidForm = getInvalidForm();
+  nextTick()
+      .then(() => {
+        const invalidForm = getInvalidForm();
 
-      if (invalidForm) {
-        switchTab(invalidForm);
-        AlertService.showFormError();
-        return;
-      }
+        if (invalidForm) {
+          switchTab(invalidForm);
+          AlertService.showFormError();
+          // Cortamos la cadena de promesas
+          return Promise.reject('FORM_INVALID');
+        }
 
-    // Si ambos son válidos:
-    console.log("Datos válidos: se puede enviar al backend ", personToSaveData.value);
-  });
+        LoadingService.show();
+        return PersonService.createPerson(personToSaveData.value);
+      })
+      .then((response) => {
+        AlertService.showSuccess('Operación exitosa', response.message);
+        cancel();
+      })
+      .catch((error) => {
+        // Evita mostrar error si solo fue validación
+        if (error !== 'FORM_INVALID') {
+          AlertService.showError('Ha ocurrido un error', error);
+        }
+      })
+      .finally(() => {
+        LoadingService.hide();
+      });
 };
 
 const cancel = () => {
@@ -369,7 +368,6 @@ const getInvalidForm = (): keyof typeof formStatusMap | null => {
 
   return invalid?.[0] ?? null;
 };
-
 
 
 // Cargar datos al montar el componente

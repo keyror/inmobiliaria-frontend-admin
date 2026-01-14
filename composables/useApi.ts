@@ -3,26 +3,34 @@ import { useAuthStore } from '@/store/authStore';
 import type { FetchContext } from 'ofetch';
 
 function cleanPayload(payload: any): any {
-    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    if (payload === null || payload === '' || typeof payload !== 'object') {
         return payload;
     }
 
+    if (Array.isArray(payload)) {
+        return payload
+            .map(cleanPayload)
+            .filter(v => v !== null && v !== '' && v !== undefined);
+    }
+
     const cleaned: Record<string, any> = {};
-    let hasChanges = false;
 
     for (const key in payload) {
-        const value = payload[key];
+        const value = cleanPayload(payload[key]);
 
-        // Omitir valores vacíos o null
-        if (value === '' || value === null) {
-            hasChanges = true;
+        if (
+            value === null ||
+            value === '' ||
+            value === undefined ||
+            (typeof value === 'object' && !Array.isArray(value) && !Object.keys(value).length)
+        ) {
             continue;
         }
 
         cleaned[key] = value;
     }
 
-    return hasChanges ? cleaned : payload;
+    return cleaned;
 }
 
 export function useApi<T>(

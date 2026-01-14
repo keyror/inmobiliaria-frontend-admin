@@ -139,36 +139,36 @@
           />
 
           <CommonInputfieldsSelectfield
-              v-model="address.country"
+              v-model="address.country_id"
               classes="col-md-6 col-sm-6"
               label="País"
               :data="lookups.country"
               labelField="name"
               star="*"
-              :rules="addressSchema.country"
+              :rules="addressSchema.country_id"
               :name="`country_${index}`"
           />
 
           <CommonInputfieldsSelectfield
-              v-model="address.department"
+              v-model="address.department_id"
               classes="col-md-6 col-sm-6"
               label="Departamento"
               :data="lookups.departments"
               labelField="name"
               star="*"
-              :rules="addressSchema.department"
+              :rules="addressSchema.department_id"
               :name="`department_${index}`"
               @update:modelValue="onDepartmentChange(index)"
           />
 
           <CommonInputfieldsSelectfield
-              v-model="address.city"
+              v-model="address.city_id"
               classes="col-md-6 col-sm-6"
               label="Ciudad"
               :data="getFilteredCities(index)"
               labelField="name"
               star="*"
-              :rules="addressSchema.city"
+              :rules="addressSchema.city_id"
               :name="`city_${index}`"
           />
 
@@ -187,7 +187,7 @@
           />
 
           <CommonInputfieldsSelectfield
-              v-model="address.stratum"
+              v-model="address.stratum_id"
               classes="col-md-4 col-sm-6"
               label="Estrato"
               :data="lookups.strata"
@@ -209,7 +209,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
 import type { ILookup } from "~/interfaces/ILookup";
 import type { IAddress } from "~/interfaces/IAddress";
 import { useValidator } from "@/composables/useValidator";
@@ -238,12 +237,12 @@ const emit = defineEmits<{
 const emptyAddress: IAddress = {
   address: "",
   complement: "",
-  country: "",
-  department: "",
-  city: "",
+  country_id: "",
+  department_id: "",
+  city_id: "",
   zip_code: "",
   sector: "",
-  stratum: "",
+  stratum_id: "",
   is_principal: false,
   via_type: "",
   via_number: "",
@@ -256,14 +255,13 @@ const emptyAddress: IAddress = {
 };
 
 const addressesList = ref<IAddress[]>([{ ...emptyAddress }]);
-const original = ref<IAddress[]>([]);
+const original = ref<IAddress[]>([{ ...emptyAddress }]);
 
 watch(
-    () => props.data,
-    (val) => {
-      if (val?.length) {
-        addressesList.value = val.map(a => ({ ...a }));
-        original.value = val.map(a => ({ ...a }));
+    () => props.data, (val) => {
+      if (val && val.length > 0) {
+        addressesList.value = val.map(address => ({ ...address }));
+        original.value = val.map(address => ({ ...address }));
       }
     },
     { immediate: true }
@@ -306,7 +304,7 @@ const setPrincipal = (index: number) => {
 };
 
 const onDepartmentChange = (index: number) => {
-  addressesList.value[index].city = "";
+  addressesList.value[index].city_id = "";
 };
 
 const getFilteredCities = (index: number) => {
@@ -319,7 +317,7 @@ const getFilteredCities = (index: number) => {
     return [];
   }
 
-  const departmentId = addressesList.value[index]?.department;
+  const departmentId = addressesList.value[index]?.department_id;
   if (!departmentId) return [];
 
   const selectedDepartment = props.lookups.departments.find(
