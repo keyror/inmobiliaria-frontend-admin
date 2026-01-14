@@ -77,7 +77,7 @@
                     ref="accountBankRef"
                     @sendForm="getFormAccountBank"
                     :lookups="accountBankLookups"
-                    :data="[]"
+                    :data="person?.account_banks"
                     :isEditing="props.isEditing"
                     @formInvalid="isAccountBankValid = false"
                 />
@@ -88,7 +88,7 @@
                     ref="addressesRef"
                     @sendForm="getFormAddresses"
                     :lookups="addressesLookups"
-                    :data="[]"
+                    :data="person?.addresses"
                     :isEditing="props.isEditing"
                     @formInvalid="isAddressValid = false"
                 />
@@ -97,7 +97,7 @@
                 <PeopleContacts
                     ref="contactsRef"
                     @sendForm="getFormContacts"
-                    :data="[]"
+                    :data="person?.contacts"
                     :isEditing="props.isEditing"
                     @formInvalid="isContactValid = false"
                 />

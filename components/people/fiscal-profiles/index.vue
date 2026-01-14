@@ -105,7 +105,8 @@ const initialForm: Partial<IFiscalProfile> = {
   income_tax_withholding: "",
   ica_withholding: "",
   taxe_types: [],
-  rental_fee: ""
+  rental_fee: "",
+  economic_activities: []
 };
 
 const form = ref({ ...initialForm });
@@ -115,7 +116,8 @@ watch(() => props.data, (newData) => {
       if (newData) {
         const modAttributes = {
           ...newData,
-          taxe_types: newData.taxe_types?.map(t => t.type.id) ?? []
+          taxe_types: newData.taxe_types?.map(t => t.type.id) ?? [],
+          economic_activities: newData.economic_activities?.map(e => e.type.id) ?? []
         }
 
         form.value = { ...modAttributes };
