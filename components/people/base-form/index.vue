@@ -269,9 +269,14 @@ const save = () => {
 
         LoadingService.show();
 
-        return props.isEditing
-            ? PersonService.updatePerson(idPersona, personToSaveData.value)
-            : PersonService.createPerson(personToSaveData.value)
+        if (props.isEditing) {
+          return PersonService
+              .updatePerson(idPersona, personToSaveData.value)
+              .then(() => init());
+        } else {
+          return PersonService.createPerson(personToSaveData.value);
+        }
+
       })
       .then((response) => {
         AlertService.showSuccess('Operación exitosa', response.message);
