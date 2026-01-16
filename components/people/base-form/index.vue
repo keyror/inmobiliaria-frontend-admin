@@ -206,7 +206,6 @@ const switchTab = (tab: string) => {
 const getFormPerson = (data: Partial<IPerson>) => {
   isPersonValid.value = true;
   personToSaveData.value.person = data;
-  console.log(data, 'persona');
 }
 
 const getFormFiscalProfile = (data: Partial<IFiscalProfile> | { invalidForm: boolean }) => {
@@ -227,7 +226,6 @@ const getFormAccountBank = (data: IAccountBank[] | { invalidForm: boolean }) => 
 
   isAccountBankValid.value = true;
   personToSaveData.value.account_banks = data
-  console.log(data, 'banco');
 }
 
 const getFormAddresses = (data: any[] | { invalidForm: boolean }) => {
@@ -238,7 +236,6 @@ const getFormAddresses = (data: any[] | { invalidForm: boolean }) => {
 
   isAddressValid.value = true;
   personToSaveData.value.addresses = data
-  console.log(data, 'direcciones');
 }
 
 const getFormContacts = (data: any[] | { invalidForm: boolean }) => {
@@ -249,7 +246,6 @@ const getFormContacts = (data: any[] | { invalidForm: boolean }) => {
 
   isContactValid.value = true;
   personToSaveData.value.contacts = data
-  console.log(data, 'contactos');
 }
 
 const save = () => {
@@ -272,7 +268,10 @@ const save = () => {
         }
 
         LoadingService.show();
-        return PersonService.createPerson(personToSaveData.value);
+
+        return props.isEditing
+            ? PersonService.updatePerson(idPersona, personToSaveData.value)
+            : PersonService.createPerson(personToSaveData.value)
       })
       .then((response) => {
         AlertService.showSuccess('Operación exitosa', response.message);

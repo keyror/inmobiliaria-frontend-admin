@@ -116,8 +116,8 @@ watch(() => props.data, (newData) => {
       if (newData) {
         const modAttributes = {
           ...newData,
-          taxe_types: newData.taxe_types?.map(t => t.type.id) ?? [],
-          economic_activities: newData.economic_activities?.map(e => e.type.id) ?? []
+          taxe_types: newData.taxe_types?.map(t => t.taxe_type_id) ?? [],
+          economic_activities: newData.economic_activities?.map(e => e.economic_activity_type_id) ?? []
         }
 
         form.value = { ...modAttributes };

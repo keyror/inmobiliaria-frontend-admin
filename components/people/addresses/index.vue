@@ -145,6 +145,7 @@
               :data="lookups.country"
               labelField="name"
               star="*"
+              searchable
               :rules="addressSchema.country_id"
               :name="`country_${index}`"
           />
@@ -156,6 +157,7 @@
               :data="lookups.departments"
               labelField="name"
               star="*"
+              searchable
               :rules="addressSchema.department_id"
               :name="`department_${index}`"
               @update:modelValue="onDepartmentChange(index)"
@@ -168,6 +170,7 @@
               :data="getFilteredCities(index)"
               labelField="name"
               star="*"
+              searchable
               :rules="addressSchema.city_id"
               :name="`city_${index}`"
           />
