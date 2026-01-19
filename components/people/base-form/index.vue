@@ -269,18 +269,17 @@ const save = () => {
 
         LoadingService.show();
 
-        if (props.isEditing) {
-          return PersonService
-              .updatePerson(idPersona, personToSaveData.value)
-              .then(() => init());
-        } else {
-          return PersonService.createPerson(personToSaveData.value);
-        }
-
+        return props.isEditing
+            ? PersonService.updatePerson(idPersona, personToSaveData.value)
+            : PersonService.createPerson(personToSaveData.value)
       })
       .then((response) => {
-        AlertService.showSuccess('Operación exitosa', response.message);
         cancel();
+        AlertService.showSuccess('Operación exitosa', response.message).then((response) => {
+          if (response.isConfirmed) {
+            init();
+          }
+        })
       })
       .catch((error) => {
         // Evita mostrar error si solo fue validación

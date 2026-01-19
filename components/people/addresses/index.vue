@@ -41,14 +41,14 @@
 
             <div class="row gx-2">
               <CommonInputfieldsSelectfield
-                  v-model="address.via_type"
+                  v-model="address.via_type_id"
                   classes="col-md-2 col-sm-4"
                   label="Tipo vía"
                   :data="lookups.roadTypes"
                   labelField="name"
                   star="*"
-                  :rules="addressSchema.via_type"
-                  :name="`via_type_${index}`"
+                  :rules="addressSchema.via_type_id"
+                  :name="`via_type_id_${index}`"
                   @update:modelValue="buildAddress(index)"
               />
 
@@ -63,7 +63,7 @@
               />
 
               <CommonInputfieldsSelectfield
-                  v-model="address.letra1"
+                  v-model="address.letra1_id"
                   classes="col-md-1 col-sm-4"
                   label="Letra"
                   :data="lookups.letters"
@@ -73,7 +73,7 @@
               />
 
               <CommonInputfieldsSelectfield
-                  v-model="address.orientation1"
+                  v-model="address.orientation1_id"
                   classes="col-md-1 col-sm-4"
                   label="Orient."
                   :data="lookups.orientations"
@@ -93,7 +93,7 @@
               />
 
               <CommonInputfieldsSelectfield
-                  v-model="address.letra2"
+                  v-model="address.letra2_id"
                   classes="col-md-1 col-sm-4"
                   label="Letra"
                   :data="lookups.letters"
@@ -103,7 +103,7 @@
               />
 
               <CommonInputfieldsSelectfield
-                  v-model="address.orientation2"
+                  v-model="address.orientation2_id"
                   classes="col-md-1 col-sm-4"
                   label="Orient."
                   :data="lookups.orientations"
@@ -247,13 +247,13 @@ const emptyAddress: IAddress = {
   sector: "",
   stratum_id: "",
   is_principal: false,
-  via_type: "",
+  via_type_id: "",
   via_number: "",
-  letra1: "",
-  orientation1: "",
+  letra1_id: "",
+  orientation1_id: "",
   number2: "",
-  letra2: "",
-  orientation2: "",
+  letra2_id: "",
+  orientation2_id: "",
   number3: ""
 };
 
@@ -277,13 +277,13 @@ const buildAddress = (index: number) => {
   const a = addressesList.value[index];
   let result = "";
 
-  if (a.via_type) result += getLookupName(props.lookups.roadTypes, a.via_type);
+  if (a.via_type_id) result += getLookupName(props.lookups.roadTypes, a.via_type_id);
   if (a.via_number) result += ` ${a.via_number}`;
-  if (a.letra1) result += getLookupName(props.lookups.letters, a.letra1);
-  if (a.orientation1) result += ` ${getLookupName(props.lookups.orientations, a.orientation1)}`;
+  if (a.letra1_id) result += getLookupName(props.lookups.letters, a.letra1_id);
+  if (a.orientation1_id) result += ` ${getLookupName(props.lookups.orientations, a.orientation1_id)}`;
   if (a.number2) result += ` # ${a.number2}`;
-  if (a.letra2) result += getLookupName(props.lookups.letters, a.letra2);
-  if (a.orientation2) result += ` ${getLookupName(props.lookups.orientations, a.orientation2)}`;
+  if (a.letra2_id) result += getLookupName(props.lookups.letters, a.letra2_id);
+  if (a.orientation2_id) result += ` ${getLookupName(props.lookups.orientations, a.orientation2_id)}`;
   if (a.number3) result += ` - ${a.number3}`;
 
   a.address = result.trim();

@@ -11,12 +11,12 @@ export interface IAddress {
     person_id?: string;
     company_id?: string;
     is_principal: boolean;
-    via_type: string;
+    via_type_id: string;
     via_number: string;
-    letra1: string;
-    orientation1: string;
+    letra1_id: string;
+    orientation1_id: string;
     number2: string;
-    letra2: string;
-    orientation2: string;
+    letra2_id: string;
+    orientation2_id: string;
     number3: string;
 }

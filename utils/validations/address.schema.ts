@@ -14,7 +14,7 @@ export const addressSchema = {
     city_id: [
         { required: true, message: "Campo obligatorio" },
     ],
-    via_type: [
+    via_type_id: [
         { required: true, message: "Campo obligatorio" },
     ],
     via_number: [
