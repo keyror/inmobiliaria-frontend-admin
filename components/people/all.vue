@@ -20,7 +20,7 @@
                     <button class="btn btn-dashed color-1" type="button" @click="edit(item)">
                       <i class="fas fa-pen"></i>
                     </button>
-                    <button class="btn btn-dashed color-4" type="button" @click="deleteUser(item)">
+                    <button class="btn btn-dashed color-4" type="button" @click="deletePerson(item)">
                       <i class="fa fa-trash"></i>
                     </button>
                   </div>
@@ -84,7 +84,7 @@ const edit = async (item:any) => {
   navigateTo(`/people/edit/${item.id}`)
 }
 
-const deleteUser = async (item:any) => {
+const deletePerson = async (item:any) => {
   AlertaService.showConfirmation(
       '¿ Esta seguro de realizar esta operación ?',
       `Esta seguro de eliminar el registro : ${item.full_name}`)
@@ -93,9 +93,12 @@ const deleteUser = async (item:any) => {
           LoadingService.show()
           PersonService.deletePerson(item.id)
               .then((response) => {
-                AlertaService.showSuccess('Operación exitosa', response.message)
                 LoadingService.hide()
-                people(paramsTable.value)
+                AlertaService.showSuccess('Operación exitosa', response.message).then((response) => {
+                  if (response.isConfirmed) {
+                    people(paramsTable.value)
+                  }
+                })
               }).catch((error) => {
             LoadingService.hide()
             AlertaService.showError('Ha ocurrido un error', error);

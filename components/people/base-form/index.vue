@@ -203,7 +203,12 @@ const switchTab = (tab: string) => {
   activeTab.value = tab
 }
 
-const getFormPerson = (data: Partial<IPerson>) => {
+const getFormPerson = (data: Partial<IPerson> | { invalidForm: boolean }) => {
+  if ('invalidForm' in data) {
+    isPersonValid.value = false;
+    return;
+  }
+
   isPersonValid.value = true;
   personToSaveData.value.person = data;
 }
@@ -371,7 +376,6 @@ const getInvalidForm = (): keyof typeof formStatusMap | null => {
 
   return invalid?.[0] ?? null;
 };
-
 
 // Cargar datos al montar el componente
 init();
