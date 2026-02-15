@@ -10,7 +10,7 @@
         },
         {
             "icon":"bi:grid",
-            "title":"My properties",
+            "title":"Propiedades",
             "collapse":true,
             "active":false,
             "children":[
@@ -26,7 +26,7 @@
                 },
                 {
                     "link":"/myproperties/propertylist",
-                    "title":"property list",
+                    "title":"Listado",
                     "icon":"material-symbols:keyboard-double-arrow-right"
                 },
                 {

@@ -19,6 +19,9 @@ export class ApiUrls {
     static readonly USERS_EXPORT_TO_EXCEL_GET: string = 'users/export/excel';
     static readonly USERS_EXPORT_TO_PDF_GET: string = 'users/export/pdf';
 
+    // Properties URLs
+    static readonly PROPERTIES_GET = '/properties';
+
     // Tenants URLs
     static readonly TENANTS_GET = '/tenants';
     static readonly TENANTS_SHOW_GET = '/tenants';
