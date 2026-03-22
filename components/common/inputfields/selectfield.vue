@@ -125,8 +125,8 @@ const normalizedValue = computed({
   },
   set(value) {
     emit("update:modelValue", value)
-    if (touched.value && props.rules.length) {
-      validateField(props.name, value, props.rules)
+    if (props.rules.length) {
+      validateField(fieldName.value, value, props.rules)
     }
   }
 })
@@ -190,8 +190,8 @@ function clearAll() {
 
 // Valida el campo
 function validate() {
-  if (touched.value && props.rules.length) {
-    validateField(props.name, normalizedValue.value, props.rules)
+  if (props.rules.length) {
+    validateField(fieldName.value, normalizedValue.value, props.rules)
   }
 }
 

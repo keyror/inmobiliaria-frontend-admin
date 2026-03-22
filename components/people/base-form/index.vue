@@ -84,7 +84,7 @@
 
               </div>
               <div v-show="activeTab === 'addresses'">
-                <PeopleAddresses
+                <Addresses
                     ref="addressesRef"
                     @sendForm="getFormAddresses"
                     :lookups="addressesLookups"
@@ -94,7 +94,7 @@
                 />
               </div>
               <div v-show="activeTab === 'contacts'">
-                <PeopleContacts
+                <Contacts
                     ref="contactsRef"
                     @sendForm="getFormContacts"
                     :data="person?.contacts"
@@ -135,8 +135,8 @@ import {
   PeopleFiscalProfiles,
   PeopleAccountBank,
   type PeoplePersons,
-  PeopleAddresses,
-  PeopleContacts
+  Addresses,
+  Contacts
 } from "#components";
 import type {ISavePerson} from "~/interfaces/ISavePerson";
 
@@ -151,8 +151,8 @@ const props = defineProps({
 const personRef = ref<InstanceType<typeof PeoplePersons> | null>(null);
 const fiscalProfileRef = ref<InstanceType<typeof PeopleFiscalProfiles> | null>(null);
 const accountBankRef = ref<InstanceType<typeof PeopleAccountBank> | null>(null);
-const addressesRef = ref<InstanceType<typeof PeopleAddresses> | null>(null);
-const contactsRef = ref<InstanceType<typeof PeopleContacts> | null>(null);
+const addressesRef = ref<InstanceType<typeof Addresses> | null>(null);
+const contactsRef = ref<InstanceType<typeof Contacts> | null>(null);
 
 const activeTab = ref<string>('persons')
 
@@ -165,7 +165,7 @@ const categories = ref<IIndexLookupsRequest>({
     Constants.ORGANIZATION_TYPE,
     Constants.DOCUMENT_TYPE,
     Constants.GENDER,
-    Constants.VAT_TYPE,
+    Constants.OP_SI_NO,
     Constants.ECONOMIC_ACTIVITY,
     Constants.CITY,
     Constants.ACCOUNT_BANKS,
@@ -313,7 +313,7 @@ const lookupsToSend = computed(() => ({
 }));
 
 const fiscalProfilesLookups = computed(() => ({
-  vatType: lookups.value[Constants.VAT_TYPE],
+  opSiNo: lookups.value[Constants.OP_SI_NO],
   taxeType: lookups.value[Constants.TAXE_TYPE],
   economicActivity: lookups.value[Constants.ECONOMIC_ACTIVITY],
 }));

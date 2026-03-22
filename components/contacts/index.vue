@@ -1,8 +1,13 @@
 <template>
   <div>
     <div class="card-header ps-0 d-flex justify-content-between align-items-center">
-      <h5>Contactos</h5>
-      <button type="button" class="btn btn-pill btn-gradient color-4" @click="addContact">
+      <h5> {{ props.single ? 'Contacto' : 'Contactos' }}</h5>
+      <button
+          v-if="!single"
+          type="button"
+          class="btn btn-pill btn-gradient color-4"
+          @click="addContact"
+      >
         <i class="bi bi-plus-circle me-1"></i>
         Agregar Contacto
       </button>
@@ -17,6 +22,7 @@
         <div class="d-flex justify-content-between align-items-start mb-3">
           <h6 class="mb-0">Contacto #{{ index + 1 }}</h6>
           <button
+            v-if="!single"
             type="button"
             class="btn btn-dashed color-4"
             @click="removeContact(index)"
@@ -34,6 +40,7 @@
             label="Teléfono Fijo"
             placeholder="Ej: 6012345678"
             :name="`phone_${index}`"
+            :rules="contactSchema.phone"
           />
 
           <CommonInputfieldsTextfield
@@ -63,6 +70,7 @@
               classes="col-md-12"
               label=" Contacto Principal"
               :name="`is_principal_contact_${index}`"
+              :rules="contactSchema.is_principal"
               @change="setPrincipal(index)"
           />
         </form>
@@ -73,14 +81,14 @@
 
 <script lang="ts" setup>
 import type { IContact } from "~/interfaces/IContact";
-import { useValidator } from "@/composables/useValidator";
-import { contactSchema } from "@/utils/validations/contact.schema";
+import { useValidator } from "~/composables/useValidator";
+import { contactSchema } from "~/utils/validations/contact.schema";
 
 const { validateForm, resetErrors } = useValidator();
 
 const props = defineProps<{
   data?: IContact[],
-  isEditing?: boolean
+  single?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -95,7 +103,13 @@ const emptyContact: IContact = {
   is_principal: false
 };
 
-const contactsList = ref<IContact[]>([{ ...emptyContact }]);
+
+const contactsList = ref<IContact[]>(
+    props.single
+        ? [{ ...emptyContact }]
+        : [{ ...emptyContact }]
+);
+
 const contactsListOriginal = ref<IContact[]>([{ ...emptyContact }]);
 
 watch(() => props.data, (newData) => {
@@ -149,11 +163,5 @@ defineExpose({
 </script>
 
 <style scoped>
-.card {
-  transition: box-shadow 0.2s;
-}
 
-.card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
 </style>

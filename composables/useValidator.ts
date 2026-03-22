@@ -8,7 +8,6 @@ export function useValidator() {
     const rulesMap: any = {
         required: (value: any, msg?: string) => {
 
-            // 👇 CHECKBOX (boolean)
             if (typeof value === "boolean") {
                 return value === true ? true : msg || "Campo obligatorio";
             }
@@ -26,6 +25,7 @@ export function useValidator() {
             return true;
         },
 
+        nullable: () => true,
 
         min: (value: any, minValue: number, msg?: string) =>
             Number(value) >= minValue
@@ -53,9 +53,9 @@ export function useValidator() {
                 : msg || `Debe tener máximo ${length} caracteres`,
 
         numeric: (value: any, msg?: string) =>
-            /^[0-9]+$/.test(String(value))
+            !isNaN(value) && value !== null && value !== ""
                 ? true
-                : msg || "Solo se permiten números",
+                : msg || "Campo debe ser numérico",
 
         between: (value: number, min: number, max: number, msg?: string) =>
             value >= min && value <= max
@@ -99,20 +99,31 @@ export function useValidator() {
     function validateField(name: string, value: any, rules: any[]) {
         errors[name] = "";
 
+        const isEmpty =
+            value === null ||
+            value === undefined ||
+            value === "" ||
+            (Array.isArray(value) && value.length === 0);
+
+        const hasNullable = rules.some(rule => rule.nullable === true);
+
+        if (hasNullable && isEmpty) {
+            return;
+        }
+
         for (const ruleObj of rules) {
             const normalized = normalizeRule(ruleObj);
             if (!normalized) continue;
 
             const [ruleName, ...params] = normalized;
+
             const validator = rulesMap[ruleName];
             if (!validator) continue;
 
-            // EXTRAEMOS EL MENSAJE PERSONALIZADO SI EXISTE
             let msg = undefined;
 
-            // Si el último parámetro es string, es un mensaje custom
             if (typeof params[params.length - 1] === "string") {
-                msg = params.pop(); // lo removemos y guardamos
+                msg = params.pop();
             }
 
             const result = validator(value, ...params, msg);

@@ -47,6 +47,8 @@
         classes="col-md-6 col-sm-6"
         label="Dígito de Verificación (DV)"
         readonly
+        :rules="person.dv"
+        name="dv"
     />
 
     <CommonInputfieldsSelectfield
@@ -76,6 +78,8 @@
         classes="col-md-6"
         v-model="form.company_name"
         :required="false"
+        :rules="person.company_name"
+        name="company_name"
         label="Razón Social"/>
 
     <CommonInputfieldsTextfield

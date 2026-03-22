@@ -21,11 +21,16 @@
   },
 
   "people" : {
-    "breadCrumbPage" : "Detalle Persona",
+    "breadCrumbPage" : "Persona",
     "breadCrumbTitle" : "Gestionar Persona"
   },
 
   "panel" : {
     "welcome":"Bienvenido al panel de administración"
+  },
+
+  "property" : {
+    "breadCrumbPage" : "Propiedad",
+    "breadCrumbTitle" : "Gestionar Propiedad"
   }
 }

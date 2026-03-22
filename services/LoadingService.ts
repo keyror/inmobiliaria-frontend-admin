@@ -1,23 +1,20 @@
-// services/LoadingService.ts
-import { ref } from 'vue'
+import { useLoadingStore } from '@/store/loading';
 
 class LoadingService {
-    private _isLoading = ref(false)
-
-    get isLoading() {
-        return this._isLoading.value
+    private get store() {
+        return useLoadingStore()
     }
 
-    get state() {
-        return this._isLoading
+    get isLoading() {
+        return this.store.isLoading
     }
 
     show() {
-        this._isLoading.value = true
+        this.store.show()
     }
 
     hide() {
-        this._isLoading.value = false
+        this.store.hide()
     }
 }
 

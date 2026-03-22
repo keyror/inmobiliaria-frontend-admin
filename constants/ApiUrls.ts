@@ -19,9 +19,6 @@ export class ApiUrls {
     static readonly USERS_EXPORT_TO_EXCEL_GET: string = 'users/export/excel';
     static readonly USERS_EXPORT_TO_PDF_GET: string = 'users/export/pdf';
 
-    // Properties URLs
-    static readonly PROPERTIES_GET = '/properties';
-
     // Tenants URLs
     static readonly TENANTS_GET = '/tenants';
     static readonly TENANTS_SHOW_GET = '/tenants';
@@ -60,4 +57,14 @@ export class ApiUrls {
     // Desplegables
     static readonly LOOKUPS_POST = '/lookups';
     static readonly LOOKUPS_COUNTRY_COLOMBIA = '/lookups/co';
+
+    // Properties URLs
+    static readonly PROPERTIES_GET = '/properties';
+    static readonly PROPERTIES_SHOW_GET = '/properties';
+    static readonly PROPERTIES_CREATE_POST = '/properties';
+    static readonly PROPERTIES_UPDATE_PUT = '/properties';
+    static readonly PROPERTIES_DELETE_DELETE = '/properties';
+
+    static readonly IMAGES = '/images';
+    static readonly IMAGE_COVER = 'cover';
 }

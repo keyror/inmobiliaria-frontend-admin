@@ -1,8 +1,9 @@
 <template>
   <div>
     <div class="card-header ps-0 d-flex justify-content-between align-items-center">
-      <h5>Direcciones</h5>
+      <h5> {{ props.single ? 'Dirección' : 'Direcciones' }}</h5>
       <button
+          v-if="!single"
           type="button"
           class="btn btn-pill btn-gradient color-4"
           @click="addAddress"
@@ -25,6 +26,7 @@
         <div class="d-flex justify-content-between align-items-start mb-3">
           <h6 class="mb-0">Dirección #{{ index + 1 }}</h6>
           <button
+              v-if="!single"
               type="button"
               class="btn btn-dashed color-4"
               @click="removeAddress(index)"
@@ -69,6 +71,7 @@
                   :data="lookups.letters"
                   labelField="name"
                   :name="`letra1_${index}`"
+                  :rules="addressSchema.letra1_id"
                   @update:modelValue="buildAddress(index)"
               />
 
@@ -79,6 +82,7 @@
                   :data="lookups.orientations"
                   labelField="name"
                   :name="`orientation1_${index}`"
+                  :rules="addressSchema.orientation1_id"
                   @update:modelValue="buildAddress(index)"
               />
 
@@ -99,6 +103,7 @@
                   :data="lookups.letters"
                   labelField="name"
                   :name="`letra2_${index}`"
+                  :rules="addressSchema.letra2_id"
                   @update:modelValue="buildAddress(index)"
               />
 
@@ -109,6 +114,7 @@
                   :data="lookups.orientations"
                   labelField="name"
                   :name="`orientation2_${index}`"
+                  :rules="addressSchema.orientation2_id"
                   @update:modelValue="buildAddress(index)"
               />
 
@@ -136,6 +142,7 @@
               classes="col-md-6 col-sm-6"
               label="Complemento"
               :name="`complement_${index}`"
+              :rules="addressSchema.complement"
           />
 
           <CommonInputfieldsSelectfield
@@ -147,7 +154,7 @@
               star="*"
               searchable
               :rules="addressSchema.country_id"
-              :name="`country_${index}`"
+              :name="`country_id_${index}`"
           />
 
           <CommonInputfieldsSelectfield
@@ -159,7 +166,7 @@
               star="*"
               searchable
               :rules="addressSchema.department_id"
-              :name="`department_${index}`"
+              :name="`department_id_${index}`"
               @update:modelValue="onDepartmentChange(index)"
           />
 
@@ -172,7 +179,7 @@
               star="*"
               searchable
               :rules="addressSchema.city_id"
-              :name="`city_${index}`"
+              :name="`city_id_${index}`"
           />
 
           <CommonInputfieldsTextfield
@@ -180,6 +187,7 @@
               classes="col-md-4 col-sm-6"
               label="Código postal"
               :name="`zip_${index}`"
+              :rules="addressSchema.zip_code"
           />
 
           <CommonInputfieldsTextfield
@@ -187,6 +195,7 @@
               classes="col-md-4 col-sm-6"
               label="Sector"
               :name="`sector_${index}`"
+              :rules="addressSchema.sector"
           />
 
           <CommonInputfieldsSelectfield
@@ -196,6 +205,7 @@
               :data="lookups.strata"
               labelField="name"
               :name="`stratum_${index}`"
+              :rules="addressSchema.stratum_id"
           />
 
           <CommonInputfieldsCheckbox
@@ -203,6 +213,7 @@
               classes="col-md-12"
               label="Dirección principal"
               :name="`is_principal_${index}`"
+              :rules="addressSchema.is_principal"
               @change="setPrincipal(index)"
           />
         </form>
@@ -214,13 +225,14 @@
 <script setup lang="ts">
 import type { ILookup } from "~/interfaces/ILookup";
 import type { IAddress } from "~/interfaces/IAddress";
-import { useValidator } from "@/composables/useValidator";
-import { addressSchema } from "@/utils/validations/address.schema";
+import { useValidator } from "~/composables/useValidator";
+import { addressSchema } from "~/utils/validations/address.schema";
 
 const { validateForm, resetErrors } = useValidator();
 
 const props = defineProps<{
   data?: IAddress[];
+  single?: boolean;
   lookups: {
     roadTypes: ILookup[];
     letters: ILookup[];
@@ -257,7 +269,12 @@ const emptyAddress: IAddress = {
   number3: ""
 };
 
-const addressesList = ref<IAddress[]>([{ ...emptyAddress }]);
+const addressesList = ref<IAddress[]>(
+    props.single
+        ? [{ ...emptyAddress }]
+        : [{ ...emptyAddress }]
+);
+
 const original = ref<IAddress[]>([{ ...emptyAddress }]);
 
 watch(
@@ -351,11 +368,4 @@ defineExpose({ sendForm, reset });
 </script>
 
 <style scoped>
-.card {
-  transition: box-shadow 0.2s;
-}
-
-.card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
 </style>

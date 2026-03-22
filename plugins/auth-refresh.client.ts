@@ -1,34 +1,39 @@
 // plugins/auth-refresh.client.ts
-export default defineNuxtPlugin(() => {
-    const auth = useAuthStore()
+export default defineNuxtPlugin((nuxtApp) => {
 
-    if (auth.token && auth.expiresAt && auth.expiresAt < Date.now()) {
-        console.warn('🔒 Token expirado, cerrando sesión automáticamente')
-        auth.clearAuth();
-        navigateTo('/Authentication/login')
-        return
-    }
-    // Función que programa el refresh si hay un token y expiresAt
-    const scheduleRefresh = () => {
-        const now = Date.now()
+    nuxtApp.hook('app:mounted', () => {
 
-        if (!auth.token || !auth.expiresAt || auth.expiresAt < now) {
+        const auth = useAuthStore()
+
+        // Verificar expiración al montar
+        if (auth.token && auth.expiresAt && auth.expiresAt < Date.now()) {
+            console.warn('🔒 Token expirado, cerrando sesión automáticamente')
+            auth.clearAuth()
+            navigateTo('/Authentication/login')
             return
         }
 
-        const delay = auth.expiresAt - now - 60 * 1000 // 1 minuto antes
+        // Programar refresh
+        const scheduleRefresh = () => {
+            const now = Date.now()
 
-        console.log('⏳ Tiempo hasta el refresh (segundos):', delay / 1000)
+            if (!auth.token || !auth.expiresAt || auth.expiresAt < now) {
+                return
+            }
 
-        if (delay <= 0) {
-            auth.refreshToken()
-        } else {
-            setTimeout(() => {
+            const delay = auth.expiresAt - now - 60 * 1000 // 1 min antes
+
+            console.log('⏳ Tiempo hasta el refresh (segundos):', delay / 1000)
+
+            if (delay <= 0) {
                 auth.refreshToken()
-            }, delay)
+            } else {
+                setTimeout(() => {
+                    auth.refreshToken()
+                }, delay)
+            }
         }
-    }
 
-    // Programar al cargar la app
-    scheduleRefresh()
+        scheduleRefresh()
+    })
 })

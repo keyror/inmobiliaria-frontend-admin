@@ -38,4 +38,12 @@ export const person = {
         { required: true, message: "Campo obligatorio"},
     ],
 
+    dv: [
+        { nullable: true },
+    ],
+
+    company_name: [
+        { nullable: true },
+        { minLength: 10, message: "Debe tener mínimo 3 caracteres" }
+    ],
 };

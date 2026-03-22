@@ -7,5 +7,14 @@ export const contactSchema = {
     email: [
         { required: true, message: "Campo obligatorio" },
         { email: true, message: "Debe ser un correo electrónico válido" },
+    ],
+
+    phone: [
+        { nullable: true },
+        { min: 7, message: "El teléfono fijo debe tener al menos 7 dígitos" },
+    ],
+
+    is_principal: [
+        { nullable: true }
     ]
 };

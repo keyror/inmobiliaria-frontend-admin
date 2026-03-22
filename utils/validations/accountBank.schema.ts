@@ -9,6 +9,10 @@ export const accountBankSchema = {
 
     account_number: [
         { required: true, message: "Campo obligatorio" },
-        { min: 5, message: "El número de cuenta debe tener al menos 5 caracteres" },
-    ]
+        { minLength: 5, message: "El número de cuenta debe tener al menos 5 caracteres" },
+    ],
+
+    is_principal: [
+        { nullable: true }
+    ],
 };

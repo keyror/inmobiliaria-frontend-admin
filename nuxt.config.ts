@@ -1,5 +1,11 @@
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: {
+    enabled: true,
+
+    timeline: {
+      enabled: true
+    }
+  },
   runtimeConfig: {
     public: {
         apiBase: 'http://localhost:8000/api',

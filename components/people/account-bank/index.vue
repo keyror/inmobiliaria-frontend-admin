@@ -65,6 +65,7 @@
               classes="col-md-12"
               label="Cuenta Principal"
               :name="`is_principal_${index}`"
+              :rules="accountBankSchema.is_principal"
               @change="setPrincipal(index)"
           />
         </form>

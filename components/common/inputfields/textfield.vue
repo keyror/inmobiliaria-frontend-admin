@@ -14,10 +14,10 @@
         :readonly="props.readonly"
         :disabled="props.disabled"
         autocomplete="one-time-code"
-        :name="props.name ?? `field-${label}-${Math.random().toString(36).substring(2,7)}`"
+        :name="fieldName"
         @blur="validate"
     />
-    <CommonErrorfield :name="props.name  ?? `field-${label}-${Math.random().toString(36).substring(2,7)}`" />
+    <CommonErrorfield :name="fieldName" />
   </div>
 </template>
 
@@ -30,7 +30,7 @@ const props = defineProps({
   classes: String,
   placeholder: String,
   label: String,
-  modelValue: [String, Number],
+  modelValue: [String, Number, null],
   star: String,
   type: String,
   clean: { type: Boolean, default: false },
@@ -59,8 +59,18 @@ const localValue = computed({
 const { validateField, errors } = useValidator();
 
 function validate() {
-  validateField(props.name, localValue.value, props.rules);
+  validateField(fieldName.value, localValue.value, props.rules);
 }
+
+const fieldName = computed(() =>
+    props.name ?? `field-${props.label}-${Math.random().toString(36).substring(2,7)}`
+)
+
+watch(localValue, (val) => {
+  if (props.rules.length) {
+    validateField(fieldName.value, val, props.rules);
+  }
+});
 </script>
 
 <style scoped>

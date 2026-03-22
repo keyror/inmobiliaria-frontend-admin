@@ -89,7 +89,7 @@ import RolePermissionService from "~/services/RolePermissionService";
 
 const categories = ref<IIndexLookupsRequest>({
   categories: [
-    Constants.USER_STATUS
+    Constants.STATUS
   ]
 });
 
@@ -128,7 +128,7 @@ const save = () => {
 const getLookups = async () => {
   return LookupService.getLookups(categories.value)
       .then((lookupsResponse) => {
-        lookups.value = lookupsResponse.data[Constants.USER_STATUS];
+        lookups.value = lookupsResponse.data[Constants.STATUS];
       });
 };
 

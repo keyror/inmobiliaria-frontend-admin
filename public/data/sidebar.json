@@ -25,7 +25,12 @@
                     "icon":"material-symbols:keyboard-double-arrow-right"
                 },
                 {
-                    "link":"/myproperties/propertylist",
+                  "link":"/properties/add",
+                  "title":"Agregar",
+                  "icon":"material-symbols:keyboard-double-arrow-right"
+                },
+                {
+                    "link":"/properties/all",
                     "title":"Listado",
                     "icon":"material-symbols:keyboard-double-arrow-right"
                 },

@@ -64,7 +64,9 @@ export function useApi<T>(
         },
     };
 
-    if (opts?.body) {
+    if (opts?.body instanceof FormData) {
+        fetchOpts.body = opts.body;
+    } else if (opts?.body) {
         fetchOpts.body = cleanPayload(opts.body);
     }
 

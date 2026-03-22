@@ -11,7 +11,6 @@
                   :items="data"
                   @update="people"
                   :server-items-length="total"
-                  :export-input="exportUsers"
                   @reload="reloadDataTable"
               >
 
@@ -23,9 +22,41 @@
                     <button class="btn btn-dashed color-4" type="button" @click="deletePerson(item)">
                       <i class="fa fa-trash"></i>
                     </button>
+                    <button class="btn btn-dashed color-2" @click="openPropertiesModal(item)">
+                      <i class="fa fa-home"></i>
+                    </button>
                   </div>
                 </template>
               </Table>
+              <CommonModal
+                  v-model:show="showPropertiesModal"
+                  size="xl"
+                  title="Propiedades de la persona"
+              >
+                <div v-if="selectedPerson?.properties?.length">
+                  <div
+                      v-for="property in selectedPerson.properties"
+                      :key="property.id"
+                      class="card mb-2 p-3"
+                  >
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>{{ property.title }}</strong><br>
+                        Código: {{ property.code }}<br>
+                        %: {{ property.pivot?.ownership_percentage }}
+                      </div>
+                      <button class="btn  btn-sm btn-dashed color-2"
+                              @click="goToProperty(property.id)"
+                      >
+                        <i class="fa fa-eye"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div v-else>
+                  <p>No tiene propiedades</p>
+                </div>
+              </CommonModal>
             </div>
           </div>
         </div>
@@ -46,13 +77,13 @@ import LoadingService from "~/services/LoadingService";
 
 const data = ref([]);
 
-const exportUsers :IExportOptions = {
+const exportUsers: IExportOptions = {
   name: "personas",
   pdf: {
     url: ApiUrls.USERS_EXPORT_TO_PDF_GET,
     extension: Constants.PDF,
   },
-  excel :{
+  excel: {
     url: ApiUrls.USERS_EXPORT_TO_EXCEL_GET,
     extension: Constants.EXCEL,
   }
@@ -66,6 +97,17 @@ const paramsTable = ref<IParamsTable>({
   search: '',
 })
 const total = ref(0);
+const showPropertiesModal = ref(false)
+const selectedPerson = ref<any>(null)
+
+const openPropertiesModal = (item: any) => {
+  selectedPerson.value = item
+  showPropertiesModal.value = true
+}
+
+const goToProperty = (id: string) => {
+  navigateTo(`/properties/edit/${id}`)
+}
 
 const people = async (paramsTable: IParamsTable) => {
   LoadingService.show()
@@ -80,11 +122,11 @@ const people = async (paramsTable: IParamsTable) => {
   })
 }
 
-const edit = async (item:any) => {
+const edit = async (item: any) => {
   navigateTo(`/people/edit/${item.id}`)
 }
 
-const deletePerson = async (item:any) => {
+const deletePerson = async (item: any) => {
   AlertaService.showConfirmation(
       '¿ Esta seguro de realizar esta operación ?',
       `Esta seguro de eliminar el registro : ${item.full_name}`)

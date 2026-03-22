@@ -42,7 +42,7 @@
           <PeopleFiscalProfiles :lookups="fiscalProfilesLookups || {}"/>
         </div>
         <div v-if="activeTab === 'users'">
-          <PeopleUsers :lookups="lookups[Constants.USER_STATUS] || []"/>
+          <PeopleUsers :lookups="lookups[Constants.STATUS] || []"/>
         </div>
       </div>
     </div>
@@ -77,7 +77,7 @@ const categories = ref<IIndexLookupsRequest>({
     Constants.TAXE_TYPE,
     Constants.ORGANIZATION_TYPE,
     Constants.DOCUMENT_TYPE,
-    Constants.USER_STATUS,
+    Constants.STATUS,
     Constants.GENDER,
     Constants.VAT_TYPE,
   ]

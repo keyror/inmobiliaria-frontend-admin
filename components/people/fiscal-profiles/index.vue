@@ -35,7 +35,7 @@
         v-model="form.responsible_for_vat_type_id"
         classes="col-md-6 col-sm-6"
         label="Responsable IVA"
-        :data="lookups.vatType"
+        :data="lookups.opSiNo"
         :labelField="'name'"
         star="*"
         :rules="fiscalProfileSchema.responsible_for_vat_type_id"
@@ -48,6 +48,8 @@
         classes="col-md-6 col-sm-6"
         label="Retención IVA (%)"
         placeholder="Ej: 19"
+        :rules="fiscalProfileSchema.vat_withholding"
+        name="vat_withholding"
     />
 
     <CommonInputfieldsTextfield
@@ -56,6 +58,8 @@
         classes="col-md-6 col-sm-6"
         label="Retención en la Fuente (%)"
         placeholder="Ej: 11"
+        :rules="fiscalProfileSchema.income_tax_withholding"
+        name="income_tax_withholding"
     />
 
     <CommonInputfieldsTextfield
@@ -64,6 +68,8 @@
         classes="col-md-6 col-sm-6"
         label="Retención ICA (%)"
         placeholder="Ej: 1.5"
+        :rules="fiscalProfileSchema.ica_withholding"
+        name="ica_withholding"
     />
 
     <CommonInputfieldsTextfield
@@ -72,6 +78,8 @@
         classes="col-md-6 col-sm-6"
         label="Canon de arrendamiento"
         placeholder="Ej: 1.5"
+        :rules="fiscalProfileSchema.rental_fee"
+        name="rental_fee"
     />
   </form>
 </template>
@@ -86,7 +94,7 @@ const { validateForm, resetErrors } = useValidator();
 const props = defineProps<{
   data?: IFiscalProfile,
   lookups: {
-    vatType: ILookup[],
+    opSiNo: ILookup[],
     taxeType: ILookup[],
     economicActivity: ILookup[]
   },
