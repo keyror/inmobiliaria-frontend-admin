@@ -17,8 +17,15 @@
                                                 <Icon name="material-symbols:person-outline"/>
                                                 </div>
                                             </div>
-                                            <input v-model="form.email" type="email" class="form-control" placeholder="Enter Email" autocomplete="off">
+                                            <input
+                                                v-model="email"
+                                                type="email"
+                                                class="form-control"
+                                                :class="{ 'is-invalid': errors.email }"
+                                                placeholder="Enter Email"
+                                                autocomplete="off">
                                         </div>
+                                      <small class="text-danger">{{ errors.email }}</small>
                                     </div>
                                     <div class="form-group">
                                         <div class="input-group">
@@ -27,20 +34,28 @@
                                                     <Icon name="material-symbols:lock-outline"/>
                                                 </div>
                                             </div>
-                                            <input v-model="form.password" :type="password?'text':'password'" id="pwd-input" class="form-control" placeholder="Password" autocomplete="off">
+                                            <input
+                                                v-model="pwd"
+                                                :type="password?'text':'password'"
+                                                id="pwd-input"
+                                                class="form-control"
+                                                :class="{ 'is-invalid': errors.password }"
+                                                placeholder="Password"
+                                                autocomplete="off">
                                             <div class="input-group-apend">
                                                 <div class="input-group-text" @click="password = !password">
                                                     <i id="pwd-icon" :class="password?'far fa-eye':'far fa-eye-slash'"></i>
                                                 </div>
                                             </div>
                                         </div>
+                                      <small class="text-danger">{{ errors.password }}</small>
                                         <div class="important-note">
                                             password should be a minimum of 8 characters and should contains letters and numbers
                                         </div>
                                     </div>
                                     <div class="d-flex">
                                         <label class="d-block mb-0" for="chk-ani">
-                                            <input v-model="form.remember_me" class="checkbox_animated color-2" id="chk-ani" type="checkbox"> Recuérdame
+                                            <input v-model="rememberMe" class="checkbox_animated color-2" id="chk-ani" type="checkbox"> Recuérdame
                                         </label>
                                         <a href="/Authentication/forgot-password" class="font-rubik text-color-2">Forgot password ?</a>
                                     </div>
@@ -56,8 +71,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xxl-7 col-xl-7 offset-xxl-1 col-lg-6 auth-img bg-size background_wrapper" style="background-image:url('/image/svg/2.jpg')">
-                        <img src="/image/svg/2.jpg" class="bg-img d-none" alt="">
+                    <div class="col-xxl-7 col-xl-7 offset-xxl-1 col-lg-6 auth-img bg-size background_wrapper"
+                         :style="{ backgroundImage: 'url(/image/svg/2.jpg)' }">
+                      <img :src="'/image/svg/2.jpg'" class="bg-img d-none" alt="">
                     </div>
                 </div>
             </div>
@@ -66,22 +82,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import {useAuthStore} from "~/store/authStore";
+import { useAuthStore } from "~/store/authStore";
+import { useForm } from 'vee-validate';
+import { toTypedSchema } from '@vee-validate/zod';
+import { loginSchema } from '@/schemas/auth';
 
 const auth = useAuthStore();
+const password = ref(false);
 
-let password = ref<boolean>(false)
+const { handleSubmit, errors, defineField } = useForm({
+  validationSchema: toTypedSchema(loginSchema),
+  initialValues: { email: '', password: '', remember_me: false }
+});
 
-const form = ref({
-  email: '',
-  password:'',
-  remember_me: false
-})
+const [email] = defineField('email');
+const [pwd] = defineField('password');
+const [rememberMe] = defineField('remember_me');
 
-function submitForm() {
-  auth.login(form.value)
-}
+const submitForm = handleSubmit((values) => auth.login(values));
 </script>
 
 <style scoped>

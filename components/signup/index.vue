@@ -60,9 +60,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xxl-7 col-xl-7 offset-xxl-1 col-lg-6 auth-img bg-size background_wrapper" style="background-image:url('/image/svg/2.jpg')">
-                        <img src="/image/svg/2.jpg" class="bg-img d-none" alt="">
-                    </div>
+                  <div class="col-xxl-7 col-xl-7 offset-xxl-1 col-lg-6 auth-img bg-size background_wrapper"
+                       :style="{ backgroundImage: 'url(/image/svg/2.jpg)' }">
+                    <img :src="'/image/svg/2.jpg'" class="bg-img d-none" alt="">
+                  </div>
                 </div>
             </div>
         </div>

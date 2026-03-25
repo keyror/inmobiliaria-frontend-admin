@@ -20,6 +20,7 @@
     "@nuxtjs/i18n": "^10.1.1",
     "@pinia/nuxt": "^0.10.1",
     "@syncfusion/ej2-vue-maps": "^22.2.8",
+    "@vee-validate/zod": "^4.15.1",
     "@vuepic/vue-datepicker": "^6.0.1",
     "apexcharts": "^4.5.0",
     "bootstrap": "^5.3.1",
@@ -28,6 +29,7 @@
     "pinia-plugin-persistedstate": "^4.4.1",
     "sweetalert2": "^11.6.13",
     "swiper": "^10.1.0",
+    "vee-validate": "^4.15.1",
     "vue3-apexcharts": "^1.4.4",
     "vue3-datepicker": "^0.4.0",
     "vue3-easy-data-table": "^1.5.47",
@@ -37,6 +39,7 @@
     "vuedraggable": "^4.1.0",
     "vuejs3-datepicker": "^1.0.19",
     "vuevectormap": "^2.1.1",
-    "yup": "^1.7.1"
+    "yup": "^1.7.1",
+    "zod": "^4.3.6"
   }
 }
