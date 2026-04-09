@@ -1,7 +1,26 @@
 import { ApiError } from '@/utils/ApiError';
 import { useAuthStore } from '@/store/authStore';
 import type { FetchContext } from 'ofetch';
+import LoadingService from '~/services/LoadingService';
 
+let requestCount = 0;
+let isLoggingOut = false;
+
+
+function startLoading() {
+    requestCount++;
+    LoadingService.show();
+}
+
+function stopLoading() {
+    requestCount = Math.max(0, requestCount - 1);
+
+    if (requestCount === 0) {
+        LoadingService.hide();
+    }
+}
+
+// LIMPIAR PAYLOAD
 function cleanPayload(payload: any): any {
     if (payload === null || payload === '' || typeof payload !== 'object') {
         return payload;
@@ -22,7 +41,9 @@ function cleanPayload(payload: any): any {
             value === null ||
             value === '' ||
             value === undefined ||
-            (typeof value === 'object' && !Array.isArray(value) && !Object.keys(value).length)
+            (typeof value === 'object' &&
+                !Array.isArray(value) &&
+                !Object.keys(value).length)
         ) {
             continue;
         }
@@ -37,33 +58,80 @@ export function useApi<T>(
     request: Parameters<typeof $fetch<T>>[0],
     opts?: Parameters<typeof $fetch<T>>[1],
 ): Promise<T> {
+
     const config = useRuntimeConfig();
     const auth = useAuthStore();
 
     const fetchOpts = {
         ...opts,
         baseURL: config.public.apiBase,
+
         headers: {
             ...(auth.token ? { Authorization: `Bearer ${auth.token}` } : {}),
             ...opts?.headers,
         },
-        async onResponse({ response }: FetchContext) {
-            // Guard clause
-            if (!response?._data) return;
 
-            // Early return para archivos
+        // REQUEST START
+        async onRequest() {
+            startLoading();
+        },
+
+        //  ERROR ANTES DE SALIR (CLAVE)
+        async onRequestError() {
+            stopLoading();
+        },
+
+        // RESPUESTA OK
+        async onResponse({ response }: FetchContext) {
+            stopLoading();
+
+            if (!response?._data) return;
             if (response._data instanceof Blob) return;
 
+            // ERROR CONTROLADO BACKEND
             if (!response._data.status) {
                 const mensaje = Array.isArray(response._data.message)
                     ? response._data.message.join('<br>')
                     : response._data.message;
 
-                throw new ApiError(mensaje);
+                throw new ApiError(
+                    mensaje,
+                    response._data.errors ?? undefined,
+                    response.status
+                );
             }
         },
+
+        async onResponseError({ response }: FetchContext) {
+            stopLoading();
+
+            const mensaje = response?._data?.message
+                ? (Array.isArray(response._data.message)
+                    ? response._data.message.join('<br>')
+                    : response._data.message)
+                : 'Error inesperado';
+
+            // 401 → LOGOUT CONTROLADO
+            if (response?.status === 401 && !isLoggingOut) {
+                isLoggingOut = true;
+
+                try {
+                    await auth.logout();
+                } finally {
+                    navigateTo('/login');
+                    isLoggingOut = false;
+                }
+            }
+
+            throw new ApiError(
+                mensaje,
+                response?._data?.errors ?? undefined,
+                response?.status
+            );
+        }
     };
 
+    //  LIMPIAR BODY
     if (opts?.body instanceof FormData) {
         fetchOpts.body = opts.body;
     } else if (opts?.body) {

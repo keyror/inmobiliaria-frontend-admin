@@ -21,6 +21,7 @@ export class Constants {
     static readonly STRATUM: string = "stratum";
     static readonly ACTIVO: string = "ACTIVO";
     static readonly INACTIVO: string = "INACTIVO";
+    static readonly PLAN: string = "plan";
 
     // Categorías de desplegables de propiedad
     static readonly GARAGE_TYPE: string = "garage_type";

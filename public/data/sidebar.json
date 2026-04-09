@@ -49,12 +49,12 @@
           "active":false,
           "children":[
             {
-              "link":"/central/tenants/all-tenants",
+              "link":"/central/tenants/all",
               "title":"Listado tenants",
               "icon":"material-symbols:keyboard-double-arrow-right"
             },
             {
-              "link":"/central/tenants/add-tenant",
+              "link":"/central/tenants/add",
               "title":"Agregar tenant",
               "icon":"material-symbols:keyboard-double-arrow-right"
             }

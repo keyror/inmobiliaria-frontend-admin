@@ -40,13 +40,27 @@
 
 <script setup lang="ts">
 let open = ref<boolean>(false)
-import {useAuthStore} from "~/store/authStore";
+import { useAuthStore } from "~/store/authStore"
+import { useApiHandler } from "~/composables/useApiHandler"
 
-const auth = useAuthStore();
+const auth = useAuthStore()
+const { run } = useApiHandler()
 
-function submitForm() {
-  auth.logout()
+const submitForm = async () => {
+
+  const response = await run(
+      auth.logout(),
+      {
+        showSuccess: true,
+        successMessage: 'Sesión cerrada correctamente'
+      }
+  )
+
+  if (response) {
+    navigateTo('/Authentication/login')
+  }
 }
+
 function toggleFullScreen() {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();

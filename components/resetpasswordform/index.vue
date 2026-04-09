@@ -9,54 +9,86 @@
                                 <div class="title-3 text-start">
                                     <h2>Restablecer contraseña</h2>
                                 </div>
-                                <form autocomplete="off" @submit.prevent="resetPassword">
-                                    <div class="form-group">
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <Icon name="material-symbols:mail-outline"/>
-                                                </div>
-                                            </div>
-                                            <input v-model="form.email" type="email" class="form-control" placeholder="Enter email address">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <Icon name="material-symbols:lock-outline"/>
-                                                </div>
-                                            </div>
-                                            <input v-model="form.password" :type="password?'text':'password'" id="pwd-input" class="form-control"  placeholder="Contraseña">
-                                            <div class="input-group-apend">
-                                                <div class="input-group-text" @click="password = !password">
-                                                    <i id="pwd-icon" :class="password?'far fa-eye':'far fa-eye-slash'"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                      <div class="input-group">
-                                        <div class="input-group-prepend">
-                                          <div class="input-group-text">
-                                            <Icon name="material-symbols:lock-outline"/>
-                                          </div>
-                                        </div>
-                                        <input v-model="form.password_confirmation" :type="passwordConfirmation?'text':'password'" id="pwd-confirmation-input" class="form-control"  placeholder="Confirmar contraseña">
-                                        <div class="input-group-apend">
-                                          <div class="input-group-text" @click="passwordConfirmation = !passwordConfirmation">
-                                            <i id="pwd-icon" :class="passwordConfirmation?'far fa-eye':'far fa-eye-slash'"></i>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div class="important-note">
-                                        password should be a minimum of 8 characters and should contains letters and numbers
+                              <form autocomplete="off" @submit.prevent="resetPassword">
+
+                                <!-- EMAIL -->
+                                <div class="form-group">
+                                  <div class="input-group">
+                                    <div class="input-group-prepend">
+                                      <div class="input-group-text">
+                                        <Icon name="material-symbols:mail-outline"/>
                                       </div>
                                     </div>
-                                    <div>
-                                        <button type="submit" class="btn btn-gradient btn-pill color-2 me-sm-3 me-2">Cambiar contraseña</button>
+                                    <input
+                                        v-model="email"
+                                        type="email"
+                                        class="form-control"
+                                        :class="{ 'is-invalid': errors.email }"
+                                        placeholder="Enter email address"
+                                    >
+                                  </div>
+                                  <small class="text-danger">{{ errors.email }}</small>
+                                </div>
+
+                                <!-- PASSWORD -->
+                                <div class="form-group">
+                                  <div class="input-group">
+                                    <div class="input-group-prepend">
+                                      <div class="input-group-text">
+                                        <Icon name="material-symbols:lock-outline"/>
+                                      </div>
                                     </div>
-                                </form>
+                                    <input
+                                        v-model="pwd"
+                                        :type="password ? 'text' : 'password'"
+                                        class="form-control"
+                                        :class="{ 'is-invalid': errors.password }"
+                                        placeholder="Contraseña"
+                                    >
+                                    <div class="input-group-apend">
+                                      <div class="input-group-text" @click="password = !password">
+                                        <i :class="password ? 'far fa-eye' : 'far fa-eye-slash'"></i>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <small class="text-danger">{{ errors.password }}</small>
+                                </div>
+
+                                <!-- CONFIRM PASSWORD -->
+                                <div class="form-group">
+                                  <div class="input-group">
+                                    <div class="input-group-prepend">
+                                      <div class="input-group-text">
+                                        <Icon name="material-symbols:lock-outline"/>
+                                      </div>
+                                    </div>
+                                    <input
+                                        v-model="pwdConfirmation"
+                                        :type="passwordConfirmation ? 'text' : 'password'"
+                                        class="form-control"
+                                        :class="{ 'is-invalid': errors.password_confirmation }"
+                                        placeholder="Confirmar contraseña"
+                                    >
+                                    <div class="input-group-apend">
+                                      <div class="input-group-text" @click="passwordConfirmation = !passwordConfirmation">
+                                        <i :class="passwordConfirmation ? 'far fa-eye' : 'far fa-eye-slash'"></i>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <small class="text-danger">{{ errors.password_confirmation }}</small>
+
+                                  <div class="important-note">
+                                    password should be a minimum of 8 characters and should contains letters and numbers
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <button type="submit" class="btn btn-gradient btn-pill color-2">
+                                    Cambiar contraseña
+                                  </button>
+                                </div>
+
+                              </form>
                             </div>
                         </div>
                     </div>
@@ -72,37 +104,40 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import LoadingService from "~/services/LoadingService";
 import AutenticacionService from "~/services/AuthenticationService";
-import AlertaService from "~/services/AlertService";
+import {useAuthForms} from "~/composables/forms/useAuthForms";
 
-const route = useRoute()
+const route = useRoute();
+const { useResetPasswordForm } = useAuthForms();
+const { run } = useApiHandler();
 
-const form = ref({
-  email: route.query.email as string ?? '',
-  token: route.query.token as string ?? '',
-  password: '',
-  password_confirmation: '',
-})
+const password = ref(false);
+const passwordConfirmation = ref(false);
 
-const resetPassword = async () => {
-  LoadingService.show()
-  AutenticacionService.resetPassword(form.value)
-      .then((response) => {
-        LoadingService.hide()
-        AlertaService.showSuccess('Operación exitosa', response.message).then((result) => {
-          if (result.isConfirmed) {
-            navigateTo('Authentication/login')
-          }
-        });
-      }).catch((error) => {
-    LoadingService.hide()
-    AlertaService.showError('Ha ocurrido un error', error);
-  })
-}
+const { handleSubmit, errors, defineField, setErrors } = useResetPasswordForm({
+  email: route.query.email as string,
+  token: route.query.token as string
+});
 
-let password = ref<boolean>(false)
-let passwordConfirmation = ref<boolean>(false)
+const [email] = defineField('email');
+const [pwd] = defineField('password');
+const [pwdConfirmation] = defineField('password_confirmation');
+
+const resetPassword = handleSubmit(async (values) => {
+
+  const response = await run(
+      AutenticacionService.resetPassword(values),
+      {
+        setErrors,
+        showSuccess: true,
+        successMessage: 'Contraseña actualizada correctamente'
+      }
+  );
+
+  if (response) {
+    navigateTo('Authentication/login');
+  }
+});
 </script>
 
 <style scoped>

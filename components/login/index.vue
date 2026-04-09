@@ -83,23 +83,25 @@
 
 <script setup lang="ts">
 import { useAuthStore } from "~/store/authStore";
-import { useForm } from 'vee-validate';
-import { toTypedSchema } from '@vee-validate/zod';
-import { loginSchema } from '@/schemas/auth';
+import {useAuthForms} from "~/composables/forms/useAuthForms";
 
 const auth = useAuthStore();
-const password = ref(false);
+const { run } = useApiHandler()
+const { useLoginForm } = useAuthForms();
+const { handleSubmit, errors, defineField, setErrors } = useLoginForm();
 
-const { handleSubmit, errors, defineField } = useForm({
-  validationSchema: toTypedSchema(loginSchema),
-  initialValues: { email: '', password: '', remember_me: false }
-});
+
+const password = ref(false);
 
 const [email] = defineField('email');
 const [pwd] = defineField('password');
 const [rememberMe] = defineField('remember_me');
 
-const submitForm = handleSubmit((values) => auth.login(values));
+const submitForm = handleSubmit(async (values) => {
+  if (await run(auth.login(values), { setErrors })) {
+    navigateTo('/')
+  }
+})
 </script>
 
 <style scoped>

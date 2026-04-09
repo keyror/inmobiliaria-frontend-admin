@@ -17,7 +17,15 @@
                           <Icon name="material-symbols:mail-outline"/>
                         </div>
                       </div>
-                      <input v-model="email" type="email" class="form-control" placeholder="Enter email address">
+                      <input
+                          v-model="email"
+                          type="email"
+                          class="form-control"
+                          :class="{ 'is-invalid': errors.email }"
+                          placeholder="Enter email address"
+                      />
+
+                      <small class="text-danger">{{ errors.email }}</small>
                     </div>
                   </div>
                   <div>
@@ -38,25 +46,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import AutenticacionService from '~/services/AuthenticationService';
-import LoadingService from "~/services/LoadingService";
-import AlertaService from "~/services/AlertService";
+import { useApiHandler } from '~/composables/useApiHandler'
+import { useAuthForms } from '~/composables/forms/useAuthForms'
+import AutenticacionService from '~/services/AuthenticationService'
 
-const email = ref('');
+const { run } = useApiHandler()
 
-const sendResetEmail = async () => {
-  LoadingService.show()
-  AutenticacionService.sendResetEmail(email.value)
-      .then((response) => {
-        LoadingService.hide()
-        AlertaService.showSuccess('Operación exitosa', response.message);
-      }).catch((error) => {
-    LoadingService.hide()
-    AlertaService.showError('Ha ocurrido un error', error);
-  })
-}
+// 👇 reutilizas tu sistema de forms
+const { useForgotPasswordForm } = useAuthForms()
 
+const { handleSubmit, errors, defineField, setErrors } = useForgotPasswordForm()
+
+const [email] = defineField('email')
+
+// 🔥 submit limpio
+const sendResetEmail = handleSubmit(async (values) => {
+
+  const response = await run(
+      AutenticacionService.sendResetEmail(values.email),
+      {
+        setErrors,
+        showSuccess: true,
+        successMessage: 'Correo de recuperación enviado'
+      }
+  )
+
+  if (response) {
+    email.value = ''
+  }
+})
 </script>
 
 <style scoped></style>

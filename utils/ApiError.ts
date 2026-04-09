@@ -1,7 +1,17 @@
 export class ApiError extends Error {
-    constructor(message: string) {
+    public errors?: Record<string, string[]>;
+    public status?: number;
+
+    constructor(
+        message: string,
+        errors?: Record<string, string[]>,
+        status?: number
+    ) {
         super(message);
-        this.name = ''; // Esto quita el prefijo “Error:”
+
+        this.name = 'ApiError';
+        this.errors = errors;
+        this.status = status;
     }
 
     override toString() {

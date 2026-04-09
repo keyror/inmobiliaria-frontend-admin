@@ -5,16 +5,20 @@
       <span class="font-danger" v-if="star">{{ star }}</span>
     </label>
 
-    <div class="dropdown">
-      <span
-          class="dropdown-toggle font-rubik"
+    <!--  SELECT TIPO INPUT -->
+    <div class="dropdown w-100">
+      <div
+          class="form-control d-flex justify-content-between align-items-center"
+          :class="{ 'is-invalid': error }"
           data-bs-toggle="dropdown"
+          style="cursor: pointer;"
       >
         <span>{{ selectedstatus || show }}</span>
         <i class="fas fa-angle-down"></i>
-      </span>
+      </div>
 
-      <div class="dropdown-menu text-start">
+      <!--  opciones -->
+      <div class="dropdown-menu w-100 text-start">
         <a
             href="javascript:void(0)"
             class="dropdown-item"
@@ -26,6 +30,11 @@
         </a>
       </div>
     </div>
+
+    <!--  error -->
+    <small v-if="error" class="text-danger">
+      {{ error }}
+    </small>
   </div>
 </template>
 
@@ -38,12 +47,13 @@ const props = defineProps({
   data: Array as () => string[],
   show: String,
   star: String,
-  modelValue: String
+  modelValue: String,
+  error: String
 })
 
 const emit = defineEmits(["update:modelValue"])
 
-let selectedstatus = ref<string|undefined>(props.modelValue || "")
+const selectedstatus = ref<string | undefined>(props.modelValue || "")
 
 watch(
     () => props.modelValue,
@@ -58,7 +68,18 @@ function getsatus(status: string) {
 }
 </script>
 
-
 <style scoped>
+/* mejora visual para que sea igual al input */
+.form-control {
+  min-height: 38px;
+}
 
+/* opcional: hover tipo select */
+.form-control:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown.is-invalid {
+  border: 1px solid #dc3545 !important;
+}
 </style>

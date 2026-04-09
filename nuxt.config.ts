@@ -19,18 +19,11 @@ export default defineNuxtConfig({
         {rel:'stylesheet' , href:'https://fonts.googleapis.com/css?family=Montserrat:400,400i,500,500i,600,600i,700,700i,800,800i'},
         {rel:'stylesheet' , href:'https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i&display=swap'},
         {rel:'stylesheet' , href:'https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i'}
-      ]
+      ],
     },
   },
 
   css:['@/assets/scss/app.scss'],
-
-  script:[
-    {
-      src:'/bootstrap.bundle.min.js'
-    }
-],
-
 
   build: {
     transpile: ['@vuepic/vue-datepicker']
@@ -43,24 +36,15 @@ export default defineNuxtConfig({
          {code: 'en', name: 'English', file: 'en.json'}
      ],
      defaultLocale: 'es',
-     lazy: true, // para cargar archivos de traducción por demanda
      langDir: 'locales/', // carpeta donde estarán los JSON
   },
   pinia: {
     storesDirs: ['./store/**', './custom-folder/store/**'],
   },
   plugins:[
-    {
-      src:'@/plugins/usebootstrap.client.ts',
-      mode:'client'
-    },
-    {
-      src:'@/plugins/plugins.ts',
-      mode:'client'
-    },
-    {
-      src:'@/plugins/ssrplugins.ts'
-    }
+      { src:'@/plugins/usebootstrap.client.ts', mode:'client' },
+      { src:'@/plugins/plugins.ts', mode:'client' },
+      { src:'@/plugins/ssrplugins.ts' }
   ],
 
   compatibilityDate: '2025-02-24'

@@ -1,71 +1,66 @@
-import {defineStore} from 'pinia'
-import {ref} from 'vue'
-import AutenticacionService from '~/services/AuthenticationService';
-import LoadingService from "@/services/LoadingService";
-import AlertaService from "@/services/AlertService";
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import AutenticacionService from '~/services/AuthenticationService'
 
 export const useAuthStore = defineStore(
     'auth',
     () => {
+
         const token = ref<string | null>(null)
         const user = ref<Record<string, any> | null>(null)
         const expiresAt = ref<number | null>(null)
+
         const isAuthenticated = computed(() => !!token.value && !!user.value)
 
-        const login = async (credentials: { email: string; password: string; remember_me: boolean }) => {
-            LoadingService.show()
-            AutenticacionService.login(credentials)
-                .then((response) => {
-                    token.value = response.access_token
-                    user.value = response.data
-                    expiresAt.value = Date.now() + response.expires_in * 1000
-                    LoadingService.hide()
-                    navigateTo('/')
-            }).catch((error) => {
-                LoadingService.hide()
-                AlertaService.showError('Ha ocurrido un error', error);
-            })
+        // LOGIN
+        const login = async (credentials: {
+            email: string
+            password: string
+            remember_me: boolean
+        }) => {
+
+            const response = await AutenticacionService.login(credentials)
+
+            token.value = response.access_token
+            user.value = response.data
+            expiresAt.value = Date.now() + response.expires_in * 1000
+
+            return response
         }
 
+        //  LOGOUT
         const logout = async () => {
-            LoadingService.show()
-             AutenticacionService.logout()
-                .then((response) => {
-                    clearAuth()
-                    LoadingService.hide()
-                    AlertaService.showSuccess('Operación exitosa', response.message).then((result) => {
-                        if (result.isConfirmed) {
-                            navigateTo('/Authentication/login')
-                        }
-                    });
-                }).catch((error) => {
-                    clearAuth()
-                 LoadingService.hide()
-                    AlertaService.showError('Ha ocurrido un error', error);
-                })
+
+            const response = await AutenticacionService.logout()
+
+            clearAuth()
+
+            return response
         }
 
+        //  GET USER
         const getUser = async () => {
-            AutenticacionService.getUser()
-                .then((response) => {
-                    user.value = response.data
-                }).catch((error) => {
-                console.log(error)
-            })
+
+            const response = await AutenticacionService.getUser()
+
+            user.value = response.data
+
+            return response
         }
 
+        //  REFRESH TOKEN
         const refreshToken = async () => {
-            AutenticacionService.refresh()
-                .then((response) => {
-                    token.value = response.access_token
-                    expiresAt.value = Date.now() + response.expires_in * 1000
-                }).catch((error) => {
-                logout()
-                console.log(error)
-            })
+
+            const response = await AutenticacionService.refresh()
+
+            token.value = response.access_token
+            expiresAt.value = Date.now() + response.expires_in * 1000
+
+            return response
         }
 
-        const clearAuth = async () =>{
+        //  CLEAR AUTH (sin async, no lo necesita)
+        const clearAuth = () => {
             token.value = null
             user.value = null
             expiresAt.value = null
@@ -74,19 +69,16 @@ export const useAuthStore = defineStore(
         return {
             token,
             user,
+            expiresAt,
+            isAuthenticated,
             login,
             logout,
             getUser,
             refreshToken,
-            isAuthenticated,
-            expiresAt,
             clearAuth
         }
     },
     {
         persist: true,
-        /**persist: {
-            storage: piniaPluginPersistedstate.localStorage(),
-        },**/
-    },
+    }
 )
