@@ -35,11 +35,13 @@
 
 <script setup lang="ts">
 import TenantService from "@/services/TenantService";
-import AlertaService from "~/services/AlertService";
+import { useApiHandler } from '~/composables/useApiHandler'
 import type {IParamsTable} from "~/interfaces/IParamsTable";
 import {tenantsHeader} from "~/constants/tableHeaders/TenantsHeader";
 import sidebar from '@/public/data/sidebar.json';
-import LoadingService from "~/services/LoadingService";
+import AlertService from "~/services/AlertService";
+
+const { run } = useApiHandler()
 
 const sidebarData = ref(sidebar);
 const tenantsData = ref([]);
@@ -54,40 +56,39 @@ const paramsTable = ref<IParamsTable>({
 
 const tenantsTotal = ref(0);
 
-const tenants = async (paramsTable: IParamsTable) => {
-  LoadingService.show()
-  TenantService.getTenants(paramsTable)
-      .then((response) => {
-        tenantsData.value = response.data.data
-        tenantsTotal.value = response.data.total
-        LoadingService.hide()
-      }).catch((error) => {
-        LoadingService.hide()
-        AlertaService.showError('Ha ocurrido un error', error);
-  })
+const tenants = async (params: IParamsTable) => {
+  const response = await run(
+      TenantService.getTenants(params),
+  )
+
+  if (response) {
+    tenantsData.value = response.data.data
+    tenantsTotal.value = response.data.total
+  }
 }
 
-const deleted = async (item:any) => {
-  AlertaService.showConfirmation(
-      '¿ Esta seguro de realizar esta operación ?',
-      `Esta seguro de eliminar el registro : ${item.name}`)
-  .then((result) => {
-    if (result.isConfirmed) {
-      LoadingService.show()
-      TenantService.deleteTenant(item.id)
-          .then((response) => {
-            AlertaService.showSuccess('Operación exitosa', response.message)
-            LoadingService.hide()
-            tenants(paramsTable.value)
-          }).catch((error) => {
-            LoadingService.hide()
-            AlertaService.showError('Ha ocurrido un error', error);
-      })
-    }
-  });
+const deleted = async (item: any) => {
+  const result = await AlertService.showConfirmation(
+      '¿ Está seguro de realizar esta operación ?',
+      `Esta seguro de eliminar el registro : ${item.name}`
+  )
+
+  if (!result.isConfirmed) return
+
+  const response = await run(
+      TenantService.deleteTenant(item.id),
+      {
+        showSuccess: true,
+        successMessage: 'Tenant eliminado correctamente'
+      }
+  )
+
+  if (response) {
+    await tenants(paramsTable.value)
+  }
 }
 
-const edit = async (item:any) => {
+const edit = (item: any) => {
   navigateTo(`/central/tenants/edit/${item.id}`)
 }
 
@@ -96,7 +97,6 @@ const reloadDataTable = () => {
 }
 
 tenants(paramsTable.value)
-
 </script>
 
 <style scoped>
