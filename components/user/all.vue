@@ -60,13 +60,15 @@
 
 <script setup lang="ts">
 import UserService from "@/services/UserService";
-import AlertaService from "~/services/AlertService";
+import AlertService from "~/services/AlertService";
+import { useApiHandler } from '~/composables/useApiHandler'
 import type {IParamsTable} from "~/interfaces/IParamsTable";
 import {usersHeader} from "~/constants/tableHeaders/UsersHeader";
 import type {IExportOptions} from "~/interfaces/IExportOptions";
 import {Constants} from "~/constants/Constants";
 import {ApiUrls} from "~/constants/ApiUrls";
-import LoadingService from "~/services/LoadingService";
+
+const { run } = useApiHandler()
 
 const usersData = ref([]);
 
@@ -91,41 +93,38 @@ const paramsTable = ref<IParamsTable>({
 })
 const usersTotal = ref(0);
 
-const users = async (paramsTable: IParamsTable) => {
-  LoadingService.show()
-  UserService.getUsers(paramsTable)
-      .then((response) => {
-        usersData.value = response.data.data
-        usersTotal.value = response.data.total
-        LoadingService.hide()
-      }).catch((error) => {
-    LoadingService.hide()
-    AlertaService.showError('Ha ocurrido un error', error);
-  })
+const users = async (params: IParamsTable) => {
+  const response = await run(UserService.getUsers(params))
+
+  if (response) {
+    usersData.value = response.data.data
+    usersTotal.value = response.data.total
+  }
 }
 
-const editUser = async (item:any) => {
+const editUser = (item: any) => {
   navigateTo(`/users/edit/${item.id}`)
 }
 
-const deleteUser = async (item:any) => {
-  AlertaService.showConfirmation(
-      '¿ Esta seguro de realizar esta operación ?',
-      `Esta seguro de eliminar el registro : ${item.email}`)
-      .then((result) => {
-        if (result.isConfirmed) {
-          LoadingService.show()
-          UserService.deleteUser(item.id)
-              .then((response) => {
-                AlertaService.showSuccess('Operación exitosa', response.message)
-                LoadingService.hide()
-                users(paramsTable.value)
-              }).catch((error) => {
-            LoadingService.hide()
-            AlertaService.showError('Ha ocurrido un error', error);
-          })
-        }
-      });
+const deleteUser = async (item: any) => {
+  const result = await AlertService.showConfirmation(
+      '¿ Está seguro de realizar esta operación ?',
+      `Esta seguro de eliminar el registro : ${item.email}`
+  )
+
+  if (!result.isConfirmed) return
+
+  const response = await run(
+      UserService.deleteUser(item.id),
+      {
+        showSuccess: true,
+        successMessage: 'Usuario eliminado correctamente'
+      }
+  )
+
+  if (response) {
+    await users(paramsTable.value)
+  }
 }
 
 const reloadDataTable = () => {
