@@ -7,9 +7,10 @@
             <h5> {{ $t('rol.addRol') }}</h5>
           </div>
           <div class="card-body admin-form">
-            <form class="row gx-3" @submit.prevent="save">
+            <form class="row gx-3" @submit.prevent="save" novalidate>
               <CommonInputfieldsTextfield
-                  v-model="newRole.name"
+                  v-model="name"
+                  :error="errors.name"
                   classes="col-md-6 col-sm-6"
                   label="Nombre del rol"
                   placeholder="Ingrese el nombre del rol"
@@ -20,7 +21,7 @@
                     isEditing ? 'Actualizar' : 'Guardar'
                   }}
                 </button>
-                <button class="btn btn-pill btn-dashed color-4" type="button" @click="resetForm">Cancelar</button>
+                <button class="btn btn-pill btn-dashed color-4" type="button" @click="resetRoleForm">Cancelar</button>
               </div>
             </form>
           </div>
@@ -87,27 +88,38 @@
 
 <script lang="ts" setup>
 import RolePermissionService from "@/services/RolePermissionService";
-import AlertaService from "~/services/AlertService";
+import { useApiHandler } from '~/composables/useApiHandler'
+import { useRoleForm } from '~/composables/forms/useRoleForm'
 import type {IParamsTable} from "~/interfaces/IParamsTable";
 import {rolesHeader} from "~/constants/tableHeaders/RolesHeader";
-import LoadingService from "~/services/LoadingService";
 import { usePermissions } from '~/composables/usePermissions'
+import AlertaService from "~/services/AlertService";
 
+const { run } = useApiHandler()
 const { allPermissions, loadPermissions } = usePermissions()
 
-const rolesData = ref([]);
-const rolesTotal = ref(0);
-const loading = ref(false);
-const isEditing = ref(false);
 
-const newRole = ref({
-  name: '',
-});
+const {
+  handleSubmit,
+  errors,
+  defineField,
+  resetForm,
+  setErrors
+} = useRoleForm()
 
-const selectedRole = ref(null);
-const selectedPermissions = ref([]);
-const loadingPermissions = ref(false);
-const showModal = ref(false);
+const [name] = defineField('name')
+
+// estado
+const rolesData = ref([])
+const rolesTotal = ref(0)
+const loading = ref(false)
+const isEditing = ref(false)
+const selectedRole = ref<number | null>(null)
+
+// modal
+const selectedPermissions = ref([])
+const loadingPermissions = ref(false)
+const showModal = ref(false)
 
 const paramsTable = ref<IParamsTable>({
   page: 1,
@@ -115,139 +127,120 @@ const paramsTable = ref<IParamsTable>({
   sortBy: 'created_at',
   sortType: 'desc',
   search: '',
-});
+})
 
-// Cargar roles
+
 const loadRoles = async (params: IParamsTable) => {
-  LoadingService.show();
-  RolePermissionService.getRoles(params)
-      .then((response) => {
-        rolesData.value = response.data.data;
-        rolesTotal.value = response.data.total;
-      }).catch((error) => {
-        AlertaService.showError('Ha ocurrido un error', error);
-      })
-      .finally(() => {
-        LoadingService.hide();
-      });
-};
+  const response = await run(
+      RolePermissionService.getRoles(params)
+  )
 
-const save = async () => {
-  if (isEditing.value) {
-    await updateRole();
-  } else {
-    await saveRole();
+  if (response) {
+    rolesData.value = response.data.data
+    rolesTotal.value = response.data.total
   }
 }
 
-// Guardar un nuevo rol
-const saveRole = async () => {
-  LoadingService.show();
-  RolePermissionService.createRole(newRole.value)
-      .then((response) => {
-        AlertaService.showSuccess('Operación exitosa', response.message);
-        resetForm();
-        loadRoles(paramsTable.value);
-      }).catch((error) => {
-        AlertaService.showError('Ha ocurrido un error', error);
-      })
-      .finally(() => {
-        LoadingService.hide();
-      });
-};
+const save = handleSubmit(async (values) => {
 
-const updateRole = async () => {
-  LoadingService.show();
-  RolePermissionService.updateRole(selectedRole.value, newRole.value)
-      .then((response) => {
-        AlertaService.showSuccess('Operación exitosa', response.message);
-        resetForm();
-        loadRoles(paramsTable.value);
-      }).catch((error) => {
-        AlertaService.showError('Ha ocurrido un error', error);
-      })
-      .finally(() => {
-        LoadingService.hide();
-      });
-};
+  const promise = isEditing.value
+      ? RolePermissionService.updateRole(selectedRole.value, values)
+      : RolePermissionService.createRole(values)
 
-// Resetear formulario
-const resetForm = () => {
-  newRole.value = {
-    name: '',
-  };
-  isEditing.value = false;
-};
+  const response = await run(promise, {
+    setErrors,
+    showSuccess: true,
+    successMessage: isEditing.value
+        ? 'Rol actualizado correctamente'
+        : 'Rol creado correctamente'
+  })
 
-// Editar un rol
-const editRole = (item: any) => {
-  isEditing.value = true;
-  selectedRole.value = item.id;
-  newRole.value = {
-    name: item.name,
-  };
-};
+  if (response) {
+    resetRoleForm()
+    await loadRoles(paramsTable.value)
+  }
+})
 
-// Eliminar un rol
-const deleteRole = async (item: any) => {
-  AlertaService.showConfirmation(
-      '¿Está seguro de realizar esta operación?',
-      `¿Está seguro de eliminar el rol: ${item.name}?`)
-      .then((result) => {
-        if (result.isConfirmed) {
-          LoadingService.show();
-          RolePermissionService.deleteRole(item.id)
-              .then((response) => {
-                AlertaService.showSuccess('Operación exitosa', response.message);
-                loadRoles(paramsTable.value);
-              }).catch((error) => {
-                AlertaService.showError('Ha ocurrido un error', error);
-              })
-              .finally(() => {
-                LoadingService.hide();
-              });
-        }
-      });
-};
 
-// Abrir modal de permisos
-const openPermissionsModal = async (item: any) => {
-  selectedRole.value = item;
-  selectedPermissions.value = item.permissions.map((permission: any) => permission.id);
-  showModal.value = true;
-};
+const resetRoleForm = () => {
+  isEditing.value = false
+  selectedRole.value = null
 
-// Guardar permisos
-const savePermissions = async () => {
-  if (!selectedRole.value) return;
-
-  LoadingService.show();
-  RolePermissionService.assignPermissionsToRole(selectedRole.value.id, selectedPermissions.value)
-      .then((response) => {
-        AlertaService.showSuccess('Operación exitosa', response.message);
-        closePermissionsModal();
-        loadRoles(paramsTable.value);
-      }).catch((error) => {
-        AlertaService.showError('Ha ocurrido un error', error);
-      })
-      .finally(() => {
-        LoadingService.hide();
-      });
-};
-
-// Recargar la tabla, por si hay modificaciones en permisos desde la pestaña rol
-const reloadDataTable = () => {
-  loadRoles(paramsTable.value);
-  loadPermissions();
+  resetForm({
+    values: { name: '' }
+  })
 }
 
-// Función para cerrar el modal
-const closePermissionsModal = () => {
-  showModal.value = false;
-};
 
-loadRoles(paramsTable.value);
-loadPermissions();
+const editRole = (item: any) => {
+  isEditing.value = true
+  selectedRole.value = item.id
+
+  resetForm({
+    values: {
+      name: item.name
+    }
+  })
+}
+
+
+const deleteRole = async (item: any) => {
+  const result = await AlertaService.showConfirmation(
+      '¿Está seguro de realizar esta operación?',
+      `¿Eliminar el rol: ${item.name}?`
+  )
+
+  if (!result.isConfirmed) return
+
+  const response = await run(
+      RolePermissionService.deleteRole(item.id),
+      {
+        showSuccess: true,
+        successMessage: 'Rol eliminado correctamente'
+      }
+  )
+
+  if (response) {
+    await loadRoles(paramsTable.value)
+  }
+}
+
+
+const openPermissionsModal = (item: any) => {
+  selectedRole.value = item
+  selectedPermissions.value = item.permissions.map((p: any) => p.id)
+  showModal.value = true
+}
+
+
+const savePermissions = async () => {
+  if (!selectedRole.value) return
+
+  const response = await run(
+      RolePermissionService.assignPermissionsToRole(
+          selectedRole.value.id,
+          selectedPermissions.value
+      ),
+      {
+        showSuccess: true,
+        successMessage: 'Permisos actualizados correctamente'
+      }
+  )
+
+  if (response) {
+    showModal.value = false
+    await loadRoles(paramsTable.value)
+  }
+}
+
+// reload
+const reloadDataTable = () => {
+  loadRoles(paramsTable.value)
+  loadPermissions()
+}
+
+loadRoles(paramsTable.value)
+loadPermissions()
 </script>
 
 <style scoped>

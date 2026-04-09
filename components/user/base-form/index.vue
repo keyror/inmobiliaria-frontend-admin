@@ -164,16 +164,13 @@ const getUser = async () => {
   if (response) {
     const data = response.data;
 
-    roles.value = data.roles.map(
-        (role: any) => role.id
-    )
     resetForm({
       values: {
         email: data.email,
         password: '',
         password_confirmation: '',
         status_type_id: data.status_type_id,
-        roles: roles.value,
+        roles: data.roles.map((role: any) => role.id),
       }
     })
   }
