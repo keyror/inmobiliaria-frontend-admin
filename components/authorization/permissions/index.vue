@@ -7,9 +7,10 @@
             <h5>Agregar permiso</h5>
           </div>
           <div class="card-body admin-form">
-            <form class="row gx-3" @submit.prevent="savePermission">
+            <form class="row gx-3" @submit.prevent="savePermission" novalidate>
               <CommonInputfieldsTextfield
-                  v-model="newPermission.name"
+                  v-model="name"
+                  :error="errors.name"
                   classes="col-md-6 col-sm-6"
                   label="Nombre del permiso"
                   placeholder="Ingrese el nombre del permiso"
@@ -21,7 +22,7 @@
                     isEditing ? 'Actualizar' : 'Guardar'
                   }}
                 </button>
-                <button class="btn btn-pill btn-dashed color-4" type="button" @click="resetForm">Cancelar</button>
+                <button class="btn btn-pill btn-dashed color-4" type="button" @click="resetPermissionForm">Cancelar</button>
               </div>
             </form>
           </div>
@@ -60,11 +61,15 @@
 
 <script lang="ts" setup>
 import RolePermissionService from "@/services/RolePermissionService";
-import AlertaService from "~/services/AlertService";
+import { useApiHandler } from '~/composables/useApiHandler'
+import { usePermissionForm } from '~/composables/forms/usePermissionForm'
 import type {IParamsTable} from "~/interfaces/IParamsTable";
 import {permissionsHeader} from "~/constants/tableHeaders/PermissionsHeader";
-import LoadingService from "~/services/LoadingService";
 import { usePermissions } from '~/composables/usePermissions';
+import AlertaService from "~/services/AlertService";
+
+const { run } = useApiHandler()
+const { usePermissionCreateForm } = usePermissionForm()
 
 const { allPermissions, loadPermissions, total } = usePermissions()
 
@@ -74,11 +79,17 @@ const emit = defineEmits<{
 
 const permissionsTotal = ref(total);
 const isEditing = ref(false);
-const editingId = ref(null);
+const editingId = ref<number | null>(null);
 
-const newPermission = ref({
-  name: ''
-});
+const {
+  handleSubmit,
+  errors,
+  defineField,
+  resetForm,
+  setErrors
+} = usePermissionCreateForm()
+
+const [name] = defineField('name')
 
 const paramsTable = ref<IParamsTable>({
   page: 1,
@@ -86,101 +97,79 @@ const paramsTable = ref<IParamsTable>({
   sortBy: 'created_at',
   sortType: 'desc',
   search: '',
-});
+})
 
-// Guardar un nuevo permiso o actualizar uno existente
-const savePermission = async () => {
-  if (isEditing.value) {
-    await updatePermission();
-  } else {
-    await saveNewPermission();
+const savePermission = handleSubmit(async (values) => {
+
+  const promise = isEditing.value
+      ? RolePermissionService.updatePermission(editingId.value, values)
+      : RolePermissionService.createPermission(values)
+
+  const response = await run(promise, {
+    setErrors,
+    showSuccess: true,
+    successMessage: isEditing.value
+        ? 'Permiso actualizado correctamente'
+        : 'Permiso creado correctamente'
+  })
+
+  if (response) {
+    resetPermissionForm()
+    isEditing.value = false
+    await loadPermissions(paramsTable.value)
+    emit('reload', true)
   }
-};
+})
 
-// Guardar un nuevo permiso
-const saveNewPermission = async () => {
-  LoadingService.show();
-  RolePermissionService.createPermission(newPermission.value)
-      .then((response) => {
-        resetForm();
-        loadPermissions(paramsTable.value, false);
-        reloadDataInPagePrincipal()
-        AlertaService.showSuccess('Operación exitosa', response.message);
-      })
-      .catch((error) => {
-        AlertaService.showError('Ha ocurrido un error', error);
-      })
-      .finally(() => {
-        //LoadingService.hide();
-      });
-};
+const editPermission = (item: any) => {
+  isEditing.value = true
+  editingId.value = item.id
 
-// Actualizar permiso existente
-const updatePermission = async () => {
-  LoadingService.show();
-  RolePermissionService.updatePermission(editingId.value, newPermission.value)
-      .then((response) => {
-        AlertaService.showSuccess('Operación exitosa', response.message);
-        resetForm();
-        loadPermissions(paramsTable.value);
-      })
-      .catch((error) => {
-        AlertaService.showError('Ha ocurrido un error', error);
-      })
-      .finally(() => {
-        LoadingService.hide();
-      });
-};
-
-const reloadDataInPagePrincipal = async () => {
-  emit('reload', true)
+  resetForm({
+    values: {
+      name: item.name
+    }
+  })
 }
 
-// Resetear formulario
-const resetForm = () => {
-  newPermission.value = {
-    name: ''
-  };
-  isEditing.value = false;
-};
 
-// Editar un permiso
-const editPermission = (item: any) => {
-  newPermission.value = {
-    name: item.name,
-  };
-  isEditing.value = true;
-  editingId.value = item.id;
-};
+const resetPermissionForm = () => {
+  isEditing.value = false
+  editingId.value = null
 
-// Eliminar un permiso
+  resetForm({
+    values: {
+      name: ''
+    }
+  })
+}
+
 const deletePermission = async (item: any) => {
-  AlertaService.showConfirmation(
+  const result = await AlertaService.showConfirmation(
       '¿Está seguro de realizar esta operación?',
-      `¿Está seguro de eliminar el permiso: ${item.name}?`)
-      .then((result) => {
-        if (result.isConfirmed) {
-          LoadingService.show();
-          RolePermissionService.deletePermission(item.id)
-              .then((response) => {
-                AlertaService.showSuccess('Operación exitosa', response.message);
-                loadPermissions(paramsTable.value);
-              }).catch((error) => {
-                AlertaService.showError('Ha ocurrido un error', error);
-              })
-              .finally(() => {
-                LoadingService.hide();
-              });
-        }
-      });
-};
+      `¿Eliminar el permiso: ${item.name}?`
+  )
+
+  if (!result.isConfirmed) return
+
+  const response = await run(
+      RolePermissionService.deletePermission(item.id),
+      {
+        showSuccess: true,
+        successMessage: 'Permiso eliminado correctamente'
+      }
+  )
+
+  if (response) {
+    await loadPermissions(paramsTable.value)
+  }
+}
 
 const reloadDataTable = () => {
-  loadPermissions(paramsTable.value);
+  loadPermissions(paramsTable.value)
 }
 
-await loadPermissions(paramsTable.value);
-
+await loadPermissions(paramsTable.value)
 </script>
 
 <style scoped>

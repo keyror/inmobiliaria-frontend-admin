@@ -1,6 +1,6 @@
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
-import { userCreateSchema, userUpdateSchema } from '~/schemas/userSchema'
+import {useForm} from 'vee-validate'
+import {toTypedSchema} from '@vee-validate/zod'
+import {userCreateSchema, userUpdateSchema} from '~/schemas/userSchema'
 
 export const useUserForms = () => {
 
