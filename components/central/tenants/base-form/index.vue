@@ -65,7 +65,7 @@
                 </div>
 
                 <div class="form-btn mt-3">
-                  <button type="submit" class="btn btn-pill btn-gradient color-4">Guardar</button>
+                  <button type="submit" class="btn btn-pill btn-gradient color-4"> {{ props.isEditing ? 'Actualizar' : 'Crear' }}</button>
                   <button type="button" class="btn btn-pill btn-dashed color-4" @click="resetForm()">Cancelar</button>
                 </div>
               </form>
@@ -91,7 +91,7 @@ import type {IIndexLookupsRequest} from "~/interfaces/IIndexLookupsRequest";
 import {Constants} from "~/constants/Constants";
 
 const props = defineProps<{
-  isEditing?: Boolean
+  isEditing?: boolean
 }>()
 
 const { run } = useApiHandler()
