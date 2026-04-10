@@ -6,6 +6,7 @@
     </label>
 
     <input
+        ref="inputRef"
         :type="type || 'text'"
         class="form-control input-field"
         :class="{ 'is-invalid': error }"
@@ -44,6 +45,8 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"])
 
+const inputRef = ref<HTMLInputElement | null>(null)
+
 const localValue = computed({
   get: () => props.modelValue,
   set: (val: string) => {
@@ -55,6 +58,11 @@ const localValue = computed({
 
     emit("update:modelValue", newVal)
   }
+})
+
+defineExpose({
+  focus: () => inputRef.value?.focus(),
+  scrollIntoView: (options?: ScrollIntoViewOptions) => inputRef.value?.scrollIntoView(options)
 })
 </script>
 

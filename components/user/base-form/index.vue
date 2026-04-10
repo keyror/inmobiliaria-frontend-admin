@@ -49,7 +49,7 @@
                     :error="errors.status_type_id"
                     classes="col-md-6 col-sm-6"
                     label="Estado"
-                    :data="lookups"
+                    :data="lookups[Constants.STATUS]"
                     star="*"
                 />
                 <CommonInputfieldsSelectfield
@@ -84,9 +84,6 @@
 import UserService from "~/services/UserService";
 import { useApiHandler } from '~/composables/useApiHandler'
 import { useUserForms } from '~/composables/forms/useUserForm'
-import type {ILookup} from "~/interfaces/ILookup";
-import LookupService from "~/services/LookupService";
-import type {IIndexLookupsRequest} from "~/interfaces/IIndexLookupsRequest";
 import {Constants} from "~/constants/Constants";
 import type {IParamsTable} from "~/interfaces/IParamsTable";
 import RolePermissionService from "~/services/RolePermissionService";
@@ -98,8 +95,11 @@ const props = defineProps({
   }
 });
 
+const { lookups } = useLookups([Constants.STATUS])
+
 const { run } = useApiHandler()
 const { useUserCreateForm, useUserUpdateForm } = useUserForms()
+
 
 const form = props.isEditing
     ? useUserUpdateForm()
@@ -119,14 +119,8 @@ const [password_confirmation] = defineField('password_confirmation')
 const [status_type_id] = defineField('status_type_id')
 const [roles] = defineField('roles')
 
-const categories = ref<IIndexLookupsRequest>({
-  categories: [Constants.STATUS]
-});
-
 const route = useRoute()
 const idUser = route.params.id as string;
-
-const lookups = ref<ILookup[]>([]);
 const rolesData = ref([]);
 
 const sendForm = handleSubmit(async (values) => {
@@ -146,13 +140,6 @@ const sendForm = handleSubmit(async (values) => {
     props.isEditing ? await getUser() : resetForm()
   }
 })
-
-const getLookups = async () => {
-  const response = await run(LookupService.getLookups(categories.value))
-  if (response) {
-    lookups.value = response.data[Constants.STATUS]
-  }
-}
 
 const getUser = async () => {
   if (!props.isEditing) return;
@@ -183,7 +170,6 @@ const getRoles = async (params: IParamsTable) => {
   }
 }
 
-getLookups()
 getRoles({ page: 1, perPage: 1000 })
 getUser()
 </script>

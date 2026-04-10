@@ -4,11 +4,12 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header pb-0">
-            <h5> {{ $t('rol.addRol') }}</h5>
+            <h5> {{ isEditing ? 'Actualizar' : 'Guardar'}} {{ $t('rol.addRol') }}</h5>
           </div>
           <div class="card-body admin-form">
             <form class="row gx-3" @submit.prevent="save" novalidate>
               <CommonInputfieldsTextfield
+                  ref="nameInputRef"
                   v-model="name"
                   :error="errors.name"
                   classes="col-md-6 col-sm-6"
@@ -109,6 +110,8 @@ const {
 
 const [name] = defineField('name')
 
+const nameInputRef = ref<HTMLInputElement | null>(null)
+
 // estado
 const rolesData = ref([])
 const rolesTotal = ref(0)
@@ -180,6 +183,11 @@ const editRole = (item: any) => {
     values: {
       name: item.name
     }
+  })
+
+  nextTick(() => {
+    nameInputRef.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    nameInputRef.value?.focus()
   })
 }
 

@@ -83,11 +83,6 @@ import '@vuepic/vue-datepicker/dist/main.css'
 import TenantService from "~/services/TenantService";
 import { useApiHandler } from '~/composables/useApiHandler'
 import { useTenantForm } from '~/composables/forms/useTenantForm'
-
-import { getEstatus, getPlans } from "~/constants/Estatus";
-import type {ILookup, ILookupsResponse} from "~/interfaces/ILookup";
-import LookupService from "~/services/LookupService";
-import type {IIndexLookupsRequest} from "~/interfaces/IIndexLookupsRequest";
 import {Constants} from "~/constants/Constants";
 
 const props = defineProps<{
@@ -98,14 +93,8 @@ const { run } = useApiHandler()
 
 const route = useRoute()
 const idTenant = route.params.id as string;
-const lookups = ref<ILookupsResponse>({});
 
-const categories = ref<IIndexLookupsRequest>({
-  categories: [
-    Constants.STATUS,
-    Constants.PLAN,
-  ]
-});
+const { lookups } = useLookups([Constants.STATUS, Constants.PLAN])
 
 const {
   handleSubmit,
@@ -163,18 +152,6 @@ const getTenant = async () => {
     });
   }
 }
-
-const getLookups = async () => {
-  const response = await run( LookupService.getLookups(categories.value), {
-    setErrors
-  });
-
-  if (response) {
-    lookups.value = response.data;
-  }
-}
-
-getLookups()
 getTenant()
 </script>
 <style scoped>
