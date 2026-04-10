@@ -1,58 +1,51 @@
 <script setup lang="ts">
-import { useValidator } from "@/composables/useValidator"
+import { computed } from 'vue'
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
   label: String,
   name: { type: String, required: true },
+  id: { type: String, default: '' },
   classes: String,
   disabled: { type: Boolean, default: false },
-  required: { type: Boolean, default: false },
   star: String,
-  rules: { type: Array, default: () => [] },
+  error: String
 })
 
-const emit = defineEmits(["update:modelValue", "change"])
+const emit = defineEmits(['update:modelValue', 'change'])
 
-const { validateField, errors } = useValidator()
+const checked = computed({
+  get: () => props.modelValue,
+  set: (val: boolean) => {
+    emit('update:modelValue', val)
+    emit('change')
+  }
+})
 
-const onChange = (event: Event) => {
-  const checked = (event.target as HTMLInputElement).checked
-  emit("update:modelValue", checked)
-  emit("change", checked)
-
-  // valida inmediatamente si cambia
-  validateField(props.name, checked, props.rules)
-}
-
-function validate() {
-  validateField(props.name, props.modelValue, props.rules)
-}
+const inputId = props.id || props.name
 </script>
 
 <template>
-  <div class="form-group">
+  <div :class="['form-group', classes]">
     <div class="form-check">
       <input
           class="form-check-input"
-          :class="{ 'is-invalid': errors[props.name] }"
+          :class="{ 'is-invalid': error }"
           type="checkbox"
-          :id="props.name"
-          :name="props.name"
-          :checked="modelValue"
-          :required="props.required"
-          :disabled="props.disabled"
-          @change="onChange"
-          @blur="validate"
+          :id="inputId"
+          :name="name"
+          v-model="checked"
+          :disabled="disabled"
+          :aria-invalid="!!error"
       />
-      <label class="form-check-label" :for="props.name">
+      <label class="form-check-label" :for="inputId">
         {{ label }}
         <span class="font-danger" v-if="star">{{ star }}</span>
       </label>
     </div>
-    <CommonErrorfield :name="props.name" />
+
+    <small v-if="error" class="text-danger">
+      {{ error }}
+    </small>
   </div>
 </template>
-<style scoped>
-
-</style>

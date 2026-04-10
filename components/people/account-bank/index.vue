@@ -2,167 +2,185 @@
   <div>
     <div class="card-header ps-0 d-flex justify-content-between align-items-center">
       <h5>Cuentas Bancarias</h5>
-      <button type="button" class="btn btn-pill btn-gradient color-4" @click="addAccount">
+      <button
+          type="button"
+          class="btn btn-pill btn-gradient color-4"
+          @click="addAccount"
+      >
         <i class="bi bi-plus-circle me-1"></i>
         Agregar Cuenta
       </button>
     </div>
 
-    <div v-if="accountsList.length === 0" class="alert alert-info">
-      No hay cuentas bancarias registradas. Haz clic en "Agregar Cuenta" para añadir una.
+    <div v-if="fields.length === 0" class="alert alert-info">
+      No hay cuentas bancarias registradas.
     </div>
 
-    <div v-for="(account, index) in accountsList" :key="index" class="card mb-3 border">
+    <div
+        v-if="hasTriedSubmit && errors.accounts"
+        class="alert alert-danger p-2 small"
+    >
+      {{ errors.accounts }}
+    </div>
+
+    <div
+        v-for="(field, index) in fields"
+        :key="index"
+        class="card mb-3 border"
+    >
       <div class="card-body">
+
         <div class="d-flex justify-content-between align-items-start mb-3">
           <h6 class="mb-0">Cuenta #{{ index + 1 }}</h6>
           <button
               type="button"
               class="btn btn-dashed color-4"
-              @click="removeAccount(index)"
-              :disabled="accountsList.length === 1"
+              :disabled="fields.length === 1"
+              @click="remove(index)"
           >
             <i class="fa fa-trash"></i>
           </button>
         </div>
 
         <form class="row gx-3">
+
           <CommonInputfieldsSelectfield
-              v-model="account.bank_id"
+              v-model="field.value.bank_id"
               classes="col-md-4 col-sm-6"
               label="Banco"
+              labelField="name"
               :data="lookups.banks"
-              :labelField="'name'"
               :searchable="true"
               star="*"
-              :rules="accountBankSchema.bank_id"
-              :name="`bank_id_${index}`"
+              :error="getFieldError(index, 'bank_id')"
           />
 
           <CommonInputfieldsSelectfield
-              v-model="account.account_type_id"
+              v-model="field.value.account_type_id"
               classes="col-md-4 col-sm-6"
               label="Tipo de Cuenta"
+              labelField="name"
               :data="lookups.typeAccountBank"
-              :labelField="'name'"
               star="*"
-              :rules="accountBankSchema.account_type_id"
-              :name="`account_type_id_${index}`"
+              :error="getFieldError(index, 'account_type_id')"
           />
 
           <CommonInputfieldsTextfield
-              v-model="account.account_number"
+              v-model="field.value.account_number"
               type="text"
               classes="col-md-4 col-sm-6"
               label="Número de Cuenta"
               placeholder="Ej: 1234567890"
               star="*"
-              :rules="accountBankSchema.account_number"
-              :name="`account_number_${index}`"
+              :error="getFieldError(index, 'account_number')"
           />
+
           <CommonInputfieldsCheckbox
-              v-model="account.is_principal"
+              v-model="field.value.is_principal"
+              :name="`accounts.${index}.is_principal`"
               classes="col-md-12"
               label="Cuenta Principal"
-              :name="`is_principal_${index}`"
-              :rules="accountBankSchema.is_principal"
-              @change="setPrincipal(index)"
+              @change="handlePrincipal(index)"
+              :error="getFieldError(0, 'is_principal')"
           />
+
         </form>
       </div>
     </div>
   </div>
 </template>
-
 <script lang="ts" setup>
-import type { ILookup } from "~/interfaces/ILookup";
-import type { IAccountBank } from "~/interfaces/IAccountBank";
-import { useValidator } from "@/composables/useValidator";
-import { accountBankSchema } from "@/utils/validations/accountBank.schema";
-
-const { validateForm, resetErrors } = useValidator();
+import { useFieldArray } from 'vee-validate'
+import type { ILookup } from '~/interfaces/ILookup'
+import type { IAccountBank } from '~/interfaces/IAccountBank'
+import { useAccountBankForm } from '~/composables/forms/useAccountBankForm'
 
 const props = defineProps<{
-  data?: IAccountBank[],
+  data?: IAccountBank[]
   lookups: {
-    banks: ILookup[],
+    banks: ILookup[]
     typeAccountBank: ILookup[]
-  },
+  }
   isEditing?: boolean
-}>();
+}>()
 
-const emit = defineEmits<{
-  (e: "sendForm", payload: IAccountBank[]): void;
-  (e: "formInvalid", payload: boolean): void;
-}>();
+const {
+  validate,
+  values,
+  resetForm,
+  errors,
+  setFieldValue
+} = useAccountBankForm()
 
-const emptyAccount: IAccountBank = {
-  bank_id: "",
-  account_type_id: "",
-  account_number: "",
-  is_principal: false
-};
+const { remove, push, fields } = useFieldArray<IAccountBank>('accounts')
 
-const accountsList = ref<IAccountBank[]>([{ ...emptyAccount }]);
-const accountsListOriginal = ref<IAccountBank[]>([{ ...emptyAccount }]);
+//evita que los errores se muestren al cargar el formulario por primera vez,
+// solo después de intentar enviar el formulario
+const hasTriedSubmit = ref<boolean>(false)
 
-watch(() => props.data, (newData) => {
+const getFieldError = (index: number, field: string): string => {
+  if (!hasTriedSubmit.value) return ''
+  const errorsMap = errors.value as Record<string, string>
+  return (
+      errorsMap[`accounts[${index}].${field}`] ||
+      errorsMap[`accounts.${index}.${field}`] ||
+      ''
+  )
+}
+
+const addAccount = (): void => {
+  push({
+    bank_id: '',
+    account_type_id: '',
+    account_number: '',
+    is_principal: false
+  })
+}
+
+const handlePrincipal = (index: number): void => {
+  if (!values.accounts) return
+  values.accounts.forEach((_: IAccountBank, i: number) => {
+    ;(setFieldValue as any)(`accounts[${i}].is_principal`, i === index)
+  })
+}
+
+watch(() => props.data, (newData?: IAccountBank[]) => {
+  hasTriedSubmit.value = false
   if (newData && newData.length > 0) {
-    accountsList.value = newData.map(account => ({ ...account }));
-    accountsListOriginal.value = newData.map(account => ({ ...account }));
-  }
-}, { immediate: true });
-
-const addAccount = () => {
-  accountsList.value.push({ ...emptyAccount });
-};
-
-const removeAccount = (index: number) => {
-  if (accountsList.value.length > 1) {
-    accountsList.value.splice(index, 1);
-    // Limpiar errores del item eliminado
-    resetErrors();
-  }
-};
-
-const setPrincipal = (index: number) => {
-  if (accountsList.value[index].is_principal) {
-    accountsList.value.forEach((account, i) => {
-      if (i !== index) {
-        account.is_principal = false;
+    resetForm({
+      values: {
+        accounts: newData.map((acc: IAccountBank) => ({ ...acc }))
       }
-    });
-  }
-};
-
-const sendForm = () => {
-  // validateForm detecta automáticamente que es un array y valida como dinámico
-  const isValid = validateForm(accountsList.value, accountBankSchema, true);
-
-  if (isValid) {
-    emit("sendForm", accountsList.value);
+    })
   } else {
-    emit("formInvalid", true);
+    resetForm({
+      values: {
+        accounts: [{
+          bank_id: '',
+          account_type_id: '',
+          account_number: '',
+          is_principal: true
+        }]
+      }
+    })
   }
-};
-
-const reset = () => {
-  accountsList.value = accountsListOriginal.value.map(account => ({ ...account }));
-  resetErrors();
-};
+}, { immediate: true })
 
 defineExpose({
-  sendForm,
-  reset
-});
+  async validateForm(): Promise<boolean> {
+    hasTriedSubmit.value = true
+    const result = await validate()
+    return result.valid
+  },
+  getValues(): IAccountBank[] | undefined {
+    return values.accounts
+  },
+  reset(): void {
+    hasTriedSubmit.value = false
+    resetForm()
+  }
+})
 </script>
-
 <style scoped>
-.card {
-  transition: box-shadow 0.2s;
-}
-
-.card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
 </style>
+

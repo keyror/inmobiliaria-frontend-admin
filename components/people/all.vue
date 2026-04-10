@@ -67,27 +67,14 @@
 
 <script setup lang="ts">
 import PersonService from "@/services/PersonService";
-import AlertaService from "~/services/AlertService";
+import AlertService from "~/services/AlertService";
+import { useApiHandler } from '~/composables/useApiHandler'
 import type {IParamsTable} from "~/interfaces/IParamsTable";
 import {peopleHeader} from "~/constants/tableHeaders/PeopleHeader";
-import type {IExportOptions} from "~/interfaces/IExportOptions";
-import {Constants} from "~/constants/Constants";
-import {ApiUrls} from "~/constants/ApiUrls";
-import LoadingService from "~/services/LoadingService";
+
+const { run } = useApiHandler()
 
 const data = ref([]);
-
-const exportUsers: IExportOptions = {
-  name: "personas",
-  pdf: {
-    url: ApiUrls.USERS_EXPORT_TO_PDF_GET,
-    extension: Constants.PDF,
-  },
-  excel: {
-    url: ApiUrls.USERS_EXPORT_TO_EXCEL_GET,
-    extension: Constants.EXCEL,
-  }
-}
 
 const paramsTable = ref<IParamsTable>({
   page: 1,
@@ -109,44 +96,38 @@ const goToProperty = (id: string) => {
   navigateTo(`/properties/edit/${id}`)
 }
 
-const people = async (paramsTable: IParamsTable) => {
-  LoadingService.show()
-  PersonService.getPeople(paramsTable)
-      .then((response) => {
-        data.value = response.data.data
-        total.value = response.data.total
-        LoadingService.hide()
-      }).catch((error) => {
-    LoadingService.hide()
-    AlertaService.showError('Ha ocurrido un error', error);
-  })
+const people = async (params: IParamsTable) => {
+  const response = await run(PersonService.getPeople(params))
+
+  if (response) {
+    data.value = response.data.data
+    total.value = response.data.total
+  }
 }
 
-const edit = async (item: any) => {
+const edit = (item: any) => {
   navigateTo(`/people/edit/${item.id}`)
 }
 
 const deletePerson = async (item: any) => {
-  AlertaService.showConfirmation(
-      '¿ Esta seguro de realizar esta operación ?',
-      `Esta seguro de eliminar el registro : ${item.full_name}`)
-      .then((result) => {
-        if (result.isConfirmed) {
-          LoadingService.show()
-          PersonService.deletePerson(item.id)
-              .then((response) => {
-                LoadingService.hide()
-                AlertaService.showSuccess('Operación exitosa', response.message).then((response) => {
-                  if (response.isConfirmed) {
-                    people(paramsTable.value)
-                  }
-                })
-              }).catch((error) => {
-            LoadingService.hide()
-            AlertaService.showError('Ha ocurrido un error', error);
-          })
-        }
-      });
+  const result = await AlertService.showConfirmation(
+      '¿ Está seguro de realizar esta operación ?',
+      `Esta seguro de eliminar el registro : ${item.full_name}`
+  )
+
+  if (!result.isConfirmed) return
+
+  const response = await run(
+      PersonService.deletePerson(item.id),
+      {
+        showSuccess: true,
+        successMessage: 'Persona eliminada correctamente'
+      }
+  )
+
+  if (response) {
+    await people(paramsTable.value)
+  }
 }
 
 const reloadDataTable = () => {

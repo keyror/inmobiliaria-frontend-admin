@@ -55,51 +55,41 @@
               <div v-show="activeTab === 'persons'">
                 <PeoplePersons
                     ref="personRef"
-                    @sendForm="getFormPerson"
                     :lookups="lookupsToSend || {}"
                     :data="person"
                     :isEditing="props.isEditing"
-                    @formInvalid="isPersonValid = false"
                 />
               </div>
               <div v-show="activeTab === 'fiscalProfiles'">
                 <PeopleFiscalProfiles
                     ref="fiscalProfileRef"
-                    @sendForm="getFormFiscalProfile"
                     :lookups="fiscalProfilesLookups || {}"
                     :data="person?.fiscal_profile"
                     :isEditing="props.isEditing"
-                    @formInvalid="isFiscalValid = false"
                 />
               </div>
               <div v-show="activeTab === 'accountBank'">
                 <PeopleAccountBank
                     ref="accountBankRef"
-                    @sendForm="getFormAccountBank"
                     :lookups="accountBankLookups"
                     :data="person?.account_banks"
                     :isEditing="props.isEditing"
-                    @formInvalid="isAccountBankValid = false"
                 />
 
               </div>
               <div v-show="activeTab === 'addresses'">
                 <Addresses
                     ref="addressesRef"
-                    @sendForm="getFormAddresses"
                     :lookups="addressesLookups"
                     :data="person?.addresses"
                     :isEditing="props.isEditing"
-                    @formInvalid="isAddressValid = false"
                 />
               </div>
               <div v-show="activeTab === 'contacts'">
                 <Contacts
                     ref="contactsRef"
-                    @sendForm="getFormContacts"
                     :data="person?.contacts"
                     :isEditing="props.isEditing"
-                    @formInvalid="isContactValid = false"
                 />
               </div>
               <div class="form-btn mt-3">
@@ -122,15 +112,10 @@
 <script setup lang="ts">
 import '@vuepic/vue-datepicker/dist/main.css'
 import PersonService from "~/services/PersonService";
-import LoadingService from "~/services/LoadingService";
 import AlertService from "~/services/AlertService";
-import LookupService from "~/services/LookupService";
-import type {IIndexLookupsRequest} from "~/interfaces/IIndexLookupsRequest";
+import { useApiHandler } from '~/composables/useApiHandler'
 import {Constants} from "~/constants/Constants";
-import type {ILookupsResponse} from "~/interfaces/ILookup";
-import type {IPerson} from "~/interfaces/IPerson";
-import type {IFiscalProfile} from "~/interfaces/IFiscalProfile";
-import type {IAccountBank} from "~/interfaces/IAccountBank";
+
 import {
   PeopleFiscalProfiles,
   PeopleAccountBank,
@@ -139,6 +124,13 @@ import {
   Contacts
 } from "#components";
 import type {ISavePerson} from "~/interfaces/ISavePerson";
+import type {IPerson} from "~/interfaces/IPerson";
+import type {IFiscalProfile} from "~/interfaces/IFiscalProfile";
+import type {IAccountBank} from "~/interfaces/IAccountBank";
+import type {IAddress} from "~/interfaces/IAddress";
+import type {IContact} from "~/interfaces/IContact";
+
+const { run } = useApiHandler()
 
 const props = defineProps({
   isEditing: {
@@ -146,7 +138,6 @@ const props = defineProps({
     default: false
   }
 });
-
 
 const personRef = ref<InstanceType<typeof PeoplePersons> | null>(null);
 const fiscalProfileRef = ref<InstanceType<typeof PeopleFiscalProfiles> | null>(null);
@@ -159,142 +150,85 @@ const activeTab = ref<string>('persons')
 const route = useRoute()
 const idPersona = route.params.id as string;
 
-const categories = ref<IIndexLookupsRequest>({
-  categories: [
-    Constants.TAXE_TYPE,
-    Constants.ORGANIZATION_TYPE,
-    Constants.DOCUMENT_TYPE,
-    Constants.GENDER,
-    Constants.OP_SI_NO,
-    Constants.ECONOMIC_ACTIVITY,
-    Constants.CITY,
-    Constants.ACCOUNT_BANKS,
-    Constants.BANKS,
-    Constants.ROAD_TYPE,
-    Constants.LETTER,
-    Constants.ORIENTATION,
-    Constants.STRATUM,
-    Constants.COUNTRY,
-    Constants.DEPARTMENT
-  ]
-});
-
-const lookups = ref<ILookupsResponse>({});
-
 const person = ref<any>({});
-const personToSaveData = ref<ISavePerson>({});
 
-const isPersonValid = ref<boolean | null>(null);
-const isFiscalValid = ref<boolean | null>(null);
-const isAccountBankValid = ref<boolean | null>(null);
-const isAddressValid = ref<boolean | null>(null);
-const isContactValid = ref<boolean | null>(null);
-
-const formStatusMap = {
-  persons: isPersonValid,
-  fiscalProfiles: isFiscalValid,
-  accountBank: isAccountBankValid,
-  addresses: isAddressValid,
-  contacts: isContactValid
-} as const;
-
+const { lookups } = useLookups([
+  Constants.TAXE_TYPE,
+  Constants.ORGANIZATION_TYPE,
+  Constants.DOCUMENT_TYPE,
+  Constants.GENDER,
+  Constants.OP_SI_NO,
+  Constants.ECONOMIC_ACTIVITY,
+  Constants.CITY,
+  Constants.ACCOUNT_BANKS,
+  Constants.BANKS,
+  Constants.ROAD_TYPE,
+  Constants.LETTER,
+  Constants.ORIENTATION,
+  Constants.STRATUM,
+  Constants.COUNTRY,
+  Constants.DEPARTMENT
+])
 
 const switchTab = (tab: string) => {
   activeTab.value = tab
 }
 
-const getFormPerson = (data: Partial<IPerson> | { invalidForm: boolean }) => {
-  if ('invalidForm' in data) {
-    isPersonValid.value = false;
-    return;
+const save = async () => {
+
+  const forms = [
+    { key: 'persons', ref: personRef },
+    { key: 'fiscalProfiles', ref: fiscalProfileRef },
+    { key: 'accountBank', ref: accountBankRef },
+    { key: 'addresses', ref: addressesRef },
+    { key: 'contacts', ref: contactsRef },
+  ];
+
+  const data: ISavePerson = {}
+
+  for (const form of forms) {
+    const isValid = await form.ref.value?.validateForm();
+
+    if (!isValid) {
+      switchTab(form.key);
+      await AlertService.showFormError();
+      return;
+    }
+
+    // recolectar data
+    const values = form.ref.value?.getValues();
+
+    if (form.key === 'persons') data.person = values as IPerson
+
+    if (form.key === 'fiscalProfiles') {
+      data.fiscal_profile = values as IFiscalProfile
+    }
+    if (form.key === 'accountBank') {
+      // Aquí le aseguras que values es el array de cuentas
+      data.account_banks = values as IAccountBank[]
+    }
+    if (form.key === 'addresses') {
+      data.addresses = values as IAddress[]
+    }
+    if (form.key === 'contacts') {
+      data.contacts = values as IContact[]
+    }
   }
 
-  isPersonValid.value = true;
-  personToSaveData.value.person = data;
-}
+  const promise = props.isEditing
+      ? PersonService.updatePerson(idPersona, data)
+      : PersonService.createPerson(data)
 
-const getFormFiscalProfile = (data: Partial<IFiscalProfile> | { invalidForm: boolean }) => {
-  if ('invalidForm' in data) {
-    isFiscalValid.value = false;
-    return;
+  const response = await run(promise, {
+    showSuccess: true,
+    successMessage: props.isEditing
+        ? 'Persona actualizada correctamente'
+        : 'Persona creada correctamente'
+  })
+
+  if (response) {
+    props.isEditing ? await getPerson() : cancel()
   }
-
-  isFiscalValid.value = true;
-  personToSaveData.value.fiscal_profile = data;
-}
-
-const getFormAccountBank = (data: IAccountBank[] | { invalidForm: boolean }) => {
-  if ('invalidForm' in data) {
-    isAccountBankValid.value = false;
-    return;
-  }
-
-  isAccountBankValid.value = true;
-  personToSaveData.value.account_banks = data
-}
-
-const getFormAddresses = (data: any[] | { invalidForm: boolean }) => {
-  if ('invalidForm' in data) {
-    isAddressValid.value = false;
-    return;
-  }
-
-  isAddressValid.value = true;
-  personToSaveData.value.addresses = data
-}
-
-const getFormContacts = (data: any[] | { invalidForm: boolean }) => {
-  if ('invalidForm' in data) {
-    isContactValid.value = false;
-    return;
-  }
-
-  isContactValid.value = true;
-  personToSaveData.value.contacts = data
-}
-
-const save = () => {
-  // Disparar validación
-  personRef.value?.sendForm();
-  fiscalProfileRef.value?.sendForm();
-  accountBankRef.value?.sendForm();
-  addressesRef.value?.sendForm();
-  contactsRef.value?.sendForm();
-
-  nextTick()
-      .then(() => {
-        const invalidForm = getInvalidForm();
-
-        if (invalidForm) {
-          switchTab(invalidForm);
-          AlertService.showFormError();
-          // Cortamos la cadena de promesas
-          return Promise.reject('FORM_INVALID');
-        }
-
-        LoadingService.show();
-
-        return props.isEditing
-            ? PersonService.updatePerson(idPersona, personToSaveData.value)
-            : PersonService.createPerson(personToSaveData.value)
-      })
-      .then((response) => {
-        cancel();
-        AlertService.showSuccess('Operación exitosa', response.message).then((response) => {
-          if (response.isConfirmed) {
-            init();
-          }
-        })
-      })
-      .catch((error) => {
-        // Evita mostrar error si solo fue validación
-        if (error !== 'FORM_INVALID') {
-          AlertService.showError('Ha ocurrido un error', error);
-        }
-      })
-      .finally(() => {
-        LoadingService.hide();
-      });
 };
 
 const cancel = () => {
@@ -333,52 +267,15 @@ const addressesLookups = computed(() => ({
   departments: lookups.value[Constants.DEPARTMENT],
 }))
 
-const getLookups = async () => {
-  return LookupService.getLookups(categories.value)
-      .then((lookupsResponse) => {
-        lookups.value = lookupsResponse.data;
-      });
-};
-
-
 const getPerson = async () => {
-  return PersonService.getPerson(idPersona)
-      .then((response) => {
-        person.value = response.data;
-      });
-};
-
-const init = () => {
-  LoadingService.show();
-  const tasks = [];
-  tasks.push(getLookups());
-
-  if (props.isEditing) {
-    tasks.push(getPerson());
+  if (!props.isEditing) return;
+  const response = await run(PersonService.getPerson(idPersona))
+  if (response) {
+    person.value = response.data
   }
+}
 
-  Promise.all(tasks)
-      .catch((error) => {
-        AlertService.showError('Ha ocurrido un error', error);
-      })
-      .finally(() => {
-        LoadingService.hide();
-      });
-};
-
-const getInvalidForm = (): keyof typeof formStatusMap | null => {
-  const entries = Object.entries(formStatusMap) as [
-    keyof typeof formStatusMap,
-    typeof isPersonValid
-  ][];
-
-  const invalid = entries.find(([_, ref]) => ref.value === false);
-
-  return invalid?.[0] ?? null;
-};
-
-// Cargar datos al montar el componente
-init();
+getPerson()
 </script>
 
 <style scoped>

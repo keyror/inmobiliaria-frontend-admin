@@ -1,7 +1,91 @@
+<script lang="ts" setup>
+import { useFieldArray } from 'vee-validate'
+import type { IContact } from '~/interfaces/IContact'
+import { useContactForm } from '~/composables/forms/useContactForm'
+
+const props = defineProps<{
+  data?: IContact[]
+  single?: boolean
+  isEditing?: boolean
+}>()
+
+const {
+  validate,
+  values,
+  resetForm,
+  errors,
+  setFieldValue
+} = useContactForm()
+
+const { remove, push, fields } = useFieldArray<IContact>('contacts')
+
+const hasTriedSubmit = ref<boolean>(false)
+
+const getFieldError = (index: number, field: string): string => {
+  if (!hasTriedSubmit.value) return ''
+  const errorsMap = errors.value as Record<string, string>
+  return (
+      errorsMap[`contacts[${index}].${field}`] ||
+      errorsMap[`contacts.${index}.${field}`] ||
+      ''
+  )
+}
+
+const emptyContact: IContact = {
+  phone: '',
+  mobile: '',
+  email: '',
+  is_principal: false
+}
+
+const addContact = (): void => {
+  push({ ...emptyContact })
+}
+
+const handlePrincipal = (index: number): void => {
+  if (!values.contacts) return
+  values.contacts.forEach((_: IContact, i: number) => {
+    ;(setFieldValue as any)(`contacts[${i}].is_principal`, i === index)
+  })
+}
+
+watch(() => props.data, (newData?: IContact[]) => {
+  hasTriedSubmit.value = false
+  if (newData && newData.length > 0) {
+    resetForm({
+      values: {
+        contacts: newData.map((c: IContact) => ({ ...c }))
+      }
+    })
+  } else {
+    resetForm({
+      values: {
+        contacts: [{ ...emptyContact, is_principal: true }]
+      }
+    })
+  }
+}, { immediate: true })
+
+defineExpose({
+  async validateForm(): Promise<boolean> {
+    hasTriedSubmit.value = true
+    const result = await validate()
+    return result.valid
+  },
+  getValues(): IContact[] | undefined {
+    return values.contacts
+  },
+  reset(): void {
+    hasTriedSubmit.value = false
+    resetForm()
+  }
+})
+</script>
+
 <template>
   <div>
     <div class="card-header ps-0 d-flex justify-content-between align-items-center">
-      <h5> {{ props.single ? 'Contacto' : 'Contactos' }}</h5>
+      <h5>{{ props.single ? 'Contacto' : 'Contactos' }}</h5>
       <button
           v-if="!single"
           type="button"
@@ -13,155 +97,81 @@
       </button>
     </div>
 
-    <div v-if="contactsList.length === 0" class="alert alert-info">
-      No hay contactos registrados. Haz clic en "Agregar Contacto" para añadir uno.
+    <div v-if="fields.length === 0" class="alert alert-info">
+      No hay contactos registrados.
     </div>
 
-    <div v-for="(contact, index) in contactsList" :key="index" class="card mb-3 border">
+    <div
+        v-if="hasTriedSubmit && errors.contacts"
+        class="alert alert-danger p-2 small"
+    >
+      {{ errors.contacts }}
+    </div>
+
+    <div
+        v-for="(field, index) in fields"
+        :key="field.key"
+        class="card mb-3 border"
+    >
       <div class="card-body">
+
         <div class="d-flex justify-content-between align-items-start mb-3">
           <h6 class="mb-0">Contacto #{{ index + 1 }}</h6>
           <button
-            v-if="!single"
-            type="button"
-            class="btn btn-dashed color-4"
-            @click="removeContact(index)"
-            :disabled="contactsList.length === 1"
+              v-if="!single"
+              type="button"
+              class="btn btn-dashed color-4"
+              :disabled="fields.length === 1"
+              @click="remove(index)"
           >
             <i class="fa fa-trash"></i>
           </button>
         </div>
 
         <form class="row gx-3">
+
           <CommonInputfieldsTextfield
-            v-model="contact.phone"
-            type="text"
-            classes="col-md-4 col-sm-6"
-            label="Teléfono Fijo"
-            placeholder="Ej: 6012345678"
-            :name="`phone_${index}`"
-            :rules="contactSchema.phone"
+              v-model="field.value.phone"
+              type="text"
+              classes="col-md-4 col-sm-6"
+              label="Teléfono Fijo"
+              placeholder="Ej: 6012345678"
+              :error="getFieldError(index, 'phone')"
           />
 
           <CommonInputfieldsTextfield
-            v-model="contact.mobile"
-            type="text"
-            classes="col-md-4 col-sm-6"
-            label="Teléfono Móvil"
-            placeholder="Ej: 3001234567"
-            star="*"
-            :rules="contactSchema.mobile"
-            :name="`mobile_${index}`"
+              v-model="field.value.mobile"
+              type="text"
+              classes="col-md-4 col-sm-6"
+              label="Teléfono Móvil"
+              placeholder="Ej: 3001234567"
+              star="*"
+              :error="getFieldError(index, 'mobile')"
           />
 
           <CommonInputfieldsTextfield
-            v-model="contact.email"
-            type="email"
-            classes="col-md-4 col-sm-6"
-            label="Correo Electrónico"
-            placeholder="ejemplo@correo.com"
-            star="*"
-            :rules="contactSchema.email"
-            :name="`email_${index}`"
+              v-model="field.value.email"
+              type="email"
+              classes="col-md-4 col-sm-6"
+              label="Correo Electrónico"
+              placeholder="ejemplo@correo.com"
+              star="*"
+              :error="getFieldError(index, 'email')"
           />
 
           <CommonInputfieldsCheckbox
-              v-model="contact.is_principal"
+              v-model="field.value.is_principal"
+              :name="`contacts.${index}.is_principal`"
               classes="col-md-12"
-              label=" Contacto Principal"
-              :name="`is_principal_contact_${index}`"
-              :rules="contactSchema.is_principal"
-              @change="setPrincipal(index)"
+              label="Contacto Principal"
+              @change="handlePrincipal(index)"
+              :error="index === 0
+                ? getFieldError(0, 'is_principal')
+                : getFieldError(0, 'is_principal') ? ' ' : ''"
           />
+
         </form>
       </div>
     </div>
   </div>
 </template>
-
-<script lang="ts" setup>
-import type { IContact } from "~/interfaces/IContact";
-import { useValidator } from "~/composables/useValidator";
-import { contactSchema } from "~/utils/validations/contact.schema";
-
-const { validateForm, resetErrors } = useValidator();
-
-const props = defineProps<{
-  data?: IContact[],
-  single?: boolean;
-}>();
-
-const emit = defineEmits<{
-  (e: "sendForm", payload: IContact[]): void;
-  (e: "formInvalid", payload: boolean): void;
-}>();
-
-const emptyContact: IContact = {
-  phone: "",
-  mobile: "",
-  email: "",
-  is_principal: false
-};
-
-
-const contactsList = ref<IContact[]>(
-    props.single
-        ? [{ ...emptyContact }]
-        : [{ ...emptyContact }]
-);
-
-const contactsListOriginal = ref<IContact[]>([{ ...emptyContact }]);
-
-watch(() => props.data, (newData) => {
-  if (newData && newData.length > 0) {
-    contactsList.value = newData.map(contact => ({ ...contact }));
-    contactsListOriginal.value = newData.map(contact => ({ ...contact }));
-  }
-}, { immediate: true });
-
-const addContact = () => {
-  contactsList.value.push({ ...emptyContact });
-};
-
-const removeContact = (index: number) => {
-  if (contactsList.value.length > 1) {
-    contactsList.value.splice(index, 1);
-    resetErrors();
-  }
-};
-
-const setPrincipal = (index: number) => {
-  if (contactsList.value[index].is_principal) {
-    contactsList.value.forEach((contact, i) => {
-      if (i !== index) {
-        contact.is_principal = false;
-      }
-    });
-  }
-};
-
-const sendForm = () => {
-  let allValid = true;
-
-  const isValid = validateForm(contactsList.value, contactSchema, true);
-  if (isValid) {
-    emit("sendForm", contactsList.value);
-  } else {
-    emit("formInvalid", true);
-  }
-};
-
-const reset = () => {
-  contactsList.value = contactsListOriginal.value.map(contact => ({ ...contact }));
-  resetErrors();
-};
-
-defineExpose({
-  sendForm,
-  reset
-});
-</script>
-
-<style scoped>
-
-</style>

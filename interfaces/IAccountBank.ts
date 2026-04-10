@@ -3,5 +3,5 @@ export interface IAccountBank {
     bank_id: string;
     account_type_id: string;
     account_number: string;
-    is_principal?: boolean;
+    is_principal: boolean;
 }

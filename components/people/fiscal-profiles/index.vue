@@ -2,11 +2,13 @@
   <div class="card-header ps-0">
     <h5>{{ props.isEditing ? ' Editar Perfil Fiscal' : 'Crear Perfil Fiscal' }}</h5>
   </div>
-  <form class="row gx-3" @submit.prevent="sendForm">
+
+  <form class="row gx-3">
+
     <CommonInputfieldsSelectfield
-        v-model="form.economic_activities"
+        v-model="economic_activities"
         classes="col-md-6 col-sm-6"
-        label="Actividades ecónomicas"
+        label="Actividades económicas"
         :data="lookups.economicActivity"
         :labelField="'name'"
         concat
@@ -14,12 +16,11 @@
         :multiple="true"
         :searchable="true"
         star="*"
-        :rules="fiscalProfileSchema.economic_activities"
-        name="economic_activities"
+        :error="errors.economic_activities"
     />
 
     <CommonInputfieldsSelectfield
-        v-model="form.taxe_types"
+        v-model="taxe_types"
         classes="col-md-6 col-sm-6"
         label="Responsabilidad Fiscal"
         :data="lookups.taxeType"
@@ -27,69 +28,61 @@
         :multiple="true"
         :searchable="true"
         star="*"
-        :rules="fiscalProfileSchema.taxe_types"
-        name="taxe_types"
+        :error="errors.taxe_types"
     />
 
     <CommonInputfieldsSelectfield
-        v-model="form.responsible_for_vat_type_id"
+        v-model="responsible_for_vat_type_id"
         classes="col-md-6 col-sm-6"
         label="Responsable IVA"
         :data="lookups.opSiNo"
         :labelField="'name'"
         star="*"
-        :rules="fiscalProfileSchema.responsible_for_vat_type_id"
-        name="responsible_for_vat_type_id"
+        :error="errors.responsible_for_vat_type_id"
     />
 
     <CommonInputfieldsTextfield
-        v-model="form.vat_withholding"
+        v-model="vat_withholding"
         type="number"
         classes="col-md-6 col-sm-6"
         label="Retención IVA (%)"
         placeholder="Ej: 19"
-        :rules="fiscalProfileSchema.vat_withholding"
-        name="vat_withholding"
+        :error="errors.vat_withholding"
     />
 
     <CommonInputfieldsTextfield
-        v-model="form.income_tax_withholding"
+        v-model="income_tax_withholding"
         type="number"
         classes="col-md-6 col-sm-6"
         label="Retención en la Fuente (%)"
         placeholder="Ej: 11"
-        :rules="fiscalProfileSchema.income_tax_withholding"
-        name="income_tax_withholding"
+        :error="errors.income_tax_withholding"
     />
 
     <CommonInputfieldsTextfield
-        v-model="form.ica_withholding"
+        v-model="ica_withholding"
         type="number"
         classes="col-md-6 col-sm-6"
         label="Retención ICA (%)"
         placeholder="Ej: 1.5"
-        :rules="fiscalProfileSchema.ica_withholding"
-        name="ica_withholding"
+        :error="errors.ica_withholding"
     />
 
     <CommonInputfieldsTextfield
-        v-model="form.rental_fee"
+        v-model="rental_fee"
         type="number"
         classes="col-md-6 col-sm-6"
         label="Canon de arrendamiento"
         placeholder="Ej: 1.5"
-        :rules="fiscalProfileSchema.rental_fee"
-        name="rental_fee"
+        :error="errors.rental_fee"
     />
+
   </form>
 </template>
 <script lang="ts" setup>
 import type { ILookup } from "~/interfaces/ILookup";
 import type { IFiscalProfile } from "~/interfaces/IFiscalProfile";
-import { useValidator } from "@/composables/useValidator";
-import { fiscalProfileSchema } from "@/utils/validations/ficalProfile.schema"
-
-const { validateForm, resetErrors } = useValidator();
+import { useFiscalProfileForm } from '~/composables/forms/useFiscalProfileForm'
 
 const props = defineProps<{
   data?: IFiscalProfile,
@@ -101,58 +94,48 @@ const props = defineProps<{
   isEditing?: boolean
 }>();
 
-const emit = defineEmits<{
-  (e: "sendForm", payload: Partial<IFiscalProfile>): void;
-  (e: "formInvalid", payload: boolean): void;
-  (e: "reload"): void;
-}>();
+const form = useFiscalProfileForm()
 
-const initialForm: Partial<IFiscalProfile> = {
-  responsible_for_vat_type_id: "",
-  vat_withholding: "",
-  income_tax_withholding: "",
-  ica_withholding: "",
-  taxe_types: [],
-  rental_fee: "",
-  economic_activities: []
-};
+const {
+  defineField,
+  validate,
+  values,
+  resetForm,
+  errors
+} = form
 
-const form = ref({ ...initialForm });
-const formOriginal = ref({ ...initialForm });
+const [economic_activities] = defineField('economic_activities')
+const [taxe_types] = defineField('taxe_types')
+const [responsible_for_vat_type_id] = defineField('responsible_for_vat_type_id')
+const [vat_withholding] = defineField('vat_withholding')
+const [income_tax_withholding] = defineField('income_tax_withholding')
+const [ica_withholding] = defineField('ica_withholding')
+const [rental_fee] = defineField('rental_fee')
 
 watch(() => props.data, (newData) => {
-      if (newData) {
-        const modAttributes = {
-          ...newData,
-          taxe_types: newData.taxe_types?.map(t => t.taxe_type_id) ?? [],
-          economic_activities: newData.economic_activities?.map(e => e.economic_activity_type_id) ?? []
-        }
-
-        form.value = { ...modAttributes };
-        formOriginal.value = { ...modAttributes };
+  if (newData) {
+    resetForm({
+      values: {
+        ...newData,
+        taxe_types: newData.taxe_types?.map((t: any) => t.taxe_type_id) ?? [],
+        economic_activities: newData.economic_activities?.map((e: any) => e.economic_activity_type_id) ?? []
       }
-}, { immediate: true });
-
-const sendForm = () => {
-  const isValid = validateForm(form.value, fiscalProfileSchema);
-
-  if (isValid) {
-    emit("sendForm", form.value);
-  } else {
-    emit("formInvalid", true);
+    })
   }
-
-};
-
-const reset = () => {
-  form.value = { ...formOriginal.value };
-  resetErrors();
-};
+}, { immediate: true })
 
 defineExpose({
-  sendForm,
-  reset
-});
+  async validateForm() {
+    const result = await validate()
+    return result.valid
+  },
+  getValues(): Partial<IFiscalProfile> | undefined{
+    return values
+  },
+  reset() {
+    resetForm()
+  }
+})
 </script>
 <style scoped>
 </style>

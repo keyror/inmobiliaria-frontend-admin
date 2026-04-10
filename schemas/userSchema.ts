@@ -17,7 +17,7 @@ export const userCreateSchema = baseUserSchema.extend({
 
 export const userUpdateSchema = baseUserSchema.extend({
     password: z.union([z.literal(''), passwordSchema]),
-    password_confirmation: z.string().optional(),
+    password_confirmation: z.string().optional().nullable(),
 }).refine(data => !data.password || data.password === data.password_confirmation, {
     message: 'Las contraseñas no coinciden',
     path: ['password_confirmation'],
