@@ -109,7 +109,8 @@ const {
   values,
   resetForm,
   errors,
-  setFieldValue
+  setFieldValue,
+  setErrors,
 } = useAccountBankForm()
 
 const { remove, push, fields } = useFieldArray<IAccountBank>('accounts')
@@ -178,6 +179,10 @@ defineExpose({
   reset(): void {
     hasTriedSubmit.value = false
     resetForm()
+  },
+  setBackendErrors(backendErrors: Record<string, string>) {
+    hasTriedSubmit.value = true
+    setErrors(backendErrors)
   }
 })
 </script>

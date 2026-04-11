@@ -14,7 +14,8 @@ const {
   values,
   resetForm,
   errors,
-  setFieldValue
+  setFieldValue,
+  setErrors,
 } = useContactForm()
 
 const { remove, push, fields } = useFieldArray<IContact>('contacts')
@@ -78,6 +79,10 @@ defineExpose({
   reset(): void {
     hasTriedSubmit.value = false
     resetForm()
+  },
+  setBackendErrors(backendErrors: Record<string, string>) {
+    hasTriedSubmit.value = true
+    setErrors(backendErrors)
   }
 })
 </script>

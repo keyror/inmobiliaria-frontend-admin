@@ -24,7 +24,8 @@ const {
   values,
   resetForm,
   errors,
-  setFieldValue
+  setFieldValue,
+  setErrors,
 } = useAddressForm()
 
 const { remove, push, fields } = useFieldArray<IAddress>('addresses')
@@ -145,6 +146,10 @@ defineExpose({
   reset(): void {
     hasTriedSubmit.value = false
     resetForm()
+  },
+  setBackendErrors(backendErrors: Record<string, string>) {
+    hasTriedSubmit.value = true
+    setErrors(backendErrors)
   }
 })
 </script>
@@ -284,7 +289,7 @@ defineExpose({
             <div class="mt-3">
               <label class="form-label fw-bold">Dirección generada</label>
               <div class="alert alert-secondary mb-0">
-                {{ builtAddresses[index] || 'Completa los campos' }}
+                {{ builtAddresses[index]?.trim() ||field.value.address || 'Completa los campos' }}
               </div>
             </div>
           </div>

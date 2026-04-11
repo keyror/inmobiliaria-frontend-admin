@@ -156,8 +156,8 @@
 
 <script setup lang="ts">
 import '@vuepic/vue-datepicker/dist/main.css'
-import LoadingService from "~/services/LoadingService";
 import AlertService from "~/services/AlertService";
+import { useApiHandler } from '~/composables/useApiHandler'
 import LookupService from "~/services/LookupService";
 import type {IIndexLookupsRequest} from "~/interfaces/IIndexLookupsRequest";
 import {Constants} from "~/constants/Constants";
@@ -174,6 +174,8 @@ import {
 import PropertyService from "~/services/PropertyService";
 import type {IProperty} from "~/interfaces/IProperty";
 import type {ISaveProperty} from "~/interfaces/ISaveProperty";
+
+const { run } = useApiHandler()
 
 const props = defineProps({
   isEditing: {
@@ -321,7 +323,7 @@ const getFormOwnerships = (data: any[] | { invalidForm: boolean }) => {
   propertySaveDate.value.ownerships = data;
 }
 
-const save = () => {
+const save = async () => {
   // Disparar validación
   propertyRef.value?.sendForm();
   addressesRef.value?.sendForm();
@@ -331,40 +333,29 @@ const save = () => {
   obligationsRef.value?.sendForm();
   ownershipsRef.value?.sendForm();
 
-  nextTick()
-      .then(() => {
-        const invalidForm = getInvalidForm();
+  await nextTick()
 
-        if (invalidForm) {
-          switchTab(invalidForm);
-          AlertService.showFormError();
-          // Cortamos la cadena de promesas
-          return Promise.reject('FORM_INVALID');
-        }
+  const invalidForm = getInvalidForm();
+  if (invalidForm) {
+    switchTab(invalidForm);
+    AlertService.showFormError();
+    return;
+  }
 
-        LoadingService.show();
+  const promise = props.isEditing
+      ? PropertyService.updateProperty(idProperty, propertySaveDate.value)
+      : PropertyService.createProperty(propertySaveDate.value)
 
-        return props.isEditing
-            ? PropertyService.updateProperty(idProperty, propertySaveDate.value)
-            : PropertyService.createProperty(propertySaveDate.value)
-      })
-      .then((response) => {
-       // cancel();
-        AlertService.showSuccess('Operación exitosa', response.message).then((response) => {
-          if (response.isConfirmed) {
-            init();
-          }
-        })
-      })
-      .catch((error) => {
-        // Evita mostrar error si solo fue validación
-        if (error !== 'FORM_INVALID') {
-          AlertService.showError('Ha ocurrido un error', error);
-        }
-      })
-      .finally(() => {
-        LoadingService.hide();
-      });
+  const response = await run(promise, {
+    showSuccess: true,
+    successMessage: props.isEditing
+        ? 'Propiedad actualizada correctamente'
+        : 'Propiedad creada correctamente'
+  })
+
+  if (response) {
+    props.isEditing ? await getProperty() : cancel()
+  }
 };
 
 const cancel = () => {
@@ -422,36 +413,27 @@ const ownershipsLookups = computed(() => ({
 }));
 
 const getLookups = async () => {
-  return LookupService.getLookups(categories.value)
-      .then((lookupsResponse) => {
-        lookups.value = lookupsResponse.data;
-      });
-};
-
+  const response = await run(LookupService.getLookups(categories.value))
+  if (response) {
+    lookups.value = response.data
+  }
+}
 
 const getProperty = async () => {
-  return PropertyService.getProperty(idProperty)
-      .then((response) => {
-        property.value = response.data;
-      });
-};
+  const response = await run(PropertyService.getProperty(idProperty))
+  if (response) {
+    property.value = response.data
+  }
+}
 
-const init = () => {
-  LoadingService.show();
-  const tasks = [];
-  tasks.push(getLookups());
+const init = async () => {
+  const tasks: Promise<any>[] = [getLookups()]
 
   if (props.isEditing) {
-    tasks.push(getProperty());
+    tasks.push(getProperty())
   }
 
-  Promise.all(tasks)
-      .catch((error) => {
-        AlertService.showError('Ha ocurrido un error', error);
-      })
-      .finally(() => {
-        LoadingService.hide();
-      });
+  await Promise.all(tasks)
 };
 
 const getInvalidForm = (): keyof typeof formStatusMap | null => {

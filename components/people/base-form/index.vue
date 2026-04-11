@@ -174,6 +174,23 @@ const switchTab = (tab: string) => {
   activeTab.value = tab
 }
 
+const { distributeErrors } = useFormErrorDistributor({
+      person: personRef,
+      fiscal_profile: fiscalProfileRef,
+      accounts: accountBankRef,
+      addresses: addressesRef,
+      contacts:contactsRef,
+    },
+    {
+      person:'persons',
+      fiscal_profile: 'fiscalProfiles',
+      accounts:'accountBank',
+      addresses:'addresses',
+      contacts:'contacts',
+    },
+    switchTab
+)
+
 const save = async () => {
 
   const forms = [
@@ -223,7 +240,8 @@ const save = async () => {
     showSuccess: true,
     successMessage: props.isEditing
         ? 'Persona actualizada correctamente'
-        : 'Persona creada correctamente'
+        : 'Persona creada correctamente',
+    setErrors: distributeErrors
   })
 
   if (response) {

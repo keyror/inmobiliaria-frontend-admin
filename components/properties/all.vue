@@ -19,7 +19,7 @@
                     <button class="btn btn-dashed color-1" type="button" @click="edit(item)">
                       <i class="fas fa-pen"></i>
                     </button>
-                    <button class="btn btn-dashed color-4" type="button" @click="deletePerson(item)">
+                    <button class="btn btn-dashed color-4" type="button" @click="deleteProperty(item)">
                       <i class="fa fa-trash"></i>
                     </button>
                   </div>
@@ -35,26 +35,14 @@
 
 <script setup lang="ts">
 import PropertyService from "@/services/PropertyService";
-import AlertaService from "~/services/AlertService";
+import AlertService from "~/services/AlertService";
+import { useApiHandler } from '~/composables/useApiHandler'
 import type {IParamsTable} from "~/interfaces/IParamsTable";
-import type {IExportOptions} from "~/interfaces/IExportOptions";
-import {Constants} from "~/constants/Constants";
-import LoadingService from "~/services/LoadingService";
 import {propertiesHeader} from "~/constants/tableHeaders/PropertiesHeader";
 
-const data = ref([]);
+const { run } = useApiHandler()
 
-const exportProperties :IExportOptions = {
-  name: "Propiedades",
-  pdf: {
-    url: "",
-    extension: Constants.PDF,
-  },
-  excel :{
-    url: "",
-    extension: Constants.EXCEL,
-  }
-}
+const data = ref([]);
 
 const paramsTable = ref<IParamsTable>({
   page: 1,
@@ -65,44 +53,38 @@ const paramsTable = ref<IParamsTable>({
 })
 const total = ref(0);
 
-const properties = async (paramsTable: IParamsTable) => {
-  LoadingService.show()
-  PropertyService.getProperties(paramsTable)
-      .then((response) => {
-        data.value = response.data.data
-        total.value = response.data.total
-        LoadingService.hide()
-      }).catch((error) => {
-    LoadingService.hide()
-    AlertaService.showError('Ha ocurrido un error', error);
-  })
+const properties = async (params: IParamsTable) => {
+  const response = await run(PropertyService.getProperties(params))
+
+  if (response) {
+    data.value = response.data.data
+    total.value = response.data.total
+  }
 }
-//TODO::
-const edit = async (item:any) => {
+
+const edit = (item: any) => {
   navigateTo(`/properties/edit/${item.id}`)
 }
 
-const deletePerson = async (item:any) => {
-  AlertaService.showConfirmation(
-      '¿ Esta seguro de realizar esta operación ?',
-      `Esta seguro de eliminar el registro : ${item.full_name}`)
-      .then((result) => {
-        if (result.isConfirmed) {
-          LoadingService.show()
-          PropertyService.deleteProperty(item.id)
-              .then((response) => {
-                LoadingService.hide()
-                AlertaService.showSuccess('Operación exitosa', response.message).then((response) => {
-                  if (response.isConfirmed) {
-                    properties(paramsTable.value)
-                  }
-                })
-              }).catch((error) => {
-            LoadingService.hide()
-            AlertaService.showError('Ha ocurrido un error', error);
-          })
-        }
-      });
+const deleteProperty = async (item: any) => {
+  const result = await AlertService.showConfirmation(
+      '¿ Está seguro de realizar esta operación ?',
+      `Esta seguro de eliminar el registro : ${item.title}`
+  )
+
+  if (!result.isConfirmed) return
+
+  const response = await run(
+      PropertyService.deleteProperty(item.id),
+      {
+        showSuccess: true,
+        successMessage: 'Propiedad eliminada correctamente'
+      }
+  )
+
+  if (response) {
+    await properties(paramsTable.value)
+  }
 }
 
 const reloadDataTable = () => {

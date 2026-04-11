@@ -121,7 +121,8 @@ const {
   validate,
   values,
   resetForm,
-  errors
+  errors,
+  setErrors,
 } = form
 
 // fields
@@ -166,6 +167,9 @@ defineExpose({
   },
   reset() {
     resetForm()
+  },
+  setBackendErrors(backendErrors: Record<string, string>) {
+    setErrors(backendErrors)
   }
 })
 </script>

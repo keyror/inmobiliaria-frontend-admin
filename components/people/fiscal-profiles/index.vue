@@ -101,7 +101,8 @@ const {
   validate,
   values,
   resetForm,
-  errors
+  errors,
+  setErrors,
 } = form
 
 const [economic_activities] = defineField('economic_activities')
@@ -134,6 +135,9 @@ defineExpose({
   },
   reset() {
     resetForm()
+  },
+  setBackendErrors(backendErrors: Record<string, string>) {
+    setErrors(backendErrors)
   }
 })
 </script>
