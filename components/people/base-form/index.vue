@@ -216,20 +216,10 @@ const save = async () => {
     const values = form.ref.value?.getValues();
 
     if (form.key === 'persons') data.person = values as IPerson
-
-    if (form.key === 'fiscalProfiles') {
-      data.fiscal_profile = values as IFiscalProfile
-    }
-    if (form.key === 'accountBank') {
-      // Aquí le aseguras que values es el array de cuentas
-      data.account_banks = values as IAccountBank[]
-    }
-    if (form.key === 'addresses') {
-      data.addresses = values as IAddress[]
-    }
-    if (form.key === 'contacts') {
-      data.contacts = values as IContact[]
-    }
+    if (form.key === 'fiscalProfiles') data.fiscal_profile = values as IFiscalProfile
+    if (form.key === 'accountBank') data.account_banks = values as IAccountBank[]
+    if (form.key === 'addresses') data.addresses = values as IAddress[]
+    if (form.key === 'contacts') data.contacts = values as IContact[]
   }
 
   const promise = props.isEditing
