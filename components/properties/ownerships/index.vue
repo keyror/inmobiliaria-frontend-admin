@@ -122,9 +122,7 @@
               classes="col-md-12"
               label="Propietario Principal"
               @change="setPrimaryOwner(index)"
-              :error="index === 0
-                ? getFieldError(0, 'is_principal_owner')
-                : getFieldError(0, 'is_principal_owner') ? ' ' : ''"
+              :error="getFieldError(0, 'is_principal_owner')"
           />
 
         </form>

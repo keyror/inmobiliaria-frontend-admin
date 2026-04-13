@@ -29,15 +29,15 @@ export const addressFormSchema = z.object({
                 return true;
             }, {
                 message: 'Seleccione la ciudad',
-                path: ['city_id'] // Esto apunta el error específicamente al campo ciudad
+                path: ['city_id']
             })
     )
         .min(1, 'Debe agregar al menos una dirección')
         .refine(
-            (addresses) => addresses.some(a => a.is_principal === true),
+            (addresses) => addresses.some(a => a.is_principal),
             {
                 message: 'Debe seleccionar una dirección principal',
-                path: ['addresses'] // Mejor apuntar al array completo para errores globales
+                path: [0, 'is_principal']
             }
         )
 })

@@ -170,9 +170,7 @@ defineExpose({
               classes="col-md-12"
               label="Contacto Principal"
               @change="handlePrincipal(index)"
-              :error="index === 0
-                ? getFieldError(0, 'is_principal')
-                : getFieldError(0, 'is_principal') ? ' ' : ''"
+              :error="getFieldError(0, 'is_principal')"
           />
 
         </form>

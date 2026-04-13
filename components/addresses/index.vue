@@ -70,7 +70,7 @@ const addAddress = (): void => {
 
 const handlePrincipal = (index: number): void => {
   if (!values.addresses) return
-  values.addresses.forEach((_: IAddress, i: number) => {
+  values.addresses.forEach((_, i: number) => {
     ;(setFieldValue as any)(`addresses[${i}].is_principal`, i === index)
   })
 }

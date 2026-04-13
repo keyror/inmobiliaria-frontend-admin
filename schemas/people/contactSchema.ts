@@ -11,7 +11,7 @@ export const contactFormSchema = z.object({
     )
         .min(1, 'Debe agregar al menos un contacto')
         .refine(
-            (contacts) => contacts.some(c => c.is_principal === true),
+            (contacts) => contacts.some(c => c.is_principal),
             {
                 message: 'Debe seleccionar un contacto principal',
                 path: [0, 'is_principal']

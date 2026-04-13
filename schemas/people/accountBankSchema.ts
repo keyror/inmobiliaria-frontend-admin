@@ -11,7 +11,7 @@ export const accountBankFormSchema = z.object({
     )
         .min(1, 'Debe agregar al menos una cuenta')
         .refine(
-            (accounts) => accounts.some(acc => acc.is_principal === true),
+            (accounts) => accounts.some(acc => acc.is_principal),
             {
                 message: 'Debe seleccionar una cuenta principal',
                 path: [0, 'is_principal']
