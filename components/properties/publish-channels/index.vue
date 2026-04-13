@@ -12,24 +12,33 @@
       </button>
     </div>
 
-    <div v-if="channelsList.length === 0" class="alert alert-info">
+    <div v-if="fields.length === 0" class="alert alert-info">
       No hay canales registrados.
     </div>
 
+    <!-- error general -->
     <div
-        v-for="(channel, index) in channelsList"
-        :key="index"
+        v-if="hasTriedSubmit && errors.publish_channels"
+        class="alert alert-danger p-2 small"
+    >
+      {{ errors.publish_channels }}
+    </div>
+
+    <div
+        v-for="(field, index) in fields"
+        :key="field.key"
         class="card mb-3 border"
     >
       <div class="card-body">
 
         <div class="d-flex justify-content-between align-items-start mb-3">
           <h6 class="mb-0">Canal #{{ index + 1 }}</h6>
+
           <button
               type="button"
               class="btn btn-dashed color-4"
+              :disabled="fields.length === 1"
               @click="removeChannel(index)"
-              :disabled="channelsList.length === 1"
           >
             <i class="fa fa-trash"></i>
           </button>
@@ -38,49 +47,46 @@
         <form class="row gx-3">
 
           <CommonInputfieldsSelectfield
-              v-model="channel.channel_id"
+              v-model="field.value.channel_id"
               classes="col-md-4"
               label="Canal"
               labelField="name"
               :data="lookups.publishChannels"
-              :rules="publishChannelSchema.channel_id"
-              :name="`channel_id_${index}`"
+              star="*"
+              :error="getFieldError(index, 'channel_id')"
           />
 
           <CommonInputfieldsTextfield
-              v-model="channel.external_link"
+              v-model="field.value.external_link"
               classes="col-md-4"
               label="Enlace Externo"
-              :rules="publishChannelSchema.external_link"
-              :name="`external_link_${index}`"
+              :error="getFieldError(index, 'external_link')"
           />
 
           <CommonInputfieldsSelectfield
-              v-model="channel.status_id"
+              v-model="field.value.status_id"
               classes="col-md-4"
-              label="estado"
+              label="Estado"
               labelField="name"
               :data="lookups.status"
-              :rules="publishChannelSchema.status_id"
-              :name="`is_published_${index}`"
+              star="*"
+              :error="getFieldError(index, 'status_id')"
           />
 
           <CommonInputfieldsTextfield
-              v-model="channel.published_at"
+              v-model="field.value.published_at"
               classes="col-md-4"
               label="Publicado el"
               type="date"
-              :name="`published_at_${index}`"
-              :rules="publishChannelSchema.published_at"
+              :error="getFieldError(index, 'published_at')"
           />
 
           <CommonInputfieldsTextfield
-              v-model="channel.unpublished_at"
+              v-model="field.value.unpublished_at"
               classes="col-md-4"
               label="Despublicado el"
               type="date"
-              :name="`unpublished_at_${index}`"
-              :rules="publishChannelSchema.unpublished_at"
+              :error="getFieldError(index, 'unpublished_at')"
           />
 
         </form>
@@ -90,74 +96,106 @@
 </template>
 
 <script lang="ts" setup>
+import { useFieldArray } from 'vee-validate'
 import type { IPublishChannel } from "~/interfaces/IPublishChannel";
 import type { ILookup } from "~/interfaces/ILookup";
-import { useValidator } from "~/composables/useValidator";
-import { publishChannelSchema } from "~/utils/validations/publishChannel.schema";
-
-const { validateForm, resetErrors } = useValidator();
+import { usePublishChannelForm } from '~/composables/forms/usePublishChannelForm'
 
 const props = defineProps<{
   data?: IPublishChannel[],
   lookups: {
     publishChannels: ILookup[],
     status: ILookup[]
-  }
-}>();
+  },
+  isEditing?: boolean
+}>()
 
-const emit = defineEmits<{
-  (e: "sendForm", payload: IPublishChannel[]): void;
-  (e: "formInvalid", payload: boolean): void;
-}>();
+const {
+  validate,
+  values,
+  resetForm,
+  errors,
+  setErrors,
+} = usePublishChannelForm()
 
-const emptyChannel: IPublishChannel = {
-  channel_id: null,
-  external_link: null,
-  status_id: null,
-  published_at: null,
-  unpublished_at: null
-};
+const { remove, push, fields } = useFieldArray<IPublishChannel>('publish_channels')
 
-const channelsList = ref<IPublishChannel[]>([{ ...emptyChannel }]);
-const channelsListOriginal = ref<IPublishChannel[]>([{ ...emptyChannel }]);
+const hasTriedSubmit = ref(false)
+
+const getFieldError = (index: number, field: string): string => {
+  if (!hasTriedSubmit.value) return ''
+  const errorsMap = errors.value as Record<string, string>
+
+  return (
+      errorsMap[`publish_channels[${index}].${field}`] ||
+      errorsMap[`publish_channels.${index}.${field}`] ||
+      ''
+  )
+}
+
+const emptyChannel = (): IPublishChannel => ({
+  channel_id: '',
+  external_link: '',
+  status_id: '',
+  published_at: '',
+  unpublished_at: ''
+})
 
 watch(() => props.data, (newData) => {
+  hasTriedSubmit.value = false
+
   if (newData && newData.length > 0) {
-    channelsList.value = newData.map(c => ({ ...c }));
-    channelsListOriginal.value = newData.map(c => ({ ...c }));
+    resetForm({
+      values: {
+        publish_channels: newData.map(c => ({
+          channel_id: c.channel_id ?? '',
+          external_link: c.external_link ?? '',
+          status_id: c.status_id ?? '',
+          published_at: c.published_at ?? '',
+          unpublished_at: c.unpublished_at ?? '',
+        }))
+      }
+    })
+  } else {
+    resetForm({
+      values: {
+        publish_channels: [{ ...emptyChannel() }]
+      }
+    })
   }
-}, { immediate: true });
+}, { immediate: true })
 
 const addChannel = () => {
-  channelsList.value.push({ ...emptyChannel });
-};
+  push(emptyChannel())
+}
 
 const removeChannel = (index: number) => {
-  if (channelsList.value.length > 1) {
-    channelsList.value.splice(index, 1);
-    resetErrors();
+  if (fields.value.length > 1) {
+    remove(index)
   }
-};
-
-const sendForm = () => {
-  const isValid = validateForm(channelsList.value, publishChannelSchema, true);
-
-  if (isValid) {
-    emit("sendForm", channelsList.value);
-  } else {
-    emit("formInvalid", true);
-  }
-};
-
-const reset = () => {
-  channelsList.value = channelsListOriginal.value.map(c => ({ ...c }));
-  resetErrors();
-};
+}
 
 defineExpose({
-  sendForm,
-  reset
-});
+  async validateForm() {
+    hasTriedSubmit.value = true
+    const result = await validate()
+    return result.valid
+  },
+
+  getValues(): IPublishChannel[] | undefined {
+    return values.publish_channels as IPublishChannel[]
+  },
+
+  reset() {
+    hasTriedSubmit.value = false
+    resetForm()
+  },
+
+  setBackendErrors(backendErrors: Record<string, string>) {
+    hasTriedSubmit.value = true
+    setErrors(backendErrors)
+  }
+})
 </script>
 
 <style scoped>

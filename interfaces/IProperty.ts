@@ -23,7 +23,7 @@ export interface IProperty {
     latitude: string;
     longitude: string;
     boundaries: string;
-    description: string;
+    description: string |null |undefined;
     images?: IImage[] | IImagePayload[] ;
 
     status?: any;

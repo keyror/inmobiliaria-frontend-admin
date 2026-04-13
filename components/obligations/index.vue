@@ -12,102 +12,110 @@
       </button>
     </div>
 
-    <div v-if="list.length === 0" class="alert alert-info">
+    <div v-if="fields.length === 0" class="alert alert-info">
       No hay obligaciones registradas.
     </div>
 
-    <div v-for="(item, index) in list" :key="index" class="card mb-3 border">
+    <!-- error general -->
+    <div
+        v-if="hasTriedSubmit && errors.obligations"
+        class="alert alert-danger p-2 small"
+    >
+      {{ errors.obligations }}
+    </div>
+
+    <div
+        v-for="(field, index) in fields"
+        :key="field.key"
+        class="card mb-3 border"
+    >
       <div class="card-body">
+
         <div class="d-flex justify-content-between align-items-start mb-3">
           <h6 class="mb-0">Obligación #{{ index + 1 }}</h6>
+
           <button
               type="button"
               class="btn btn-dashed color-4"
+              :disabled="fields.length === 1"
               @click="removeItem(index)"
-              :disabled="list.length === 1"
           >
             <i class="fa fa-trash"></i>
           </button>
         </div>
 
         <form class="row gx-3">
+
           <CommonInputfieldsSelectfield
-              v-model="item.obligation_type_id"
+              v-model="field.value.obligation_type_id"
               classes="col-md-4"
               label="Tipo de Obligación"
               :data="lookups.obligationTypes"
               labelField="name"
               star="*"
-              :rules="obligationSchema.obligation_type_id"
-              :name="`obligation_type_id_${index}`"
+              :error="getFieldError(index, 'obligation_type_id')"
           />
 
           <CommonInputfieldsTextfield
-              v-model="item.amount"
+              v-model="field.value.amount"
               classes="col-md-4"
               label="Monto"
               star="*"
-              :rules="obligationSchema.amount"
-              :name="`amount_${index}`"
+              :error="getFieldError(index, 'amount')"
           />
 
           <CommonInputfieldsTextfield
-              v-model="item.total"
+              v-model="field.value.total"
               classes="col-md-4"
               label="Total"
               star="*"
-              :rules="obligationSchema.total"
-              :name="`total_${index}`"
+              :error="getFieldError(index, 'total')"
           />
 
           <CommonInputfieldsSelectfield
-              v-model="item.frequency_type_id"
+              v-model="field.value.frequency_type_id"
               classes="col-md-4"
               label="Frecuencia"
               :data="lookups.frequency"
               labelField="name"
               star="*"
-              :rules="obligationSchema.frequency_type_id"
-              :name="`frequency_type_id_${index}`"
+              :error="getFieldError(index, 'frequency_type_id')"
           />
 
           <CommonInputfieldsTextfield
-              v-model="item.expiration_date"
+              v-model="field.value.expiration_date"
               classes="col-md-4"
               label="Fecha de Vencimiento"
               type="date"
-              :name="`expiration_${index}`"
+              :error="getFieldError(index, 'expiration_date')"
           />
 
           <CommonInputfieldsSelectfield
-              v-model="item.status_id"
+              v-model="field.value.status_id"
               classes="col-md-4"
               label="Activa"
               :data="lookups.status"
               labelField="name"
               star="*"
-              :rules="obligationSchema.status_id"
-              :name="`status_id_${index}`"
+              :error="getFieldError(index, 'status_id')"
           />
 
           <CommonInputfieldsTextarea
-              v-model="item.description"
+              v-model="field.value.description"
               classes="col-md-12"
               label="Descripción"
-              :name="`description_${index}`"
+              :error="getFieldError(index, 'description')"
           />
+
         </form>
       </div>
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
+import { useFieldArray } from 'vee-validate'
 import type { IPropertyObligation } from "~/interfaces/IPropertyObligation";
-import { useValidator } from "~/composables/useValidator";
-import { obligationSchema } from "~/utils/validations/obligation.schema";
-
-const { validateForm, resetErrors } = useValidator();
+import { useObligationForm } from '~/composables/forms/useObligationForm'
 
 const props = defineProps<{
   data?: IPropertyObligation[];
@@ -116,51 +124,95 @@ const props = defineProps<{
     frequency: any[];
     status: any[];
   };
-}>();
+  isEditing?: boolean
+}>()
 
-const emit = defineEmits<{
-  (e: "sendForm", payload: IPropertyObligation[]): void;
-  (e: "formInvalid", payload: boolean): void;
-}>();
+const {
+  validate,
+  values,
+  resetForm,
+  errors,
+  setErrors,
+} = useObligationForm()
 
-const emptyItem: IPropertyObligation = {
-  obligation_type_id: "",
-  amount: "",
-  total: "",
-  frequency_type_id: "",
-  expiration_date: "",
-  status_id: "",
-  description: "",
-};
+const { remove, push, fields } = useFieldArray<IPropertyObligation>('obligations')
 
-const list = ref<IPropertyObligation[]>([{ ...emptyItem }]);
-const original = ref<IPropertyObligation[]>([{ ...emptyItem }]);
+const hasTriedSubmit = ref(false)
+
+const getFieldError = (index: number, field: string): string => {
+  if (!hasTriedSubmit.value) return ''
+  const errorsMap = errors.value as Record<string, string>
+
+  return (
+      errorsMap[`obligations[${index}].${field}`] ||
+      errorsMap[`obligations.${index}.${field}`] ||
+      ''
+  )
+}
+
+const emptyItem = (): IPropertyObligation => ({
+  obligation_type_id: '',
+  amount: '',
+  total: '',
+  frequency_type_id: '',
+  expiration_date: '',
+  status_id: '',
+  description: ''
+})
 
 watch(() => props.data, (val) => {
-  if (val && val.length > 0) {
-    list.value = val.map(i => ({ ...i }));
-    original.value = val.map(i => ({ ...i }));
-  }
-}, { immediate: true });
+  hasTriedSubmit.value = false
 
-const addItem = () => list.value.push({ ...emptyItem });
+  if (val && val.length > 0) {
+    resetForm({
+      values: {
+        obligations: val.map(i => ({
+          obligation_type_id: i.obligation_type_id ?? '',
+          amount: i.amount ?? '',
+          total: i.total ?? '',
+          frequency_type_id: i.frequency_type_id ?? '',
+          expiration_date: i.expiration_date ?? '',
+          status_id: i.status_id ?? '',
+          description: i.description ?? '',
+        }))
+      }
+    })
+  } else {
+    resetForm({
+      values: {
+        obligations: [{ ...emptyItem() }]
+      }
+    })
+  }
+}, { immediate: true })
+
+const addItem = () => push(emptyItem())
 
 const removeItem = (index: number) => {
-  if (list.value.length > 1) {
-    list.value.splice(index, 1);
-    resetErrors();
+  if (fields.value.length > 1) {
+    remove(index)
   }
-};
+}
 
-const sendForm = () => {
-  const valid = validateForm(list.value, obligationSchema, true);
-  valid ? emit("sendForm", list.value) : emit("formInvalid", true);
-};
+defineExpose({
+  async validateForm() {
+    hasTriedSubmit.value = true
+    const result = await validate()
+    return result.valid
+  },
 
-const reset = () => {
-  list.value = original.value.map(i => ({ ...i }));
-  resetErrors();
-};
+  getValues(): IPropertyObligation[] | undefined {
+    return values.obligations as IPropertyObligation[]
+  },
 
-defineExpose({ sendForm, reset });
+  reset() {
+    hasTriedSubmit.value = false
+    resetForm()
+  },
+
+  setBackendErrors(backendErrors: Record<string, string>) {
+    hasTriedSubmit.value = true
+    setErrors(backendErrors)
+  }
+})
 </script>

@@ -12,24 +12,32 @@
       </button>
     </div>
 
-    <div v-if="areasList.length === 0" class="alert alert-info">
+    <div v-if="fields.length === 0" class="alert alert-info">
       No hay áreas registradas.
     </div>
 
     <div
-        v-for="(area, index) in areasList"
-        :key="index"
+        v-if="hasTriedSubmit && errors.areas"
+        class="alert alert-danger p-2 small"
+    >
+      {{ errors.areas }}
+    </div>
+
+    <div
+        v-for="(field, index) in fields"
+        :key="field.key"
         class="card mb-3 border"
     >
       <div class="card-body">
 
         <div class="d-flex justify-content-between align-items-start mb-3">
           <h6 class="mb-0">Área #{{ index + 1 }}</h6>
+
           <button
               type="button"
               class="btn btn-dashed color-4"
+              :disabled="fields.length === 1"
               @click="removeArea(index)"
-              :disabled="areasList.length === 1"
           >
             <i class="fa fa-trash"></i>
           </button>
@@ -38,35 +46,32 @@
         <form class="row gx-3">
 
           <CommonInputfieldsSelectfield
-              v-model="area.area_type_id"
+              v-model="field.value.area_type_id"
               classes="col-md-4"
               label="Tipo de Área"
               labelField="name"
               :data="lookups.areaTypes"
               star="*"
-              :rules="areaSchema.area_type_id"
-              :name="`area_type_id_${index}`"
+              :error="getFieldError(index, 'area_type_id')"
           />
 
           <CommonInputfieldsTextfield
-              v-model="area.area_value"
-              :type="'number'"
+              v-model="field.value.area_value"
+              type="number"
               classes="col-md-4"
               label="Valor del Área"
               star="*"
-              :rules="areaSchema.area_value"
-              :name="`area_value_${index}`"
+              :error="getFieldError(index, 'area_value')"
           />
 
           <CommonInputfieldsSelectfield
-              v-model="area.area_unit_id"
+              v-model="field.value.area_unit_id"
               classes="col-md-4"
               label="Unidad"
               labelField="name"
               :data="lookups.areaUnits"
               star="*"
-              :rules="areaSchema.area_unit_id"
-              :name="`area_unit_id_${index}`"
+              :error="getFieldError(index, 'area_unit_id')"
           />
 
         </form>
@@ -76,72 +81,100 @@
 </template>
 
 <script lang="ts" setup>
-import type { IArea } from "~/interfaces/IArea";
-import type { ILookup } from "~/interfaces/ILookup";
-import { useValidator } from "~/composables/useValidator";
-import { areaSchema } from "~/utils/validations/area.schema";
-
-const { validateForm, resetErrors } = useValidator();
+import { useFieldArray } from 'vee-validate'
+import type { ILookup } from '~/interfaces/ILookup'
+import type { IArea } from '~/interfaces/IArea'
+import { useAreasForm } from '~/composables/forms/useAreasForm'
 
 const props = defineProps<{
-  data?: IArea[],
+  data?: IArea[]
   lookups: {
-    areaTypes: ILookup[],
+    areaTypes: ILookup[]
     areaUnits: ILookup[]
   }
-}>();
+}>()
 
-const emit = defineEmits<{
-  (e: "sendForm", payload: IArea[]): void;
-  (e: "formInvalid", payload: boolean): void;
-}>();
+const {
+  validate,
+  values,
+  resetForm,
+  errors,
+  setErrors,
+} = useAreasForm()
 
-const emptyArea: IArea = {
-  area_type_id: null,
-  area_value: null,
-  area_unit_id: null
-};
+const { remove, push, fields } = useFieldArray<IArea>('areas')
 
-const areasList = ref<IArea[]>([{ ...emptyArea }]);
-const areasListOriginal = ref<IArea[]>([{ ...emptyArea }]);
+const hasTriedSubmit = ref(false)
 
-watch(() => props.data, (newData) => {
-  if (newData && newData.length > 0) {
-    areasList.value = newData.map(a => ({ ...a }));
-    areasListOriginal.value = newData.map(a => ({ ...a }));
-  }
-}, { immediate: true });
+const getFieldError = (index: number, field: string): string => {
+  if (!hasTriedSubmit.value) return ''
+
+  const errorsMap = errors.value as Record<string, string>
+
+  return (
+      errorsMap[`areas[${index}].${field}`] ||
+      errorsMap[`areas.${index}.${field}`] ||
+      ''
+  )
+}
 
 const addArea = () => {
-  areasList.value.push({ ...emptyArea });
-};
+  push({
+    area_type_id: '',
+    area_value: 0,
+    area_unit_id: ''
+  })
+}
 
 const removeArea = (index: number) => {
-  if (areasList.value.length > 1) {
-    areasList.value.splice(index, 1);
-    resetErrors();
+  if (fields.value.length > 1) {
+    remove(index)
   }
-};
+}
 
-const sendForm = () => {
-  const isValid = validateForm(areasList.value, areaSchema, true);
+watch(() => props.data, (newData?: IArea[]) => {
+  hasTriedSubmit.value = false
 
-  if (isValid) {
-    emit("sendForm", areasList.value);
+  if (newData && newData.length > 0) {
+    resetForm({
+      values: {
+        areas: newData.map((a: IArea) => ({ ...a }))
+      }
+    })
   } else {
-    emit("formInvalid", true);
+    resetForm({
+      values: {
+        areas: [{
+          area_type_id: '',
+          area_value: null,
+          area_unit_id: ''
+        }]
+      }
+    })
   }
-};
-
-const reset = () => {
-  areasList.value = areasListOriginal.value.map(a => ({ ...a }));
-  resetErrors();
-};
+}, { immediate: true })
 
 defineExpose({
-  sendForm,
-  reset
-});
+  async validateForm(): Promise<boolean> {
+    hasTriedSubmit.value = true
+    const result = await validate()
+    return result.valid
+  },
+
+  getValues(): IArea[] | undefined {
+    return values.areas as IArea[]
+  },
+
+  reset(): void {
+    hasTriedSubmit.value = false
+    resetForm()
+  },
+
+  setBackendErrors(backendErrors: Record<string, string>) {
+    hasTriedSubmit.value = true
+    setErrors(backendErrors)
+  }
+})
 </script>
 
 <style scoped>

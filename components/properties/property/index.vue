@@ -250,6 +250,7 @@ const {
   resetForm,
   errors,
   setErrors,
+  setFieldValue,
 } = form
 
 // fields
@@ -284,7 +285,7 @@ const [currency] = defineField('price.currency')
 const galleryRef = ref<InstanceType<typeof PropertiesGallery> | null>(null)
 
 const handleImages = (imgs: IImagePayload[]) => {
-  values.images = imgs
+  setFieldValue('images', imgs)
 }
 
 // cargar edición

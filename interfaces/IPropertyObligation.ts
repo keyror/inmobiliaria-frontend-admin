@@ -4,7 +4,7 @@ export interface IPropertyObligation {
     total: string | number;
     frequency_type_id: string;
     expiration_date?: string | null;
-    status_id: string | boolean;
-    description?: string | null;
+    status_id: string;
+    description?: string;
 }
 

@@ -244,6 +244,7 @@ const save = async () => {
     const isValid = await form.ref.value?.validateForm();
 
     if (!isValid) {
+      console.log('form', form.key)
       switchTab(form.key);
       await AlertService.showFormError();
       return;

@@ -34,7 +34,7 @@ export const propertySchema = z.object({
         price_max: z.string().optional().nullable(),
         price: z.string().optional().nullable(),
         currency: z.string().optional().nullable(),
-    }),
+    }).optional().nullable(),
 
     images: z.array(z.any()).optional().nullable()
 })

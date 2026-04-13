@@ -310,10 +310,6 @@ defineExpose({
   setBackendErrors(backendErrors: Record<string, string>) {
     hasTriedSubmit.value = true
     setErrors(backendErrors)
-  },
-
-  getErrorCount() {
-    return Object.keys(errors.value || {}).length
   }
 })
 </script>
