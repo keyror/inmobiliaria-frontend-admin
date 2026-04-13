@@ -2,109 +2,129 @@
   <div>
     <div class="card-header ps-0 d-flex justify-content-between align-items-center">
       <h5>Propietarios</h5>
-      <button type="button" class="btn btn-pill btn-gradient color-4" @click="addOwnership">
+      <button
+          type="button"
+          class="btn btn-pill btn-gradient color-4"
+          @click="addOwnership"
+      >
         <i class="bi bi-plus-circle me-1"></i>
         Agregar Propietario
       </button>
     </div>
 
-    <div v-if="ownershipsList.length === 0" class="alert alert-info">
-      No hay propietarios registrados. Haz clic en "Agregar Propietario" para añadir uno.
+    <div v-if="fields.length === 0" class="alert alert-info">
+      No hay propietarios registrados.
     </div>
 
-    <div class="d-flex align-items-center gap-3 mb-3"
-         :class="isPercentageValid ? 'label label-success label-pill' : 'label label-danger label-pill'">
+    <!-- porcentaje -->
+    <div
+        class="d-flex align-items-center gap-3 mb-3"
+        :class="isPercentageValid ? 'label label-success label-pill' : 'label label-danger label-pill'"
+    >
       <i :class="isPercentageValid ? 'bi bi-check-circle' : 'bi bi-exclamation-circle'"></i>
       <span>
-      Total % asignado: <strong>{{ totalPercentage }}%</strong>
-      <span v-if="!isPercentageValid">
-        — {{ remainingPercentage > 0 ? `Falta ${remainingPercentage}%` : `Excedido por ${Math.abs(remainingPercentage)}%` }}
+        Total % asignado: <strong>{{ totalPercentage }}%</strong>
+        <span v-if="!isPercentageValid">
+          — {{ remainingPercentage > 0
+            ? `Falta ${remainingPercentage}%`
+            : `Excedido por ${Math.abs(remainingPercentage)}%`
+          }}
+        </span>
       </span>
-    </span>
     </div>
 
-    <div v-for="(ownership, index) in ownershipsList" :key="index" class="card mb-3 border">
+    <!-- error general -->
+    <div
+        v-if="hasTriedSubmit && errors.ownerships"
+        class="alert alert-danger p-2 small"
+    >
+      {{ errors.ownerships }}
+    </div>
+
+    <div
+        v-for="(field, index) in fields"
+        :key="field.key"
+        class="card mb-3 border"
+    >
       <div class="card-body">
 
         <div class="d-flex justify-content-between align-items-start mb-3">
           <h6 class="mb-0">Propietario #{{ index + 1 }}</h6>
+
           <button
               type="button"
               class="btn btn-dashed color-4"
+              :disabled="fields.length === 1"
               @click="removeOwnership(index)"
-              :disabled="ownershipsList.length === 1"
           >
             <i class="fa fa-trash"></i>
           </button>
         </div>
 
         <form class="row gx-3">
-          <!-- Persona (búsqueda por cédula) -->
+
+          <!-- Persona -->
           <CommonInputfieldsSelectfield
-              v-model="ownership.person_id"
-              classes="col-md-12 col-sm-12"
+              v-model="field.value.person_id"
+              classes="col-md-12"
               label="Persona"
               :data="getPersonsForIndex(index)"
               :labelField="'name'"
               :searchable="true"
               star="*"
               :onSearch="searchPerson"
-              :rules="ownershipSchema.person_id"
-              :name="`person_id_${index}`"
+              :error="getFieldError(index, 'person_id')"
           />
 
           <!-- Porcentaje -->
           <CommonInputfieldsTextfield
-              v-model="ownership.ownership_percentage"
+              v-model="field.value.ownership_percentage"
               type="number"
               classes="col-md-4 col-sm-6"
               label="Porcentaje %"
-              placeholder="Ej: 50"
               star="*"
-              :rules="ownershipSchema.ownership_percentage"
-              :name="`ownership_percentage_${index}`"
+              :error="getFieldError(index, 'ownership_percentage')"
           />
 
           <!-- Estado -->
           <CommonInputfieldsSelectfield
-              v-model="ownership.status_id"
+              v-model="field.value.status_id"
               classes="col-md-4 col-sm-6"
               label="Estado"
               :data="lookups.status"
               :labelField="'name'"
-              :rules="ownershipSchema.status_id"
-              :name="`status_id_${index}`"
               star="*"
+              :error="getFieldError(index, 'status_id')"
           />
 
           <!-- Fecha inicio -->
           <CommonInputfieldsTextfield
-              v-model="ownership.ownership_start_date"
+              v-model="field.value.ownership_start_date"
               type="date"
               classes="col-md-4 col-sm-6"
               label="Fecha Inicio"
-              :rules="ownershipSchema.ownership_start_date"
-              :name="`ownership_start_date_${index}`"
+              :error="getFieldError(index, 'ownership_start_date')"
           />
 
           <!-- Fecha fin -->
           <CommonInputfieldsTextfield
-              v-model="ownership.ownership_end_date"
+              v-model="field.value.ownership_end_date"
               type="date"
               classes="col-md-4 col-sm-6"
               label="Fecha Fin"
-              :rules="ownershipSchema.ownership_end_date"
-              :name="`ownership_end_date_${index}`"
+              :error="getFieldError(index, 'ownership_end_date')"
           />
 
-          <!-- Propietario principal -->
+          <!-- Principal -->
           <CommonInputfieldsCheckbox
-              v-model="ownership.is_principal_owner"
+              v-model="field.value.is_principal_owner"
+              :name="`ownerships.${index}.is_principal_owner`"
               classes="col-md-12"
               label="Propietario Principal"
-              :name="`is_primary_owner_${index}`"
-              :rules="ownershipSchema.is_primary_owner"
               @change="setPrimaryOwner(index)"
+              :error="index === 0
+                ? getFieldError(0, 'is_principal_owner')
+                : getFieldError(0, 'is_principal_owner') ? ' ' : ''"
           />
 
         </form>
@@ -114,18 +134,17 @@
 </template>
 
 <script lang="ts" setup>
+import { useFieldArray } from 'vee-validate'
 import type { ILookup } from "~/interfaces/ILookup";
 import type { IOwnership } from "~/interfaces/IOwnership";
-import { useValidator } from "@/composables/useValidator";
-import { ownershipSchema } from "@/utils/validations/ownership.schema";
-import type {IOwner} from "~/interfaces/IOwner";
-import {useDebounce} from "~/composables/useDebounce";
-import type {IParamsTable} from "~/interfaces/IParamsTable";
-import LoadingService from "~/services/LoadingService";
+import type { IOwner } from "~/interfaces/IOwner";
+import { useOwnershipForm } from '~/composables/forms/useOwnershipForm'
+import { useDebounce } from "~/composables/useDebounce";
+import type { IParamsTable } from "~/interfaces/IParamsTable";
 import PersonService from "~/services/PersonService";
-import AlertaService from "~/services/AlertService";
+import { useApiHandler } from '~/composables/useApiHandler'
 
-const { validateForm, resetErrors } = useValidator();
+const { run } = useApiHandler()
 
 const props = defineProps<{
   data?: IOwnership[],
@@ -133,12 +152,31 @@ const props = defineProps<{
     status: ILookup[]
   },
   isEditing?: boolean
-}>();
+}>()
 
-const emit = defineEmits<{
-  (e: "sendForm", payload: IOwnership[]): void;
-  (e: "formInvalid", payload: boolean): void;
-}>();
+const {
+  validate,
+  values,
+  resetForm,
+  errors,
+  setFieldValue,
+  setErrors,
+} = useOwnershipForm()
+
+const { remove, push, fields } = useFieldArray<IOwnership>('ownerships')
+
+const hasTriedSubmit = ref(false)
+
+const getFieldError = (index: number, field: string): string => {
+  if (!hasTriedSubmit.value) return ''
+  const errorsMap = errors.value as Record<string, string>
+
+  return (
+      errorsMap[`ownerships[${index}].${field}`] ||
+      errorsMap[`ownerships.${index}.${field}`] ||
+      ''
+  )
+}
 
 const emptyOwnership = (): IOwnership => ({
   id: '',
@@ -149,82 +187,58 @@ const emptyOwnership = (): IOwnership => ({
   ownership_start_date: '',
   ownership_end_date: '',
   status_id: '',
-  person: {
-    id: '',
-    full_name: '',
-    company_name: '',
-    document_number: '',
-    document_type_id: '',
-    organization_type_id: '',
-    document_type_alias: '',
-    organization_type_alias: '',
-  } as IOwner
-});
+  person: {} as IOwner
+})
 
-const ownershipsList = ref<IOwnership[]>([emptyOwnership()]);
-const ownershipsListOriginal = ref<IOwnership[]>([emptyOwnership()]);
-
-const persons = ref<{ id: string; name: string; raw: any }[]>([]);
-
-const totalPercentage = computed(() =>
-    ownershipsList.value.reduce((sum, o) => sum + (Number(o.ownership_percentage) || 0), 0)
-);
-
-const remainingPercentage = computed(() => 100 - totalPercentage.value);
-
-const isPercentageValid = computed(() => totalPercentage.value === 100);
+const persons = ref<{ id: string; name: string; raw: any }[]>([])
 
 watch(() => props.data, (newData) => {
+  hasTriedSubmit.value = false
+
   if (newData && newData.length > 0) {
-    ownershipsList.value = newData.map(item => ({ ...item }));
-    ownershipsListOriginal.value = newData.map(item => ({ ...item }));
+    resetForm({
+      values: {
+        ownerships: newData.map(item => ({ ...item }))
+      }
+    })
 
     persons.value = newData.map((p: any) => ({
       id: p.person.id,
       name: `${p.person.full_name ?? p.person.company_name} - ${p.person.document_type_alias} ${p.person.document_number}`,
       raw: p.person
-    }));
+    }))
+  } else {
+    resetForm({
+      values: {
+        ownerships: [{ ...emptyOwnership(), is_principal_owner: true }]
+      }
+    })
   }
-}, { immediate: true });
-
-const onPersonSelected = (index: number, personId: string) => {
-  const found = persons.value.find(p => p.id === personId);
-  if (found?.raw) {
-    ownershipsList.value[index].person = { ...found.raw };
-  }
-};
+}, { immediate: true })
 
 const addOwnership = () => {
-  ownershipsList.value.push(emptyOwnership());
-};
+  push(emptyOwnership())
+}
 
 const removeOwnership = (index: number) => {
-  if (ownershipsList.value.length > 1) {
-    ownershipsList.value.splice(index, 1);
-    resetErrors();
+  if (fields.value.length > 1) {
+    remove(index)
   }
-};
+}
 
 const setPrimaryOwner = (index: number) => {
-  if (ownershipsList.value[index].is_principal_owner) {
-    ownershipsList.value.forEach((item, i) => {
-      if (i !== index) {
-        item.is_principal_owner = false;
-      }
-    });
-  }
-};
+  values.ownerships?.forEach((_, i) => {
+    ;(setFieldValue as any)(`ownerships[${i}].is_principal_owner`, i === index)
+  })
+}
 
-/**
- * Búsqueda remota por número de documento
- */
-const searchPerson = (term: string) => {
-  if (!term || term.length < 3) {
-    return;
-  }
+const totalPercentage = computed(() =>
+    values.ownerships?.reduce((sum, o) => sum + (Number(o.ownership_percentage) || 0), 0) || 0
+)
 
-  debouncedSearch(term);
-};
+const remainingPercentage = computed(() => 100 - totalPercentage.value)
+
+const isPercentageValid = computed(() => totalPercentage.value === 100)
 
 const paramsTable = ref<IParamsTable>({
   page: 1,
@@ -235,83 +249,75 @@ const paramsTable = ref<IParamsTable>({
 })
 
 const debouncedSearch = useDebounce(async (term: string) => {
-  paramsTable.value.search = term;
+  paramsTable.value.search = term
 
-  LoadingService.show()
-  PersonService.getPeople(paramsTable.value)
-      .then((response) => {
-        if (response.data.data) {
-          const newPersons = response.data.data.map((p: any) => ({
-            id: p.id,
-            name: `${p.full_name ?? p.company_name} - ${p.document_type_alias} ${p.document_number}`,
-            raw: p
-          }));
+  const response = await run(PersonService.getPeople(paramsTable.value))
 
-          const selectedIds = new Set(ownershipsList.value.map(o => o.person_id).filter(Boolean));
-          const alreadySelected = persons.value.filter(p => selectedIds.has(p.id));
-          const merged = [...alreadySelected, ...newPersons];
-          persons.value = merged.filter((p, i, self) =>
-              i === self.findIndex(x => x.id === p.id)
-          );
-        }
-        LoadingService.hide()
-      }).catch((error) => {
-    LoadingService.hide()
-    AlertaService.showError('Ha ocurrido un error', error);
-  })
+  if (!response) return
 
-}, 700);
+  const newPersons = response.data.data.map((p: any) => ({
+    id: p.id,
+    name: `${p.full_name ?? p.company_name} - ${p.document_type_alias} ${p.document_number}`,
+    raw: p
+  }))
 
-// IDs ya seleccionados en cualquier ownership
+  const selectedIds = new Set(values.ownerships?.map(o => o.person_id).filter(Boolean))
+  const alreadySelected = persons.value.filter(p => selectedIds.has(p.id))
+
+  const merged = [...alreadySelected, ...newPersons]
+
+  persons.value = merged.filter((p, i, self) =>
+      i === self.findIndex(x => x.id === p.id)
+  )
+
+}, 700)
+
+const searchPerson = (term: string) => {
+  if (!term || term.length < 3) return
+  debouncedSearch(term)
+}
+
+
 const selectedPersonIds = computed(() =>
-    new Set(ownershipsList.value.map(o => o.person_id).filter(Boolean))
-);
-
-// Por cada ownership, las opciones son: persons disponibles + la propia seleccionada
-const getPersonsForIndex = (index: number) => {
-  const currentId = ownershipsList.value[index].person_id;
-  return persons.value.filter(p =>
-      !selectedPersonIds.value.has(p.id) || p.id === currentId
-  );
-};
-
-const sendForm = () => {
-  if (!isPercentageValid.value) {
-    emit("formInvalid", true);
-    return;
-  }
-
-  const isValid = validateForm(ownershipsList.value, ownershipSchema, true);
-
-  if (isValid) {
-    emit("sendForm", ownershipsList.value);
-  } else {
-    emit("formInvalid", true);
-  }
-};
-
-const reset = () => {
-  ownershipsList.value = ownershipsListOriginal.value.map(item => ({ ...item }));
-  resetErrors();
-};
-
-watch(
-    () => ownershipsList.value.map(o => o.person_id),
-    (newValues) => {
-      newValues.forEach((personId, index) => {
-        const found = persons.value.find(p => p.id === personId)
-        if (found?.raw) {
-          ownershipsList.value[index].person = { ...found.raw }
-        }
-      })
-    },
-    { deep: true }
+    new Set(values.ownerships?.map(o => o.person_id).filter(Boolean))
 )
 
+const getPersonsForIndex = (index: number) => {
+  const currentId = values.ownerships?.[index]?.person_id
+
+  return persons.value.filter(p =>
+      !selectedPersonIds.value.has(p.id) || p.id === currentId
+  )
+}
+
 defineExpose({
-  sendForm,
-  reset
-});
+  async validateForm() {
+    hasTriedSubmit.value = true
+
+    if (!isPercentageValid.value) return false
+
+    const result = await validate()
+    return result.valid
+  },
+
+  getValues() {
+    return values.ownerships
+  },
+
+  reset() {
+    hasTriedSubmit.value = false
+    resetForm()
+  },
+
+  setBackendErrors(backendErrors: Record<string, string>) {
+    hasTriedSubmit.value = true
+    setErrors(backendErrors)
+  },
+
+  getErrorCount() {
+    return Object.keys(errors.value || {}).length
+  }
+})
 </script>
 
 <style scoped>

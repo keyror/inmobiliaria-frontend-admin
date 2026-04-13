@@ -1,280 +1,231 @@
 <template>
   <div class="card-header ps-0">
-    <h5> {{ props.isEditing ? 'Editar Propiedad' : 'Crear Propiedad' }}</h5>
+    <h5>{{ props.isEditing ? 'Editar Propiedad' : 'Crear Propiedad' }}</h5>
   </div>
 
-  <form class="row gx-3" @submit.prevent="sendForm">
+  <form class="row gx-3">
 
     <!-- Título -->
     <CommonInputfieldsTextfield
-        v-model="form.title"
+        v-model="title"
+        :error="errors.title"
         classes="col-md-6"
         label="Título"
         star="*"
-        placeholder="Casa moderna en zona norte"
-        :rules="PropertySchema.title"
-        name="title"
     />
 
     <!-- Código -->
     <CommonInputfieldsTextfield
-        v-model="form.code"
+        v-model="code"
+        :error="errors.code"
         classes="col-md-3"
         label="Código"
-        placeholder="Ej: PROP-001"
-        :rules="PropertySchema.code"
-        name="code"
     />
 
     <!-- Número Catastral -->
     <CommonInputfieldsTextfield
-        v-model="form.cadastral_number"
+        v-model="cadastral_number"
+        :error="errors.cadastral_number"
         classes="col-md-3"
         label="Número Catastral"
-        :rules="PropertySchema.cadastral_number"
-        name="cadastral_number"
     />
 
-    <!-- Estado -->
+    <!-- Estado Actual -->
     <CommonInputfieldsSelectfield
-        v-model="form.status_property_id"
+        v-model="status_property_id"
+        :data="lookups.statusType"
+        :error="errors.status_property_id"
         classes="col-md-3"
         label="Estado Actual"
-        :data="lookups.statusType"
-        star="*"
         labelField="name"
-        :rules="PropertySchema.status_property_id"
-        name="status_id"
+        star="*"
     />
 
     <!-- Estado -->
     <CommonInputfieldsSelectfield
-        v-model="form.status_id"
+        v-model="status_id"
+        :data="lookups.status"
+        :error="errors.status_id"
         classes="col-md-3"
         label="Estado"
-        :data="lookups.status"
-        star="*"
         labelField="name"
-        :rules="PropertySchema.status_id"
-        name="status_id"
+        star="*"
     />
 
-    <!-- Tipo de Oferta -->
+    <!-- Tipo Oferta -->
     <CommonInputfieldsSelectfield
-        v-model="form.offer_type_id"
+        v-model="offer_type_id"
+        :data="lookups.offerType"
+        :error="errors.offer_type_id"
         classes="col-md-3"
         label="Tipo de Oferta"
-        star="*"
-        :data="lookups.offerType"
         labelField="name"
-        :rules="PropertySchema.offer_type_id"
-        name="offer_type_id"
+        star="*"
     />
 
-    <!-- Tipo de Propiedad -->
+    <!-- Tipo Propiedad -->
     <CommonInputfieldsSelectfield
-        v-model="form.property_type_id"
+        v-model="property_type_id"
+        :data="lookups.propertyTypes"
+        :error="errors.property_type_id"
         classes="col-md-3"
         label="Tipo de Propiedad"
-        star="*"
         labelField="name"
-        :data="lookups.propertyTypes"
-        :rules="PropertySchema.property_type_id"
-        name="property_type_id"
+        star="*"
     />
 
     <!-- Estrato -->
     <CommonInputfieldsTextfield
-        v-model="form.social_strata"
+        v-model="social_strata"
+        :error="errors.social_strata"
         classes="col-md-3"
         label="Estrato"
         star="*"
-        placeholder="Ej: 3"
-        :rules="PropertySchema.social_strata"
-        name="social_strata"
     />
 
-    <!-- Año Construcción -->
+    <!-- Año -->
     <CommonInputfieldsTextfield
-        v-model="form.year_built"
+        v-model="year_built"
+        :error="errors.year_built"
         classes="col-md-3"
         label="Año de Construcción"
         star="*"
-        placeholder="Ej: 2018"
-        :rules="PropertySchema.year_built"
-        name="year_built"
     />
 
     <!-- Habitaciones -->
     <CommonInputfieldsTextfield
-        v-model="form.rooms"
+        v-model="rooms"
+        :error="errors.rooms"
         classes="col-md-3"
         label="Habitaciones"
-        star="*"
-        :rules="PropertySchema.rooms"
-        name="rooms"
     />
 
     <!-- Dormitorios -->
     <CommonInputfieldsTextfield
-        v-model="form.bedrooms"
+        v-model="bedrooms"
+        :error="errors.bedrooms"
         classes="col-md-3"
         label="Dormitorios"
-        star="*"
-        :rules="PropertySchema.bedrooms"
-        name="bedrooms"
     />
 
     <!-- Baños -->
     <CommonInputfieldsTextfield
-        v-model="form.bathrooms"
+        v-model="bathrooms"
+        :error="errors.bathrooms"
         classes="col-md-3"
         label="Baños"
-        star="*"
-        :rules="PropertySchema.bathrooms"
-        name="bathrooms"
     />
 
-    <!-- Tipo de Garaje -->
+    <!-- Garaje -->
     <CommonInputfieldsSelectfield
-        v-model="form.garage_type_id"
+        v-model="garage_type_id"
+        :data="lookups.garageTypes"
+        :error="errors.garage_type_id"
         classes="col-md-3"
         label="Tipo de Garaje"
-        star="*"
         labelField="name"
-        :data="lookups.garageTypes"
-        :rules="PropertySchema.garage_type_id"
-        name="garage_type_id"
     />
 
-    <!-- Cupos Garaje -->
+    <!-- Cupos -->
     <CommonInputfieldsTextfield
-        v-model="form.garage_spots"
-        star="*"
+        v-model="garage_spots"
+        :error="errors.garage_spots"
         classes="col-md-3"
         label="Cupos de Garaje"
-        :rules="PropertySchema.garage_spots"
-        name="garage_spots"
     />
 
-    <!-- Linderos
-    <CommonInputfieldsTextarea
-        v-model="form.boundaries"
-        classes="col-md-6"
-        label="Linderos"
-        :rules="PropertySchema.boundaries"
-        name="boundaries"
-    />-->
-
-    <!-- Precios -->
-
+    <!-- Precio -->
     <CommonInputfieldsSelectfield
-        v-model="form.price.price_type_id"
+        v-model="price_type_id"
+        :data="lookups.priceTypes"
         classes="col-md-3"
         label="Tipo de Precio"
         labelField="name"
-        :data="lookups.priceTypes"
     />
 
     <CommonInputfieldsTextfield
-        v-model="form.price.price_min"
-        :type="'number'"
+        v-model="price_min"
         classes="col-md-3"
         label="Precio Mínimo"
     />
 
     <CommonInputfieldsTextfield
-        v-model="form.price.price_max"
-        :type="'number'"
+        v-model="price_max"
         classes="col-md-3"
         label="Precio Máximo"
     />
 
     <CommonInputfieldsTextfield
-        v-model="form.price.price"
-        :type="'number'"
+        v-model="price"
         classes="col-md-3"
         label="Precio"
     />
 
     <CommonInputfieldsTextfield
-        v-model="form.price.currency"
+        v-model="currency"
         classes="col-md-3"
         label="Moneda"
     />
 
     <!-- Descripción -->
     <CommonInputfieldsTextarea
-        v-model="form.description"
+        v-model="description"
+        :error="errors.description"
         classes="col-md-12"
         label="Descripción"
-        :rules="PropertySchema.description"
-        name="description"
     />
-    <!-- Características (múltiple) -->
+
+    <!-- Features -->
     <CommonInputfieldsSelectfield
-        v-model="form.features"
+        v-model="features"
+        :data="lookups.features"
+        :error="errors.features"
         classes="col-md-12"
         label="Características"
         labelField="name"
-        :data="lookups.features"
         multiple
         searchable
-        :rules="PropertySchema.features"
-        name="features"
     />
 
-    <!-- Google Maps -->
+    <!-- Maps -->
     <CommonInputfieldsTextfield
-        v-model="form.url_google_map"
+        v-model="url_google_map"
+        :error="errors.url_google_map"
         classes="col-md-6"
         label="URL Google Maps"
-        :rules="PropertySchema.url_google_map"
-        name="url_google_map"
     />
 
-    <!-- Latitud -->
     <CommonInputfieldsTextfield
-        v-model="form.latitude"
-        :type="'number'"
+        v-model="latitude"
+        :error="errors.latitude"
         classes="col-md-3"
         label="Latitud"
-        :rules="PropertySchema.latitude"
-        name="latitude"
     />
 
-    <!-- Longitud -->
     <CommonInputfieldsTextfield
-        v-model="form.longitude"
-        :type="'number'"
+        v-model="longitude"
+        :error="errors.longitude"
         classes="col-md-3"
         label="Longitud"
-        :rules="PropertySchema.longitude"
-        name="longitude"
     />
+
+    <!-- GALERÍA -->
     <PropertiesGallery
-        @updateImages="handleImages"
-        :data="form.images ?? []"
         ref="galleryRef"
+        :data="values.images ?? []"
+        @updateImages="handleImages"
     />
 
   </form>
 </template>
 
 <script setup lang="ts">
-import type {ILookup} from "~/interfaces/ILookup";
-import type {IProperty} from "~/interfaces/IProperty";
-import {PropertySchema} from "~/utils/validations/property.schema";
-import {useValidator} from "~/composables/useValidator";
-import type {IArea} from "~/interfaces/IArea";
-import type {IPublishChannel} from "~/interfaces/IPublishChannel";
-import type {IPropertyObligation} from "~/interfaces/IPropertyObligation";
-import type {IPropertyPrice} from "~/interfaces/IPropertyPrice";
-import type {IImage, IImagePayload} from "~/interfaces/IImageItem";
-import type {PropertiesGallery} from "#components";
-import AlertService from "~/services/AlertService";
+import type { ILookup } from "~/interfaces/ILookup";
+import type { IProperty } from "~/interfaces/IProperty";
+import type { IImagePayload } from "~/interfaces/IImageItem";
+import type { PropertiesGallery } from "#components";
 
-const { validateForm, resetErrors } = useValidator();
+import { usePropertyForm } from '~/composables/forms/usePropertyForm'
 
 const props = defineProps<{
   data?: IProperty,
@@ -286,111 +237,95 @@ const props = defineProps<{
     priceTypes: ILookup[],
     features: ILookup[],
     status: ILookup[],
-    frequency: ILookup[],
-    obligationTypes: ILookup[],
-    opSiNo: ILookup[],
-    publishChannels: ILookup[],
   },
   isEditing?: boolean
 }>()
 
-const emit = defineEmits<{
-  (e: 'sendForm', property: IProperty): void
-  (e: "formInvalid", payload: boolean): void;
-  (e: 'reload'): void
-}>()
+const form = usePropertyForm(props.data)
 
-const initialForm: IProperty = {
-  code: '',
-  status_property_id: '',
-  status_id: '',
-  title: '',
-  offer_type_id: '',
-  property_type_id: '',
-  social_strata: '',
-  year_built: '',
-  rooms: '',
-  bedrooms: '',
-  bathrooms: '',
-  garage_type_id: '',
-  garage_spots: '',
-  cadastral_number: '',
-  url_google_map: '',
-  latitude: '',
-  longitude: '',
-  boundaries: '',
-  description: '',
-  areas: <IArea[]> [],
-  publish_channels: <IPublishChannel[]> [],
-  features: [],
-  images: <IImage[]> [],
-  obligations: <IPropertyObligation[]> [],
-  price: <IPropertyPrice> {
-    price_type_id: '',
-    price_min: '',
-    price_max: '',
-    price: '',
-    currency: '',
-  },
-};
+const {
+  defineField,
+  validate,
+  values,
+  resetForm,
+  errors,
+  setErrors,
+} = form
 
-const form = ref<IProperty>({ ...initialForm });
-const formOriginal = ref<IProperty>({ ...initialForm });
+// fields
+const [title] = defineField('title')
+const [code] = defineField('code')
+const [cadastral_number] = defineField('cadastral_number')
+const [status_property_id] = defineField('status_property_id')
+const [status_id] = defineField('status_id')
+const [offer_type_id] = defineField('offer_type_id')
+const [property_type_id] = defineField('property_type_id')
+const [social_strata] = defineField('social_strata')
+const [year_built] = defineField('year_built')
+const [rooms] = defineField('rooms')
+const [bedrooms] = defineField('bedrooms')
+const [bathrooms] = defineField('bathrooms')
+const [garage_type_id] = defineField('garage_type_id')
+const [garage_spots] = defineField('garage_spots')
+const [description] = defineField('description')
+const [features] = defineField('features')
+const [url_google_map] = defineField('url_google_map')
+const [latitude] = defineField('latitude')
+const [longitude] = defineField('longitude')
+
+// nested (price)
+const [price_type_id] = defineField('price.price_type_id')
+const [price_min] = defineField('price.price_min')
+const [price_max] = defineField('price.price_max')
+const [price] = defineField('price.price')
+const [currency] = defineField('price.currency')
+
+// gallery
 const galleryRef = ref<InstanceType<typeof PropertiesGallery> | null>(null)
 
-const handleImages = (images: IImagePayload[]) => {
-  console.log('handleImages', images);
-  form.value.images = images
+const handleImages = (imgs: IImagePayload[]) => {
+  values.images = imgs
 }
 
+// cargar edición
 watch(() => props.data, (newData) => {
   if (newData) {
-    const modAttributes = {
-      ...initialForm,
-      ...newData,
-      features: newData.features?.map(f => f.feature_type_id) ?? [],
-    };
-
-    form.value = { ...modAttributes };
-    formOriginal.value = { ...modAttributes };
+    resetForm({
+      values: {
+        ...newData,
+        features: newData.features?.map((f: any) => f.feature_type_id) ?? [],
+      }
+    })
   }
-}, { immediate: true });
+}, { immediate: true })
 
-const sendForm = () => {
-  if (hasPendingUpload()) return
-
-  const isValid = validateForm(form.value, PropertySchema);
-  if (isValid) {
-    const payload = {
-      ...form.value,
-      features: form.value.features?.map((id: string) => ({ feature_type_id: id }))
-    }
-
-    emit("sendForm", payload);
-  } else {
-    emit("formInvalid", true);
-  }
-}
-
-const reset = () => {
-  form.value = { ...formOriginal.value }
-  resetErrors();
-}
-
+// validar antes de enviar
 const hasPendingUpload = (): boolean => {
-  if (galleryRef.value?.hasPendingUploads()) {
-    emit("formInvalid", true)
-    return true
-  }
-
-  return false
+  return galleryRef.value?.hasPendingUploads?.() ?? false
 }
 
 defineExpose({
-  sendForm,
-  reset
-});
+  async validateForm() {
+    if (hasPendingUpload()) return false
 
+    const result = await validate()
+    return result.valid
+  },
+  getValues(): IProperty {
+    return {
+      ...values,
+      features: values.features?.map((id: string) => ({
+        feature_type_id: id
+      }))
+    } as IProperty
+  },
+  reset() {
+    resetForm()
+  },
+  setBackendErrors(backendErrors: Record<string, string>) {
+    setErrors(backendErrors)
+  }
+})
 </script>
 
 <style scoped>

@@ -45,7 +45,7 @@ const addContact = (): void => {
 
 const handlePrincipal = (index: number): void => {
   if (!values.contacts) return
-  values.contacts.forEach((_: IContact, i: number) => {
+  values.contacts.forEach((_, i: number) => {
     ;(setFieldValue as any)(`contacts[${i}].is_principal`, i === index)
   })
 }

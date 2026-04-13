@@ -5,60 +5,45 @@
     <div class="container-fluid">
       <nav>
         <div id="nav-tab" class="nav nav-tabs" role="tablist">
-          <button
-              :class="{ active: activeTab === 'property' }"
-              class="nav-link text-dark"
-              type="button"
-              @click="switchTab('property')"
-          >
+          <button :class="{ active: activeTab === 'property' }"
+                  class="nav-link text-dark"
+                  @click="switchTab('property')">
             Propiedad
           </button>
           <button
               :class="{ active: activeTab === 'ownerships' }"
               class="nav-link text-dark"
-              type="button"
-              @click="switchTab('ownerships')"
-          >
+              @click="switchTab('ownerships')">
             Propietarios
           </button>
           <button
               :class="{ active: activeTab === 'addresses' }"
               class="nav-link text-dark"
-              type="button"
-              @click="switchTab('addresses')"
-          >
+              @click="switchTab('addresses')">
             Dirección
           </button>
           <button
               :class="{ active: activeTab === 'contacts' }"
               class="nav-link text-dark"
-              type="button"
-              @click="switchTab('contacts')"
-          >
+              @click="switchTab('contacts')">
             Contacto
           </button>
           <button
               :class="{ active: activeTab === 'areas' }"
               class="nav-link text-dark"
-              type="button"
-              @click="switchTab('areas')"
-          >
+              @click="switchTab('areas')">
             Áreas
           </button>
           <button
               :class="{ active: activeTab === 'publishChannels' }"
               class="nav-link text-dark"
-              type="button"
-              @click="switchTab('publishChannels')"
-          >
+              @click="switchTab('publishChannels')">
             Redes Sociales
           </button>
           <button
               :class="{ active: activeTab === 'obligations' }"
               class="nav-link text-dark"
-              type="button"
-              @click="switchTab('obligations')"
-          >
+              @click="switchTab('obligations')">
             Obligaciones
           </button>
         </div>
@@ -68,75 +53,69 @@
         <div class="container-fluid">
           <div class="card">
             <div class="card-body admin-form">
+
               <div v-show="activeTab === 'property'">
                 <PropertiesProperty
                     ref="propertyRef"
-                    @sendForm="getFormProperties"
                     :lookups="propertyLookups || {}"
                     :data="property"
                     :isEditing="props.isEditing"
-                    @formInvalid="isPropertyValid = false"
                 />
               </div>
+
               <div v-show="activeTab === 'ownerships'">
                 <PropertiesOwnerships
                     ref="ownershipsRef"
-                    @sendForm="getFormOwnerships"
                     :data="property?.ownerships"
-                    :lookups="ownershipsLookups"
                     :isEditing="props.isEditing"
-                    @formInvalid="isOwnershipsValid = false"
+                    :lookups="ownershipsLookups"
                 />
               </div>
+
               <div v-show="activeTab === 'addresses'">
                 <Addresses
                     ref="addressesRef"
-                    @sendForm="getFormAddresses"
-                    :lookups="addressesLookups"
                     :data="property?.addresses"
                     :isEditing="props.isEditing"
-                    @formInvalid="isAddressValid = false"
+                    :lookups="addressesLookups"
                     :single="true"
                 />
               </div>
+
               <div v-show="activeTab === 'contacts'">
                 <Contacts
                     ref="contactsRef"
-                    @sendForm="getFormContacts"
                     :data="property?.contacts"
                     :isEditing="props.isEditing"
-                    @formInvalid="isContactValid = false"
                     :single="false"
                 />
               </div>
+
               <div v-show="activeTab === 'areas'">
                 <Areas
                     ref="areasRef"
-                    @sendForm="getFormAreas"
                     :data="property?.areas"
                     :isEditing="props.isEditing"
                     :lookups="areasLookups"
-                    @formInvalid="isAreasValid = false"
                 />
               </div>
+
               <div v-show="activeTab === 'publishChannels'">
                 <PropertiesPublishChannels
                     ref="publishChannelsRef"
-                    @sendForm="getFormPublishChannels"
                     :data="property?.publish_channels"
                     :lookups="publishChannelsLookups"
-                    @formInvalid="isPublishChannelsValid = false"
                 />
               </div>
+
               <div v-show="activeTab === 'obligations'">
                 <Obligations
                     ref="obligationsRef"
-                    @sendForm="getFormObligations"
                     :data="property?.obligations"
                     :lookups="obligationsLookups"
-                    @formInvalid="isObligationsValid = false"
                 />
               </div>
+
               <div class="form-btn mt-3">
                 <button class="btn btn-pill btn-gradient color-4" @click="save">
                   {{ props.isEditing ? 'Actualizar' : 'Crear' }}
@@ -146,6 +125,7 @@
                   Cancelar
                 </button>
               </div>
+
             </div>
           </div>
         </div>
@@ -156,12 +136,11 @@
 
 <script setup lang="ts">
 import '@vuepic/vue-datepicker/dist/main.css'
+import PropertyService from "~/services/PropertyService";
 import AlertService from "~/services/AlertService";
 import { useApiHandler } from '~/composables/useApiHandler'
-import LookupService from "~/services/LookupService";
-import type {IIndexLookupsRequest} from "~/interfaces/IIndexLookupsRequest";
 import {Constants} from "~/constants/Constants";
-import type {ILookupsResponse} from "~/interfaces/ILookup";
+
 import {
   Addresses,
   Contacts,
@@ -171,8 +150,7 @@ import {
   Obligations,
   PropertiesOwnerships
 } from "#components";
-import PropertyService from "~/services/PropertyService";
-import type {IProperty} from "~/interfaces/IProperty";
+
 import type {ISaveProperty} from "~/interfaces/ISaveProperty";
 
 const { run } = useApiHandler()
@@ -184,173 +162,114 @@ const props = defineProps({
   }
 });
 
-
 const propertyRef = ref<InstanceType<typeof PropertiesProperty> | null>(null);
+const ownershipsRef = ref<InstanceType<typeof PropertiesOwnerships> | null>(null);
 const addressesRef = ref<InstanceType<typeof Addresses> | null>(null);
 const contactsRef = ref<InstanceType<typeof Contacts> | null>(null);
 const areasRef = ref<InstanceType<typeof Areas> | null>(null);
 const publishChannelsRef = ref<InstanceType<typeof PropertiesPublishChannels> | null>(null);
-const obligationsRef = ref<InstanceType<typeof Obligations> | null>(null)
-const ownershipsRef = ref<InstanceType<typeof PropertiesOwnerships> | null>(null)
+const obligationsRef = ref<InstanceType<typeof Obligations> | null>(null);
 
 const activeTab = ref<string>('property')
 
 const route = useRoute()
 const idProperty = route.params.id as string;
 
-const categories = ref<IIndexLookupsRequest>({
-  categories: [
-    Constants.GARAGE_TYPE,
-    Constants.PROPERTY_TYPE,
-    Constants.PROPERTY_STATUS,
-    Constants.OFFER_TYPE,
-    Constants.AREA_TYPE,
-    Constants.AREA_UNIT,
-    Constants.PRICE_TYPE,
-    Constants.PUBLISH_CHANNEL,
-    Constants.FEATURE,
-    Constants.OBLIGATION_TYPE,
-    Constants.FREQUENCY,
-    Constants.ROAD_TYPE,
-    Constants.LETTER,
-    Constants.ORIENTATION,
-    Constants.STRATUM,
-    Constants.COUNTRY,
-    Constants.DEPARTMENT,
-    Constants.CITY,
-    Constants.STATUS,
-    Constants.OP_SI_NO,
-  ]
-});
-
-const lookups = ref<ILookupsResponse>({});
-
 const property = ref<any>({});
 
-const propertySaveDate = ref<ISaveProperty>({});
-
-const isPropertyValid = ref<boolean | null>(null);
-const isAddressValid = ref<boolean | null>(null);
-const isContactValid = ref<boolean | null>(null);
-const isAreasValid = ref<boolean | null>(null);
-const isPublishChannelsValid = ref<boolean | null>(null);
-const isObligationsValid = ref<boolean | null>(null);
-const isOwnershipsValid = ref<boolean | null>(null);
-
-const formStatusMap = {
-  property: isPropertyValid,
-  ownerships: isOwnershipsValid,
-  addresses: isAddressValid,
-  contacts: isContactValid,
-  areas: isAreasValid,
-  publishChannels: isPublishChannelsValid,
-  obligations: isObligationsValid,
-} as const;
-
+const { lookups } = useLookups([
+  Constants.GARAGE_TYPE,
+  Constants.PROPERTY_TYPE,
+  Constants.PROPERTY_STATUS,
+  Constants.OFFER_TYPE,
+  Constants.AREA_TYPE,
+  Constants.AREA_UNIT,
+  Constants.PRICE_TYPE,
+  Constants.PUBLISH_CHANNEL,
+  Constants.FEATURE,
+  Constants.OBLIGATION_TYPE,
+  Constants.FREQUENCY,
+  Constants.ROAD_TYPE,
+  Constants.LETTER,
+  Constants.ORIENTATION,
+  Constants.STRATUM,
+  Constants.COUNTRY,
+  Constants.DEPARTMENT,
+  Constants.CITY,
+  Constants.STATUS,
+  Constants.OP_SI_NO,
+])
 
 const switchTab = (tab: string) => {
   activeTab.value = tab
 }
 
-const getFormProperties = (data: IProperty | { invalidForm: boolean }) => {
-  if ('invalidForm' in data) {
-    isPropertyValid.value = false;
-    return;
-  }
-
-  isPropertyValid.value = true;
-  propertySaveDate.value.property = data;
-}
-
-const getFormAddresses = (data: any[] | { invalidForm: boolean }) => {
-  if ('invalidForm' in data) {
-    isAddressValid.value = false;
-    return;
-  }
-
-  isAddressValid.value = true;
-  propertySaveDate.value.addresses = data
-}
-
-const getFormContacts = (data: any[] | { invalidForm: boolean }) => {
-  if ('invalidForm' in data) {
-    isContactValid.value = false;
-    return;
-  }
-
-  isContactValid.value = true;
-  propertySaveDate.value.contacts = data
-}
-
-const getFormAreas = (data: any[] | { invalidForm: boolean }) => {
-  if ('invalidForm' in data) {
-    isAreasValid.value = false;
-    return;
-  }
-
-  isAreasValid.value = true;
-  propertySaveDate.value.areas = data
-}
-
-const getFormPublishChannels = (data: any[] | { invalidForm: boolean }) => {
-  if ('invalidForm' in data) {
-    isPublishChannelsValid.value = false;
-    return;
-  }
-
-  isPublishChannelsValid.value = true;
-  propertySaveDate.value.publish_channels = data;
-};
-
-
-const getFormObligations = async (data: any[] | { invalidForm: boolean }) => {
-  if ('invalidForm' in data) {
-    isObligationsValid.value = false;
-    return;
-  }
-
-  isObligationsValid.value = true;
-  propertySaveDate.value.obligations = data;
-}
-
-const getFormOwnerships = (data: any[] | { invalidForm: boolean }) => {
-  if ('invalidForm' in data) {
-    isOwnershipsValid.value = false;
-    return;
-  }
-
-  isOwnershipsValid.value = true;
-  propertySaveDate.value.ownerships = data;
-}
+const { distributeErrors } = useFormErrorDistributor(
+    {
+      property: propertyRef,
+      ownerships: ownershipsRef,
+      addresses: addressesRef,
+      contacts: contactsRef,
+      areas: areasRef,
+      publish_channels: publishChannelsRef,
+      obligations: obligationsRef,
+    },
+    {
+      property: 'property',
+      ownerships: 'ownerships',
+      addresses: 'addresses',
+      contacts: 'contacts',
+      areas: 'areas',
+      publish_channels: 'publishChannels',
+      obligations: 'obligations',
+    },
+    switchTab
+)
 
 const save = async () => {
-  // Disparar validación
-  propertyRef.value?.sendForm();
-  addressesRef.value?.sendForm();
-  contactsRef.value?.sendForm();
-  areasRef.value?.sendForm();
-  publishChannelsRef.value?.sendForm();
-  obligationsRef.value?.sendForm();
-  ownershipsRef.value?.sendForm();
 
-  await nextTick()
+  const forms = [
+    { key: 'property', ref: propertyRef },
+    { key: 'ownerships', ref: ownershipsRef },
+    { key: 'addresses', ref: addressesRef },
+    { key: 'contacts', ref: contactsRef },
+    { key: 'areas', ref: areasRef },
+    { key: 'publishChannels', ref: publishChannelsRef },
+    { key: 'obligations', ref: obligationsRef },
+  ];
 
-  const invalidForm = getInvalidForm();
-  if (invalidForm) {
-    switchTab(invalidForm);
-    AlertService.showFormError();
-    return;
+  const data: ISaveProperty = {}
+
+  for (const form of forms) {
+    const isValid = await form.ref.value?.validateForm();
+
+    if (!isValid) {
+      switchTab(form.key);
+      await AlertService.showFormError();
+      return;
+    }
+
+    const values = form.ref.value?.getValues();
+
+    if (form.key === 'property') data.property = values
+    if (form.key === 'ownerships') data.ownerships = values
+    if (form.key === 'addresses') data.addresses = values
+    if (form.key === 'contacts') data.contacts = values
+    if (form.key === 'areas') data.areas = values
+    if (form.key === 'publishChannels') data.publish_channels = values
+    if (form.key === 'obligations') data.obligations = values
   }
 
   const promise = props.isEditing
-      ? PropertyService.updateProperty(idProperty, propertySaveDate.value)
-      : PropertyService.createProperty(propertySaveDate.value)
+      ? PropertyService.updateProperty(idProperty, data)
+      : PropertyService.createProperty(data)
 
   const response = await run(promise, {
     showSuccess: true,
     successMessage: props.isEditing
         ? 'Propiedad actualizada correctamente'
-        : 'Propiedad creada correctamente'
+        : 'Propiedad creada correctamente',
+    setErrors: distributeErrors
   })
 
   if (response) {
@@ -360,12 +279,12 @@ const save = async () => {
 
 const cancel = () => {
   propertyRef.value?.reset();
+  ownershipsRef.value?.reset();
   addressesRef.value?.reset();
   contactsRef.value?.reset();
   areasRef.value?.reset();
   publishChannelsRef.value?.reset();
   obligationsRef.value?.reset();
-  ownershipsRef.value?.reset();
 }
 
 const propertyLookups = computed(() => ({
@@ -385,7 +304,7 @@ const propertyLookups = computed(() => ({
 const areasLookups = computed(() => ({
   areaTypes: lookups.value[Constants.AREA_TYPE],
   areaUnits: lookups.value[Constants.AREA_UNIT],
-}))
+}));
 
 const addressesLookups = computed(() => ({
   roadTypes: lookups.value[Constants.ROAD_TYPE],
@@ -395,7 +314,7 @@ const addressesLookups = computed(() => ({
   country: lookups.value[Constants.COUNTRY],
   cities: lookups.value[Constants.CITY],
   departments: lookups.value[Constants.DEPARTMENT],
-}))
+}));
 
 const publishChannelsLookups = computed(() => ({
   publishChannels: lookups.value[Constants.PUBLISH_CHANNEL],
@@ -412,43 +331,15 @@ const ownershipsLookups = computed(() => ({
   status: lookups.value[Constants.STATUS],
 }));
 
-const getLookups = async () => {
-  const response = await run(LookupService.getLookups(categories.value))
-  if (response) {
-    lookups.value = response.data
-  }
-}
-
 const getProperty = async () => {
+  if (!props.isEditing) return;
   const response = await run(PropertyService.getProperty(idProperty))
   if (response) {
     property.value = response.data
   }
 }
 
-const init = async () => {
-  const tasks: Promise<any>[] = [getLookups()]
-
-  if (props.isEditing) {
-    tasks.push(getProperty())
-  }
-
-  await Promise.all(tasks)
-};
-
-const getInvalidForm = (): keyof typeof formStatusMap | null => {
-  const entries = Object.entries(formStatusMap) as [
-    keyof typeof formStatusMap,
-    typeof isPropertyValid
-  ][];
-
-  const invalid = entries.find(([_, ref]) => ref.value === false);
-
-  return invalid?.[0] ?? null;
-};
-
-// Cargar datos al montar el componente
-init();
+getProperty()
 </script>
 
 <style scoped>
