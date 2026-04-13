@@ -19,7 +19,7 @@ class AuthenticationService {
     }
 
     async refresh(): Promise<any> {
-        return useApi(ApiUrls.AUTH_REFRESH_POST, { method: 'POST' })
+        return useApi(ApiUrls.AUTH_REFRESH_POST, { method: 'POST', silent: true, })
     }
 
     async sendResetEmail(email: string): Promise<any> {

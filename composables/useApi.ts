@@ -6,7 +6,6 @@ import LoadingService from '~/services/LoadingService';
 let requestCount = 0;
 let isLoggingOut = false;
 
-
 function startLoading() {
     requestCount++;
     LoadingService.show();
@@ -54,36 +53,42 @@ function cleanPayload(payload: any): any {
     return cleaned;
 }
 
+type ApiOpts<T> = Parameters<typeof $fetch<T>>[1] & { silent?: boolean };
+
 export function useApi<T>(
     request: Parameters<typeof $fetch<T>>[0],
-    opts?: Parameters<typeof $fetch<T>>[1],
+    opts?: ApiOpts<T>,
 ): Promise<T> {
 
     const config = useRuntimeConfig();
     const auth = useAuthStore();
+    const silent = opts?.silent ?? false;
 
-    const fetchOpts = {
-        ...opts,
+    // Extraer silent para que no llegue a $fetch
+    const { silent: _silent, ...restOpts } = opts ?? {};
+
+    const fetchOpts: Record<string, any> = {
+        ...restOpts,
         baseURL: config.public.apiBase,
 
         headers: {
             ...(auth.token ? { Authorization: `Bearer ${auth.token}` } : {}),
-            ...opts?.headers,
+            ...restOpts?.headers,
         },
 
         // REQUEST START
         async onRequest() {
-            startLoading();
+            if (!silent) startLoading();
         },
 
-        //  ERROR ANTES DE SALIR (CLAVE)
+        // ERROR ANTES DE SALIR
         async onRequestError() {
-            stopLoading();
+            if (!silent) stopLoading();
         },
 
         // RESPUESTA OK
         async onResponse({ response }: FetchContext) {
-            stopLoading();
+            if (!silent) stopLoading();
 
             if (!response?._data) return;
             if (response._data instanceof Blob) return;
@@ -103,7 +108,7 @@ export function useApi<T>(
         },
 
         async onResponseError({ response }: FetchContext) {
-            stopLoading();
+            if (!silent) stopLoading();
 
             const mensaje = response?._data?.message
                 ? (Array.isArray(response._data.message)
@@ -131,11 +136,11 @@ export function useApi<T>(
         }
     };
 
-    //  LIMPIAR BODY
-    if (opts?.body instanceof FormData) {
-        fetchOpts.body = opts.body;
-    } else if (opts?.body) {
-        fetchOpts.body = cleanPayload(opts.body);
+    // LIMPIAR BODY
+    if (restOpts?.body instanceof FormData) {
+        fetchOpts.body = restOpts.body;
+    } else if (restOpts?.body) {
+        fetchOpts.body = cleanPayload(restOpts.body);
     }
 
     return $fetch<T>(request, fetchOpts);
