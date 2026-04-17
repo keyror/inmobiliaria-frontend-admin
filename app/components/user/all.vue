@@ -1,0 +1,150 @@
+<template>
+  <div class="page-body">
+    <CommonBreadcrumb title="All users" page="Manage users" />
+    <div class="container-fluid">
+      <div class="row agent-section property-section user-lists">
+        <div class="col-lg-12">
+          <div class="property-grid-3 agent-grids ratio2_3">
+            <div
+              class="property-2 row column-sm property-label property-grid list-view"
+            >
+              <Table
+                :headers="usersHeader"
+                :items="usersData"
+                @update="users"
+                :server-items-length="usersTotal"
+                :export-input="exportUsers"
+                @reload="reloadDataTable"
+              >
+                <template #item-status.name="{ status }">
+                  <span
+                    v-if="status.name == Constants.ACTIVO"
+                    class="label label-light label-flat color-3 me-1"
+                  >
+                    {{ status.name }}
+                  </span>
+
+                  <span
+                    v-if="status.name == Constants.INACTIVO"
+                    class="label label-light label-flat color-4"
+                  >
+                    {{ status.name }}
+                  </span>
+                </template>
+
+                <template #item-roles="{ roles }">
+                  <span
+                    v-for="role in roles"
+                    :key="role.id"
+                    class="label label-light label-flat color-3 me-1"
+                  >
+                    {{ role.name }}
+                  </span>
+                </template>
+
+                <template #item-actions="item">
+                  <div
+                    class="btn-group"
+                    role="group"
+                    aria-label="Basic example"
+                  >
+                    <button
+                      class="btn btn-dashed color-1"
+                      type="button"
+                      @click="editUser(item)"
+                    >
+                      <i class="fas fa-pen"></i>
+                    </button>
+                    <button
+                      class="btn btn-dashed color-4"
+                      type="button"
+                      @click="deleteUser(item)"
+                    >
+                      <i class="fa fa-trash"></i>
+                    </button>
+                  </div>
+                </template>
+              </Table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import UserService from "@/services/UserService";
+import { useApiHandler } from "~/composables/useApiHandler";
+import { ApiUrls } from "~/constants/ApiUrls";
+import { Constants } from "~/constants/Constants";
+import { usersHeader } from "~/constants/tableHeaders/UsersHeader";
+import AlertService from "~/services/AlertService";
+
+import type { IExportOptions } from "~/interfaces/IExportOptions";
+import type { IParamsTable } from "~/interfaces/IParamsTable";
+
+const { run } = useApiHandler();
+
+const usersData = ref([]);
+
+const exportUsers: IExportOptions = {
+  name: "usuarios",
+  pdf: {
+    url: ApiUrls.USERS_EXPORT_TO_PDF_GET,
+    extension: Constants.PDF,
+  },
+  excel: {
+    url: ApiUrls.USERS_EXPORT_TO_EXCEL_GET,
+    extension: Constants.EXCEL,
+  },
+};
+
+const paramsTable = ref<IParamsTable>({
+  page: 1,
+  perPage: 15,
+  sortBy: "created_at",
+  sortType: "desc",
+  search: "",
+});
+const usersTotal = ref(0);
+
+const users = async (params: IParamsTable) => {
+  const response = await run(UserService.getUsers(params));
+
+  if (response) {
+    usersData.value = response.data.data;
+    usersTotal.value = response.data.total;
+  }
+};
+
+const editUser = (item: any) => {
+  navigateTo(`/users/edit/${item.id}`);
+};
+
+const deleteUser = async (item: any) => {
+  const result = await AlertService.showConfirmation(
+    "¿ Está seguro de realizar esta operación ?",
+    `Esta seguro de eliminar el registro : ${item.email}`,
+  );
+
+  if (!result.isConfirmed) return;
+
+  const response = await run(UserService.deleteUser(item.id), {
+    showSuccess: true,
+    successMessage: "Usuario eliminado correctamente",
+  });
+
+  if (response) {
+    await users(paramsTable.value);
+  }
+};
+
+const reloadDataTable = () => {
+  users(paramsTable.value);
+};
+
+users(paramsTable.value);
+</script>
+
+<style scoped></style>

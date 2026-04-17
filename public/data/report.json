@@ -1,0 +1,95 @@
+{
+    "report":[
+        {
+            "src":"/image/svg/icon/pdf.png",
+            "date":"Report 8/10/23 - 15/10/23",
+            "create":"Created 16/10/23"
+        },
+        {
+            "src":"/image/svg/icon/pdf.png",
+            "date":"Report 20/10/23 - 25/10/23",
+            "create":"Created 24/10/23"
+        },
+        {
+            "src":"/image/svg/icon/pdf.png",
+            "date":"Report 30/10/23 - 5/11/23",
+            "create":"Created 1/11/23"
+        },
+        {
+            "src":"/image/svg/icon/pdf.png",
+            "date":"Report 10/11/23 - 15/11/23",
+            "create":"Created 17/11/23"
+        },
+        {
+            "src":"/image/svg/icon/pdf.png",
+            "date":"Report 20/11/23 - 25/11/23",
+            "create":"Created 28/11/23"
+        }
+    ],
+    "sales":[
+        {
+            "src":"/image/property/2.jpg",
+            "name":"Orchard House",
+            "country":"Brazil",
+            "status":"Sold",
+            "date":"15/2/23",
+            "paymentstatus":"Paid"
+        },
+        {
+            "src":"/image/property/3.jpg",
+            "name":"Neverland",
+            "country":"London",
+            "status":"Sold",
+            "date":"8/9/23",
+            "paymentstatus":"Paid"
+        },
+        {
+            "src":"/image/property/4.jpg",
+            "name":"Sea Breezes",
+            "country":"France",
+            "status":"Sold",
+            "date":"26/10/23",
+            "paymentstatus":"Paid"
+        },
+        {
+            "src":"/image/property/2.jpg",
+            "name":"Orchard House",
+            "country":"Brazil",
+            "status":"Sold",
+            "date":"15/2/23",
+            "paymentstatus":"Paid"
+        }
+    ],
+    "transction":[
+        {
+            "src":"/image/property/2.jpg",
+            "name":"Orchard House",
+            "country":"Brazil",
+            "status":"Sell",
+            "amount":"15,000",
+            "price":"125000.00",
+            "date":"Jun 10, 2023",
+            "type":"Pending"
+        },
+        {
+            "src":"/image/property/5.jpg",
+            "name":"Sea Breezes",
+            "country":"France",
+            "status":"Rent",
+            "amount":"08,000",
+            "price":"2580000.00",
+            "date":"Aug 15, 2023",
+            "type":"Paid"
+        },
+        {
+            "src":"/image/property/4.jpg",
+            "name":"Neverland",
+            "country":"London",
+            "status":"Rent",
+            "amount":"8,000",
+            "price":"1580000.00",
+            "date":"Jun 10, 2023",
+            "type":"Paid"
+        }
+    ]
+}

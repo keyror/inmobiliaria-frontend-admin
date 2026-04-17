@@ -1,0 +1,392 @@
+{
+    "meetings":[
+        "/image/avatar/6.jpg",
+        "/image/avatar/5.jpg",
+        "/image/avatar/9.jpg",
+        "/image/avatar/7.jpg",
+        "/image/avatar/9.jpg"
+    ],
+    "friends":[
+        {
+            "src":"/image/avatar/9.jpg",
+            "title":"Bob"            
+        },
+        {
+            "src":"/image/avatar/8.jpg",
+            "title":"Bob"            
+        },
+        {
+            "src":"/image/avatar/5.jpg",
+            "title":"Bob"            
+        },
+        {
+            "src":"/image/avatar/6.jpg",
+            "title":"Bob"            
+        }, {
+            "src":"/image/avatar/7.jpg",
+            "title":"Bob"            
+        },
+        {
+            "src":"/image/avatar/1.jpg",
+            "title":"Bob"            
+        }
+    ],
+    "property":[
+        {
+            "src":"/image/property/4.jpg",
+            "title":"Orchard House",
+            "country":"Brazil",
+            "rent":"5800",
+            "deposit":"400",
+            "date":"Jan, 18 2023"
+        },
+        {
+            "src":"/image/property/2.jpg",
+            "title":"Neverland",
+            "country":"France",
+            "rent":"8700",
+            "deposit":"850",
+            "date":"Mar, 25 2023"
+        },
+        {
+            "src":"/image/property/3.jpg",
+            "title":"Sea Breezes",
+            "country":"USA",
+            "rent":"5880",
+            "deposit":"380",
+            "date":"Jun, 05 2023"
+        }
+    ],
+    "following":[
+        {
+            "src":"/image/avatar/2.jpg",
+            "name":"Bob Frapples",
+            "email":"bobf@gmail.com",
+            "status":"online"
+        },
+        {
+            "src":"/image/avatar/3.jpg",
+            "name":"Greta Life",
+            "email":"gretali@gmail.com",
+            "status":"busy"
+        },
+        {
+            "src":"/image/avatar/4.jpg",
+            "name":"Zack Lee",
+            "email":"zack@gmail.com",
+            "status":"away"
+        },
+        {
+            "src":"/image/avatar/5.jpg",
+            "name":"Zack Lee",
+            "email":"zack@gmail.com",
+            "status":"busy"
+        }
+    ],
+    "allusers":[
+        {
+            "src":"/image/avatar/5.jpg",
+            "label":true,
+            "icon":[
+                {
+                    "to":"https://accounts.google.com/",
+                    "img":"/image/about/icon-1.png"
+                },
+                {
+                    "to":"https://twitter.com/",
+                    "img":"/image/about/icon-2.png"
+                },
+                {
+                    "to":"https://www.facebook.com/",
+                    "img":"/image/about/icon-3.png"
+                }
+            ],
+            "span":"Connect",
+            "name":"Zack Lee",
+            "detail":"Real estate Agent",
+            "content":[
+                {
+                    "icon":"fas fa-phone-alt",
+                    "contact":"+91 4260154001",
+                    "contact1":"+91 42601****",
+                    "labels":"show",
+                    "labels2":"Hide"
+                },
+                {
+                    "icon":"fas fa-envelope",
+                    "content":"zack@gmail.com"
+                },
+                {
+                    "icon":"fas fa-fax",
+                    "content":"247 054 787"
+                }
+            ]
+        },
+        {
+            "src":"/image/avatar/3.jpg",
+            "label":false,
+            "icon":[
+                {
+                    "to":"https://accounts.google.com/",
+                    "img":"/image/about/icon-1.png"
+                },
+                {
+                    "to":"https://twitter.com/",
+                    "img":"/image/about/icon-2.png"
+                },
+                {
+                    "to":"https://www.facebook.com/",
+                    "img":"/image/about/icon-3.png"
+                }
+            ],
+            "span":"Connect",
+            "name":"Greta Life",
+            "detail":"Real estate Agent",
+            "content":[
+                {
+                    "icon":"fas fa-phone-alt",
+                    "contact":"+91 5470087201",
+                    "contact1":"+91 547008****",
+                    "labels":"show",
+                    "labels2":"Hide"
+                },
+                {
+                    "icon":"fas fa-envelope",
+                    "content":"life@gmail.in"
+                },
+                {
+                    "icon":"fas fa-fax",
+                    "content":"248 200 325"
+                }
+            ]
+        },
+        {
+            "src":"/image/avatar/2.jpg",
+            "label":false,
+            "icon":[
+                {
+                    "to":"https://accounts.google.com/",
+                    "img":"/image/about/icon-1.png"
+                },
+                {
+                    "to":"https://twitter.com/",
+                    "img":"/image/about/icon-2.png"
+                },
+                {
+                    "to":"https://www.facebook.com/",
+                    "img":"/image/about/icon-3.png"
+                }
+            ],
+            "span":"Connect",
+            "name":"Bob Frapples",
+            "detail":"Sales Executive",
+            "content":[
+                {
+                    "icon":"fas fa-phone-alt",
+                    "contact":"+91 2714203587",
+                    "contact1":"+91 271420****",
+                    "labels":"show",
+                    "labels2":"Hide"
+                },
+                {
+                    "icon":"fas fa-envelope",
+                    "content":"bob@gmail.in"
+                },
+                {
+                    "icon":"fas fa-fax",
+                    "content":"571 241 925"
+                }
+            ]
+        },
+        {
+            "src":"/image/avatar/6.jpg",
+            "label":true,
+            "icon":[
+                {
+                    "to":"https://accounts.google.com/",
+                    "img":"/image/about/icon-1.png"
+                },
+                {
+                    "to":"https://twitter.com/",
+                    "img":"/image/about/icon-2.png"
+                },
+                {
+                    "to":"https://www.facebook.com/",
+                    "img":"/image/about/icon-3.png"
+                }
+            ],
+            "span":"Connect",
+            "name":"Paige Turner",
+            "detail":"Marketing",
+            "content":[
+                {
+                    "icon":"fas fa-phone-alt",
+                    "contact":"+91 3178405278",
+                    "contact1":"+91 317840****",
+                    "labels":"show",
+                    "labels2":"Hide"
+                },
+                {
+                    "icon":"fas fa-envelope",
+                    "content":"turner@gmail.in"
+                },
+                {
+                    "icon":"fas fa-fax",
+                    "content":"287 845 317"
+                }
+            ]
+        },
+        {
+            "src":"/image/avatar/7.jpg",
+            "label":false,
+            "icon":[
+                {
+                    "to":"https://accounts.google.com/",
+                    "img":"/image/about/icon-1.png"
+                },
+                {
+                    "to":"https://twitter.com/",
+                    "img":"/image/about/icon-2.png"
+                },
+                {
+                    "to":"https://www.facebook.com/",
+                    "img":"/image/about/icon-3.png"
+                }
+            ],
+            "span":"Connect",
+            "name":"Brock Lee",
+            "detail":"Real estate Agent",
+            "content":[
+                {
+                    "icon":"fas fa-phone-alt",
+                    "contact":"+91 2197207878",
+                    "contact1":"+91 219720****",
+                    "labels":"show",
+                    "labels2":"Hide"
+                },
+                {
+                    "icon":"fas fa-envelope",
+                    "content":"brock@gmail.com"
+                },
+                {
+                    "icon":"fas fa-fax",
+                    "content":"967 218 674"
+                }
+            ]
+        },
+        {
+            "src":"/image/avatar/8.jpg",
+            "label":false,
+            "icon":[
+                {
+                    "to":"https://accounts.google.com/",
+                    "img":"/image/about/icon-1.png"
+                },
+                {
+                    "to":"https://twitter.com/",
+                    "img":"/image/about/icon-2.png"
+                },
+                {
+                    "to":"https://www.facebook.com/",
+                    "img":"/image/about/icon-3.png"
+                }
+            ],
+            "span":"Connect",
+            "name":"Mary Goround",
+            "detail":"Marketing",
+            "content":[
+                {
+                    "icon":"fas fa-phone-alt",
+                    "contact":"+91 2197207878",
+                    "contact1":"+91 219720****",
+                    "labels":"show",
+                    "labels2":"Hide"
+                },
+                {
+                    "icon":"fas fa-envelope",
+                    "content":"marygor@gmail.com"
+                },
+                {
+                    "icon":"fas fa-fax",
+                    "content":"967 218 674"
+                }
+            ]
+        },
+        {
+            "src":"/image/avatar/5.jpg",
+            "label":false,
+            "icon":[
+                {
+                    "to":"https://accounts.google.com/",
+                    "img":"/image/about/icon-1.png"
+                },
+                {
+                    "to":"https://twitter.com/",
+                    "img":"/image/about/icon-2.png"
+                },
+                {
+                    "to":"https://www.facebook.com/",
+                    "img":"/image/about/icon-3.png"
+                }
+            ],
+            "span":"Connect",
+            "name":"Zack Lee",
+            "detail":"Real estate Agent",
+            "content":[
+                {
+                    "icon":"fas fa-phone-alt",
+                    "contact":"+91 4260154001",
+                    "contact1":"+91 42601****",
+                    "labels":"show",
+                    "labels2":"Hide"
+                },
+                {
+                    "icon":"fas fa-envelope",
+                    "content":"zack@gmail.com"
+                },
+                {
+                    "icon":"fas fa-fax",
+                    "content":"247 054 787"
+                }
+            ]
+        },
+        {
+            "src":"/image/avatar/3.jpg",
+            "label":false,
+            "icon":[
+                {
+                    "to":"https://accounts.google.com/",
+                    "img":"/image/about/icon-1.png"
+                },
+                {
+                    "to":"https://twitter.com/",
+                    "img":"/image/about/icon-2.png"
+                },
+                {
+                    "to":"https://www.facebook.com/",
+                    "img":"/image/about/icon-3.png"
+                }
+            ],
+            "span":"Connect",
+            "name":"Greta Life",
+            "detail":"Real estate Agent",
+            "content":[
+                {
+                    "icon":"fas fa-phone-alt",
+                    "contact":"+91 5470087201",
+                    "contact1":"+91 547008****",
+                    "labels":"show",
+                    "labels2":"Hide"
+                },
+                {
+                    "icon":"fas fa-envelope",
+                    "content":"life@gmail.in"
+                },
+                {
+                    "icon":"fas fa-fax",
+                    "content":"248 200 325"
+                }
+            ]
+        }
+    ]
+}

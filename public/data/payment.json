@@ -1,0 +1,154 @@
+{
+    "paymentdata":[
+        {
+            "id": "1",
+            "name": "House Harvest",
+            "Date": "Sep 2,20",
+            "Rates": "$950",
+            "Deposit": "$5800",
+            "Type": "Sell",
+            "Status": "Pending",
+            "Amount": "$10750/-"
+        },
+        {
+            "id": "2",
+            "name": "Equity Estates",
+            "Date": "Dec 10,20",
+            "Rates": "$870",
+            "Deposit": "$7500",
+            "Type": "Sell",
+            "Status": "Paid",
+            "Amount": "$87900/-"
+        },
+        {
+            "id": "3",
+            "name": "Charrette Realtors",
+            "Date": "Feb 15,20",
+            "Rates": "$680",
+            "Deposit": "$105",
+            "Type": "Sell",
+            "Status": "Pending",
+            "Amount": "$3140/-"
+        },
+        {
+            "id": "4",
+            "name": "Redwood Realtors",
+            "Date": "Mar 27,20",
+            "Rates": "$310",
+            "Deposit": "$500",
+            "Type": "Sell",
+            "Status": "Paid",
+            "Amount": "$21700/-"
+        },
+        {
+            "id": "5",
+            "name": "Snazzy Habitats",
+            "Date": "Sep 1,20",
+            "Rates": "$570",
+            "Deposit": "$810",
+            "Type": "Rent",
+            "Status": "Paid",
+            "Amount": "$54200/-"
+        },
+        {
+            "id": "6",
+            "name": "Superdome Homes",
+            "Date": "May 18,20",
+            "Rates": "$380",
+            "Deposit": "$400",
+            "Type": "Sell",
+            "Status": "Paid",
+            "Amount": "$21410/-"
+        },
+        {
+            "id": "7",
+            "name": "Moving On Up",
+            "Date": "Jan 14,20",
+            "Rates": "$200",
+            "Deposit": "$560",
+            "Type": "Rent",
+            "Status": "Pending",
+            "Amount": "$48720/-"
+        },
+        {
+            "id": "8",
+            "name": "Renewal Real Estate",
+            "Date": "Apr 22,20",
+            "Rates": "$150",
+            "Deposit": "$570",
+            "Type": "Rent",
+            "Status": "Pending",
+            "Amount": "$78410/-"
+        },
+        {
+            "id": "9",
+            "name": "Broadleaf Homes",
+            "Date": "Mar 26,20",
+            "Rates": "$100",
+            "Deposit": "$284",
+            "Type": "Sell",
+            "Status": "Paid",
+            "Amount": "$27840/-"
+        },
+        {
+            "id": "10",
+            "name": "Olive Tree Realty",
+            "Date": "Feb 29,20",
+            "Rates": "$97",
+            "Deposit": "$450",
+            "Type": "Rent",
+            "Status": "Paid",
+            "Amount": "$46100/-"
+        },
+        {
+            "id": "11",
+            "name": "Divine Nooks",
+            "Date": "Sep 2,20",
+            "Rates": "$80",
+            "Deposit": "$200",
+            "Type": "Rent",
+            "Status": "Pending",
+            "Amount": "$17500/-"
+        },
+        {
+            "id": "12",
+            "name": "Moving On Up",
+            "Date": "Jan 14,20",
+            "Rates": "$200",
+            "Deposit": "$560",
+            "Type": "Rent",
+            "Status": "Pending",
+            "Amount": "$48720/-"
+        },
+        {
+            "id": "13",
+            "name": "Renewal Real Estate",
+            "Date": "Apr 22,20",
+            "Rates": "$150",
+            "Deposit": "$570",
+            "Type": "Rent",
+            "Status": "Pending",
+            "Amount": "$78410/-"
+        },
+        {
+            "id": "14",
+            "name": "Broadleaf Homes",
+            "Date": "Mar 26,20",
+            "Rates": "$100",
+            "Deposit": "$284",
+            "Type": "Sell",
+            "Status": "Paid",
+            "Amount": "$27840/-"
+        },
+        {
+            "id": "15",
+            "name": "Olive Tree Realty",
+            "Date": "Feb 29,20",
+            "Rates": "$97",
+            "Deposit": "$450",
+            "Type": "Rent",
+            "Status": "Paid",
+            "Amount": "$46100/-"
+        }
+    ]
+}
