@@ -1,13 +1,13 @@
 # Usar una imagen base de Node.js para construir la aplicación
-FROM node:latest as build-stage
+FROM node:22-alpine AS build-stage
 
 # Establecer el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-#RUN corepack enable
+RUN corepack enable
 
 # Después de establecer el directorio de trabajo
-RUN chmod -R 777 /app
+#RUN chmod -R 777 /app
 
 # Copiar package.json y package-lock.json para instalar las dependencias
 COPY package*.json ./
@@ -28,7 +28,7 @@ RUN chmod -R 755 /app/.output && ls -la /app/.output
 #FROM nginx as production-stage
 
 # Build Stage 2
-FROM node:latest
+FROM node:22-alpine
 WORKDIR /app
 #RUN mkdir /app
 # Copiar los archivos estáticos construidos desde la etapa anterior
