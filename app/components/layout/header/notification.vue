@@ -58,7 +58,7 @@ interface HeaderResponse {
   notification: Notification[];
 }
 const alldata = ref<Notification[]>([]);
-const { data } = await useFetch<HeaderResponse>(baseUrl + "/data/header.json");
+const { data } = await useFetch<HeaderResponse>(baseUrl + "/admin/data/header.json");
 watchEffect(() => {
   if (data.value) {
     alldata.value = data.value?.notification || [];

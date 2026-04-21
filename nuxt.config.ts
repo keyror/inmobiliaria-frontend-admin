@@ -1,7 +1,25 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   ssr: false,
+  // 1. BASE API (igual en todos lados)
+  runtimeConfig: {
+    public: {
+      apiBase: "/api",
+    },
+  },
+
+  // 2. SOLO para desarrollo (Laragon)
+  nitro: {
+    devProxy: {
+      "/api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+      },
+    },
+  },
   app: {
+    baseURL: "/admin/",
+    buildAssetsDir: "/_nuxt/",
     head: {
       link: [
         { rel: "icon", type: "image/png", href: "/favicon.png" },

@@ -74,11 +74,12 @@
                       />
                       Recuérdame
                     </label>
-                    <a
-                      href="/authentication/forgot-password"
+                    <NuxtLink
+                      to="/authentication/forgot-password"
                       class="font-rubik text-color-2"
-                      >Forgot password ?</a
                     >
+                      Forgot password?
+                    </NuxtLink>
                   </div>
                   <div>
                     <button
