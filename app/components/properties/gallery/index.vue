@@ -234,7 +234,7 @@ const remove = async (index: number) => {
 
   img.deleting = true;
 
-  const response = await run(GalleryService.deleteImage(img.id),{
+  const response = await run(GalleryService.deleteImage(img.id), {
     showSuccess: true,
   });
 

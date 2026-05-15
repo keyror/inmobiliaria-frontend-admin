@@ -41,7 +41,9 @@ interface HeaderResponse {
   attachment: Attachment[];
 }
 const alldata = ref<Attachment[]>([]);
-const { data } = await useFetch<HeaderResponse>(baseUrl + "/admin/data/header.json");
+const { data } = await useFetch<HeaderResponse>(
+  baseUrl + "/admin/data/header.json",
+);
 watchEffect(() => {
   if (data.value) {
     alldata.value = data.value.attachment || [];
