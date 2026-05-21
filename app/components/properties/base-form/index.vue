@@ -85,7 +85,7 @@
               <div v-show="activeTab === 'addresses'">
                 <Addresses
                   ref="addressesRef"
-                  :data="property?.addresses"
+                  :data="addressesData"
                   :isEditing="props.isEditing"
                   :lookups="addressesLookups"
                   :single="true"
@@ -95,7 +95,7 @@
               <div v-show="activeTab === 'contacts'">
                 <Contacts
                   ref="contactsRef"
-                  :data="property?.contacts"
+                  :data="contactsData"
                   :isEditing="props.isEditing"
                   :single="false"
                 />
@@ -150,6 +150,7 @@
 <script setup lang="ts">
 import "@vuepic/vue-datepicker/dist/main.css";
 import { useApiHandler } from "~/composables/useApiHandler";
+import { usePropertyCompanyDefaults } from "~/composables/properties/usePropertyCompanyDefaults";
 import { Constants } from "~/constants/Constants";
 import AlertService from "~/services/AlertService";
 import PropertyService from "~/services/PropertyService";
@@ -193,6 +194,8 @@ const route = useRoute();
 const idProperty = route.params.id as string;
 
 const property = ref<any>({});
+const { addressesData, contactsData, getCurrentCompanyDefaults } =
+  usePropertyCompanyDefaults(property, computed(() => props.isEditing), run);
 
 const { lookups } = useLookups([
   Constants.GARAGE_TYPE,
@@ -357,6 +360,7 @@ const getProperty = async () => {
 };
 
 getProperty();
+getCurrentCompanyDefaults();
 </script>
 
 <style scoped></style>

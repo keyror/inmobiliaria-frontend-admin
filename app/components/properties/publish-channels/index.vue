@@ -47,30 +47,37 @@
 
         <form class="row gx-3">
           <CommonInputfieldsSelectfield
-            v-model="field.value.channel_id"
+            :model-value="field.value.channel_id"
             classes="col-md-4"
             label="Canal"
             labelField="name"
             :data="lookups.publishChannels"
             star="*"
             :error="getFieldError(index, 'channel_id')"
+            @update:model-value="
+              setChannelField(index, 'channel_id', $event)
+            "
           />
 
           <CommonInputfieldsTextfield
-            v-model="field.value.external_link"
+            :model-value="field.value.external_link"
             classes="col-md-4"
             label="Enlace Externo"
             :error="getFieldError(index, 'external_link')"
+            @update:model-value="
+              setChannelField(index, 'external_link', $event)
+            "
           />
 
           <CommonInputfieldsSelectfield
-            v-model="field.value.status_id"
+            :model-value="field.value.status_id"
             classes="col-md-4"
             label="Estado"
             labelField="name"
             :data="lookups.status"
             star="*"
             :error="getFieldError(index, 'status_id')"
+            @update:model-value="setChannelField(index, 'status_id', $event)"
           />
 
           <div class="col-md-4 col-sm-6">
@@ -79,7 +86,7 @@
             }}</label>
 
             <VueDatePicker
-              v-model="field.value.published_at"
+              :model-value="field.value.published_at"
               format="yyyy-MM-dd"
               model-type="yyyy-MM-dd"
               :class="{
@@ -87,6 +94,9 @@
               }"
               :state="getFieldError(index, 'published_at') ? false : null"
               :disabled="!!field.value.unpublished_at"
+              @update:model-value="
+                setChannelField(index, 'published_at', $event)
+              "
             />
 
             <small class="text-danger">
@@ -100,7 +110,7 @@
             }}</label>
 
             <VueDatePicker
-              v-model="field.value.unpublished_at"
+              :model-value="field.value.unpublished_at"
               format="yyyy-MM-dd"
               model-type="yyyy-MM-dd"
               :class="{
@@ -108,6 +118,9 @@
               }"
               :state="getFieldError(index, 'unpublished_at') ? false : null"
               :disabled="!!field.value.published_at"
+              @update:model-value="
+                setChannelField(index, 'unpublished_at', $event)
+              "
             />
 
             <small class="text-danger">
@@ -138,7 +151,7 @@ const props = defineProps<{
   isEditing?: boolean;
 }>();
 
-const { validate, values, resetForm, errors, setErrors } =
+const { validate, values, resetForm, errors, setErrors, setFieldValue } =
   usePublishChannelForm();
 
 const { remove, push, fields } =
@@ -164,6 +177,22 @@ const emptyChannel = (): IPublishChannel => ({
   published_at: "",
   unpublished_at: "",
 });
+
+const setChannelField = (
+  index: number,
+  field: keyof IPublishChannel,
+  value: string | null,
+) => {
+  setFieldValue(`publish_channels[${index}].${field}`, value ?? "");
+
+  if (field === "published_at" && value) {
+    setFieldValue(`publish_channels[${index}].unpublished_at`, "");
+  }
+
+  if (field === "unpublished_at" && value) {
+    setFieldValue(`publish_channels[${index}].published_at`, "");
+  }
+};
 
 watch(
   () => props.data,
@@ -191,22 +220,6 @@ watch(
     }
   },
   { immediate: true },
-);
-
-watch(
-  () => values.publish_channels,
-  (channels) => {
-    channels?.forEach((channel, index) => {
-      if (channel.published_at) {
-        values.publish_channels[index].unpublished_at = "";
-      }
-
-      if (channel.unpublished_at) {
-        values.publish_channels[index].published_at = "";
-      }
-    });
-  },
-  { deep: true },
 );
 
 const addChannel = () => {

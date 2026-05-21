@@ -28,27 +28,21 @@
       star="*"
     />
 
-    <CommonInputfieldsSelectfield
+    <CommonInputfieldsPersonselect
       v-model="legal_representative_id"
-      :data="persons"
       :error="errors.legal_representative_id"
-      :onSearch="searchPerson"
+      :initialPeople="initialPeople"
       classes="col-md-4"
       label="Representante legal"
-      labelField="name"
-      searchable
       star="*"
     />
 
-    <CommonInputfieldsSelectfield
+    <CommonInputfieldsPersonselect
       v-model="person_attendant_id"
-      :data="persons"
       :error="errors.person_attendant_id"
-      :onSearch="searchPerson"
+      :initialPeople="initialPeople"
       classes="col-md-4"
       label="Persona encargada"
-      labelField="name"
-      searchable
       star="*"
     />
 
@@ -69,16 +63,10 @@
 
 <script setup lang="ts">
 import { useCompanyForm } from "~/composables/forms/useCompanyForm";
-import { useApiHandler } from "~/composables/useApiHandler";
-import { useDebounce } from "~/composables/useDebounce";
-import PersonService from "~/services/PersonService";
 
 import type { Gallery } from "#components";
 import type { ICompany } from "~/interfaces/ICompany";
 import type { IImage, IImagePayload } from "~/interfaces/IImageItem";
-import type { IParamsTable } from "~/interfaces/IParamsTable";
-
-const { run } = useApiHandler();
 
 const props = defineProps<{
   data?: ICompany | null;
@@ -104,48 +92,6 @@ const [person_attendant_id] = defineField("person_attendant_id");
 
 const galleryRef = ref<InstanceType<typeof Gallery> | null>(null);
 const logoImages = ref<IImage[]>([]);
-const persons = ref<PersonOption[]>([]);
-
-interface PersonOption {
-  id: string;
-  name: string;
-  raw: any;
-}
-
-const paramsTable = ref<IParamsTable>({
-  page: 1,
-  perPage: 99999,
-  sortBy: "created_at",
-  sortType: "desc",
-  search: "",
-});
-
-const personLabel = (person: any): string => {
-  const name = person?.full_name ?? person?.company_name ?? "";
-  const document = [
-    person?.document_type_alias,
-    person?.document_number,
-  ].filter(Boolean);
-
-  return document.length ? `${name} - ${document.join(" ")}` : name;
-};
-
-const toPersonOption = (person: any): PersonOption | null => {
-  if (!person?.id) return null;
-
-  return {
-    id: person.id,
-    name: personLabel(person),
-    raw: person,
-  };
-};
-
-const uniquePersonOptions = (options: PersonOption[]): PersonOption[] => {
-  return options.filter(
-    (person, index, self) =>
-      index === self.findIndex((item) => item.id === person.id),
-  );
-};
 
 const getCompanyRelationPerson = (
   company: any,
@@ -159,31 +105,11 @@ const getCompanyRelationPerson = (
   );
 };
 
-const getCompanyPersonOptions = (company?: ICompany | null): PersonOption[] => {
-  const relationOptions = [
-    toPersonOption(getCompanyRelationPerson(company, "legal_representative")),
-    toPersonOption(getCompanyRelationPerson(company, "person_attendant")),
-  ].filter(Boolean) as PersonOption[];
-
-  const selectedIds = [
-    company?.legal_representative_id,
-    company?.person_attendant_id,
-  ].filter(Boolean);
-
-  const existingOptions = persons.value.filter((person) =>
-    selectedIds.includes(person.id),
-  );
-
-  return uniquePersonOptions([...relationOptions, ...existingOptions]);
-};
-
-const selectedPersonIds = computed(
-  () =>
-    new Set(
-      [values.legal_representative_id, values.person_attendant_id].filter(
-        Boolean,
-      ),
-    ),
+const initialPeople = computed(() =>
+  [
+    getCompanyRelationPerson(props.data, "legal_representative"),
+    getCompanyRelationPerson(props.data, "person_attendant"),
+  ].filter(Boolean),
 );
 
 const getCompanyPersonId = (
@@ -203,10 +129,7 @@ const getCompanyValues = (company?: ICompany | null) => ({
   tradename: company?.tradename ?? "",
   nit: company?.nit ?? "",
   logo_image_id: company?.logo_image_id ?? "",
-  legal_representative_id: getCompanyPersonId(
-    company,
-    "legal_representative",
-  ),
+  legal_representative_id: getCompanyPersonId(company, "legal_representative"),
   person_attendant_id: getCompanyPersonId(company, "person_attendant"),
 });
 
@@ -230,7 +153,6 @@ const resetToCompany = (company?: ICompany | null) => {
   });
 
   logoImages.value = getLogoImages(company);
-  persons.value = getCompanyPersonOptions(company);
 };
 
 const handleLogo = (images: IImagePayload[]) => {
@@ -240,30 +162,6 @@ const handleLogo = (images: IImagePayload[]) => {
 
 const hasPendingUpload = (): boolean => {
   return galleryRef.value?.hasPendingUploads?.() ?? false;
-};
-
-const debouncedSearch = useDebounce(async (term: string) => {
-  paramsTable.value.search = term;
-
-  const response = await run(PersonService.getPeople(paramsTable.value));
-  if (!response) return;
-
-  const newPersons = response.data.data.map((person: any) => ({
-    id: person.id,
-    name: personLabel(person),
-    raw: person,
-  }));
-
-  const alreadySelected = persons.value.filter((person) =>
-    selectedPersonIds.value.has(person.id),
-  );
-
-  persons.value = uniquePersonOptions([...alreadySelected, ...newPersons]);
-}, 700);
-
-const searchPerson = (term: string) => {
-  if (!term || term.length < 3) return;
-  debouncedSearch(term);
 };
 
 watch(

@@ -74,16 +74,14 @@
 
         <form class="row gx-3">
           <!-- Persona -->
-          <CommonInputfieldsSelectfield
+          <CommonInputfieldsPersonselect
             v-model="field.value.person_id"
+            :error="getFieldError(index, 'person_id')"
+            :excludeIds="selectedPersonIds"
+            :initialPeople="field.value.person?.id ? [field.value.person] : []"
             classes="col-md-12"
             label="Persona"
-            :data="getPersonsForIndex(index)"
-            :labelField="'name'"
-            :searchable="true"
             star="*"
-            :onSearch="searchPerson"
-            :error="getFieldError(index, 'person_id')"
           />
 
           <!-- Porcentaje -->
@@ -167,16 +165,10 @@ import VueDatePicker from "@vuepic/vue-datepicker";
 import { useFieldArray } from "vee-validate";
 
 import { useOwnershipForm } from "~/composables/forms/useOwnershipForm";
-import { useApiHandler } from "~/composables/useApiHandler";
-import { useDebounce } from "~/composables/useDebounce";
-import PersonService from "~/services/PersonService";
 
 import type { ILookup } from "~/interfaces/ILookup";
 import type { IOwner } from "~/interfaces/IOwner";
 import type { IOwnership } from "~/interfaces/IOwnership";
-import type { IParamsTable } from "~/interfaces/IParamsTable";
-
-const { run } = useApiHandler();
 
 const props = defineProps<{
   data?: IOwnership[];
@@ -216,8 +208,6 @@ const emptyOwnership = (): IOwnership => ({
   person: {} as IOwner,
 });
 
-const persons = ref<{ id: string; name: string; raw: any }[]>([]);
-
 watch(
   () => props.data,
   (newData) => {
@@ -229,12 +219,6 @@ watch(
           ownerships: newData.map((item) => ({ ...item })),
         },
       });
-
-      persons.value = newData.map((p: any) => ({
-        id: p.person.id,
-        name: `${p.person.full_name ?? p.person.company_name} - ${p.person.document_type_alias} ${p.person.document_number}`,
-        raw: p.person,
-      }));
     } else {
       resetForm({
         values: {
@@ -274,55 +258,12 @@ const remainingPercentage = computed(() => 100 - totalPercentage.value);
 
 const isPercentageValid = computed(() => totalPercentage.value === 100);
 
-const paramsTable = ref<IParamsTable>({
-  page: 1,
-  perPage: 99999,
-  sortBy: "created_at",
-  sortType: "desc",
-  search: "",
-});
-
-const debouncedSearch = useDebounce(async (term: string) => {
-  paramsTable.value.search = term;
-
-  const response = await run(PersonService.getPeople(paramsTable.value));
-
-  if (!response) return;
-
-  const newPersons = response.data.data.map((p: any) => ({
-    id: p.id,
-    name: `${p.full_name ?? p.company_name} - ${p.document_type_alias} ${p.document_number}`,
-    raw: p,
-  }));
-
-  const selectedIds = new Set(
-    values.ownerships?.map((o) => o.person_id).filter(Boolean),
-  );
-  const alreadySelected = persons.value.filter((p) => selectedIds.has(p.id));
-
-  const merged = [...alreadySelected, ...newPersons];
-
-  persons.value = merged.filter(
-    (p, i, self) => i === self.findIndex((x) => x.id === p.id),
-  );
-}, 700);
-
-const searchPerson = (term: string) => {
-  if (!term || term.length < 3) return;
-  debouncedSearch(term);
-};
-
-const selectedPersonIds = computed(
-  () => new Set(values.ownerships?.map((o) => o.person_id).filter(Boolean)),
+const selectedPersonIds = computed<string[]>(
+  () =>
+    values.ownerships
+      ?.map((o) => o.person_id)
+      .filter((id): id is string => Boolean(id)) ?? [],
 );
-
-const getPersonsForIndex = (index: number) => {
-  const currentId = values.ownerships?.[index]?.person_id;
-
-  return persons.value.filter(
-    (p) => !selectedPersonIds.value.has(p.id) || p.id === currentId,
-  );
-};
 
 defineExpose({
   async validateForm() {
