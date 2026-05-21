@@ -102,9 +102,9 @@ import { ref, watch } from "vue";
 
 import draggable from "vuedraggable";
 
-import type { IImage, IImagePayload, ImageItem } from "@/interfaces/IImageItem";
-import GalleryService from "@/services/GalleryService";
-import { useApiHandler } from "~/composables/useApiHandler";
+import type { IImage, IImagePayload, ImageItem } from "app/interfaces/IImageItem";
+import GalleryService from "app/services/GalleryService";
+import { useApiHandler } from "app/composables/useApiHandler";
 
 const { run } = useApiHandler();
 

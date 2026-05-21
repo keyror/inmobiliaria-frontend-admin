@@ -216,7 +216,7 @@
     />
 
     <!-- GALERÍA -->
-    <PropertiesGallery
+    <Gallery
       ref="galleryRef"
       :data="values.images ?? []"
       @updateImages="handleImages"
@@ -229,7 +229,7 @@ import VueDatePicker from "@vuepic/vue-datepicker";
 
 import { usePropertyForm } from "~/composables/forms/usePropertyForm";
 
-import type { PropertiesGallery } from "#components";
+import type { Gallery } from "#components";
 import type { IImagePayload } from "~/interfaces/IImageItem";
 import type { ILookup } from "~/interfaces/ILookup";
 import type { IProperty } from "~/interfaces/IProperty";
@@ -289,7 +289,7 @@ const [price] = defineField("price.price");
 const [currency] = defineField("price.currency");
 
 // gallery
-const galleryRef = ref<InstanceType<typeof PropertiesGallery> | null>(null);
+const galleryRef = ref<InstanceType<typeof Gallery> | null>(null);
 
 const handleImages = (imgs: IImagePayload[]) => {
   setFieldValue("images", imgs);
