@@ -91,6 +91,14 @@
             ]
         },
         {
+            "link":"/company",
+            "icon":"lucide:settings",
+            "title":"Empresa",
+            "titlePage": "Configuración de empresa",
+            "collapse":false,
+            "active":false
+        },
+        {
             "icon":"lucide:lock",
             "title":"Autorizaciones",
             "titlePage": "Autorizaciones",

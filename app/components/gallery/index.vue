@@ -73,7 +73,7 @@
           <label class="image-card add-card">
             <input
               type="file"
-              multiple
+              :multiple="props.maxImages > 1"
               accept="image/*"
               @change="onFileChange"
               hidden
@@ -102,9 +102,10 @@ import { ref, watch } from "vue";
 
 import draggable from "vuedraggable";
 
-import type { IImage, IImagePayload, ImageItem } from "app/interfaces/IImageItem";
-import GalleryService from "app/services/GalleryService";
-import { useApiHandler } from "app/composables/useApiHandler";
+import { useApiHandler } from "~/composables/useApiHandler";
+import GalleryService from "~/services/GalleryService";
+
+import type { IImage, IImagePayload, ImageItem } from "~/interfaces/IImageItem";
 
 const { run } = useApiHandler();
 
@@ -166,7 +167,8 @@ const onFileChange = async (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (!target.files) return;
 
-  const files = Array.from(target.files);
+  const availableSlots = props.maxImages - images.value.length;
+  const files = Array.from(target.files).slice(0, availableSlots);
 
   for (const file of files) {
     if (!file.type.startsWith("image/")) continue;
@@ -287,6 +289,8 @@ watch(
         uploading: false,
         imageLoading: false,
       }));
+    } else {
+      images.value = [];
     }
   },
   { immediate: true },

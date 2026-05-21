@@ -1,0 +1,208 @@
+<template>
+  <div class="page-body">
+    <CommonBreadcrumb page="Empresa" title="Configuración de empresa" />
+
+    <div class="container-fluid">
+      <nav>
+        <div id="nav-tab" class="nav nav-tabs" role="tablist">
+          <button
+            :class="{ active: activeTab === 'company' }"
+            class="nav-link text-dark"
+            @click="switchTab('company')"
+          >
+            Empresa
+          </button>
+          <button
+            :class="{ active: activeTab === 'addresses' }"
+            class="nav-link text-dark"
+            @click="switchTab('addresses')"
+          >
+            Dirección
+          </button>
+          <button
+            :class="{ active: activeTab === 'contacts' }"
+            class="nav-link text-dark"
+            @click="switchTab('contacts')"
+          >
+            Contacto
+          </button>
+        </div>
+      </nav>
+
+      <div class="tab-content mt-4">
+        <div class="container-fluid">
+          <div class="card">
+            <div class="card-body admin-form">
+              <div v-show="activeTab === 'company'">
+                <CompanyGeneral
+                  ref="companyRef"
+                  :data="company"
+                  :isEditing="isEditing"
+                />
+              </div>
+
+              <div v-show="activeTab === 'addresses'">
+                <Addresses
+                  ref="addressesRef"
+                  :data="company?.addresses"
+                  :isEditing="isEditing"
+                  :lookups="addressesLookups"
+                  :single="true"
+                />
+              </div>
+
+              <div v-show="activeTab === 'contacts'">
+                <div class="alert alert-info d-flex align-items-center gap-2">
+                  <i class="fa fa-info-circle"></i>
+                  <span>
+                    El contacto marcado como principal recibirá los correos del
+                    formulario de contacto y los mensajes enviados por WhatsApp.
+                  </span>
+                </div>
+
+                <Contacts
+                  ref="contactsRef"
+                  :data="company?.contacts"
+                  :isEditing="isEditing"
+                  :single="false"
+                />
+              </div>
+
+              <div class="form-btn mt-3">
+                <button class="btn btn-pill btn-gradient color-4" @click="save">
+                  {{ isEditing ? "Actualizar" : "Crear" }}
+                </button>
+
+                <button
+                  class="btn btn-pill btn-dashed color-4"
+                  type="button"
+                  @click="cancel"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useApiHandler } from "~/composables/useApiHandler";
+import { Constants } from "~/constants/Constants";
+import AlertService from "~/services/AlertService";
+import CompanyService from "~/services/CompanyService";
+
+import type { ISaveCompany } from "~/interfaces/ISaveCompany";
+
+import { Addresses, CompanyGeneral, Contacts } from "#components";
+
+const { run } = useApiHandler();
+
+const companyRef = ref<InstanceType<typeof CompanyGeneral> | null>(null);
+const addressesRef = ref<InstanceType<typeof Addresses> | null>(null);
+const contactsRef = ref<InstanceType<typeof Contacts> | null>(null);
+
+const activeTab = ref<string>("company");
+const company = ref<any>(null);
+const isEditing = computed(() => !!company.value);
+
+const { lookups } = useLookups([
+  Constants.ROAD_TYPE,
+  Constants.LETTER,
+  Constants.ORIENTATION,
+  Constants.STRATUM,
+  Constants.COUNTRY,
+  Constants.DEPARTMENT,
+  Constants.CITY,
+]);
+
+const switchTab = (tab: string) => {
+  activeTab.value = tab;
+};
+
+const { distributeErrors } = useFormErrorDistributor(
+  {
+    company: companyRef,
+    addresses: addressesRef,
+    contacts: contactsRef,
+  },
+  {
+    company: "company",
+    addresses: "addresses",
+    contacts: "contacts",
+  },
+  switchTab,
+);
+
+const getCompany = async () => {
+  const response = await run(CompanyService.getCurrentCompany());
+  if (response) {
+    company.value = response.data ?? null;
+  }
+};
+
+const save = async () => {
+  const forms = [
+    { key: "company", ref: companyRef },
+    { key: "addresses", ref: addressesRef },
+    { key: "contacts", ref: contactsRef },
+  ];
+
+  const data: ISaveCompany = {};
+
+  for (const form of forms) {
+    const isValid = await form.ref.value?.validateForm();
+
+    if (!isValid) {
+      switchTab(form.key);
+      await AlertService.showFormError();
+      return;
+    }
+
+    const values = form.ref.value?.getValues();
+
+    if (form.key === "company") data.company = values;
+    if (form.key === "addresses") data.addresses = values;
+    if (form.key === "contacts") data.contacts = values;
+  }
+
+  const promise = isEditing.value
+    ? CompanyService.updateCompany(data)
+    : CompanyService.createCompany(data);
+
+  const response = await run(promise, {
+    showSuccess: true,
+    successMessage: isEditing.value
+      ? "Empresa actualizada correctamente"
+      : "Empresa creada correctamente",
+    setErrors: distributeErrors,
+  });
+
+  if (response) {
+    await getCompany();
+  }
+};
+
+const cancel = () => {
+  companyRef.value?.reset();
+  addressesRef.value?.reset();
+  contactsRef.value?.reset();
+};
+
+const addressesLookups = computed(() => ({
+  roadTypes: lookups.value[Constants.ROAD_TYPE],
+  letters: lookups.value[Constants.LETTER],
+  orientations: lookups.value[Constants.ORIENTATION],
+  strata: lookups.value[Constants.STRATUM],
+  country: lookups.value[Constants.COUNTRY],
+  cities: lookups.value[Constants.CITY],
+  departments: lookups.value[Constants.DEPARTMENT],
+}));
+
+getCompany();
+</script>
+
+<style scoped></style>

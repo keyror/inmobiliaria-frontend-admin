@@ -64,6 +64,11 @@ export class ApiUrls {
   static readonly PROPERTIES_UPDATE_PUT = "/properties";
   static readonly PROPERTIES_DELETE_DELETE = "/properties";
 
+  // Companies URLs
+  static readonly COMPANIES_CURRENT_GET = "/companies/current";
+  static readonly COMPANIES_CREATE_POST = "/companies";
+  static readonly COMPANIES_UPDATE_PUT = "/companies";
+
   static readonly IMAGES = "/images";
   static readonly IMAGE_COVER = "cover";
 }
