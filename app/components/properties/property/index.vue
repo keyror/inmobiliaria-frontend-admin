@@ -219,6 +219,7 @@
     <Gallery
       ref="galleryRef"
       :data="values.images ?? []"
+      item-classes="col-sm-12 col-md-4 col-lg-2"
       @updateImages="handleImages"
     />
   </form>
@@ -233,6 +234,10 @@ import type { Gallery } from "#components";
 import type { IImagePayload } from "~/interfaces/IImageItem";
 import type { ILookup } from "~/interfaces/ILookup";
 import type { IProperty } from "~/interfaces/IProperty";
+
+interface PropertyFeatureFormValue {
+  feature_type_id: string;
+}
 
 const props = defineProps<{
   data?: IProperty;
@@ -303,7 +308,10 @@ watch(
       resetForm({
         values: {
           ...newData,
-          features: newData.features?.map((f: any) => f.feature_type_id) ?? [],
+          features:
+            newData.features?.map(
+              (feature: PropertyFeatureFormValue) => feature.feature_type_id,
+            ) ?? [],
         },
       });
     }

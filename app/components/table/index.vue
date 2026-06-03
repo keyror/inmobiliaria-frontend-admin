@@ -5,12 +5,14 @@
         <div class="row g-2 align-items-center">
           <!-- Búsqueda -->
           <div class="col-12 col-md-8 col-lg-6">
-            <CommonInputfieldsTextfield
-              v-model="searchValue"
-              classes=""
-              label=""
-              placeholder="Buscar..."
-            />
+            <form autocomplete="off" novalidate @submit.prevent>
+              <CommonInputfieldsTextfield
+                v-model="searchValue"
+                classes=""
+                label=""
+                placeholder="Buscar..."
+              />
+            </form>
           </div>
 
           <!-- Botones de acción -->

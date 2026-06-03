@@ -96,7 +96,9 @@
       <label class="form-label">Logo</label>
       <Gallery
         ref="galleryRef"
+        add-item-classes="col-12 col-sm-6 col-md-6"
         :data="logoImages"
+        item-classes="col"
         :maxImages="1"
         @updateImages="handleLogo"
       />
@@ -143,6 +145,7 @@ const [theme_secondary] = defineField("theme.colors.secondary");
 
 const galleryRef = ref<InstanceType<typeof Gallery> | null>(null);
 const logoImages = ref<IImage[]>([]);
+const isWaitingForCompanyData = computed(() => props.data === undefined);
 
 const getFormError = (field: string): string | undefined => {
   return (errors.value as Record<string, string | undefined>)[field];
@@ -235,6 +238,8 @@ const getLogoImages = (company?: ICompany | null): IImage[] => {
 };
 
 const resetToCompany = (company?: ICompany | null) => {
+  if (company === undefined) return;
+
   resetForm({
     values: getCompanyValues(company),
   });
@@ -262,6 +267,8 @@ watch(
 watch(
   [theme_primary, theme_secondary],
   ([primary, secondary]) => {
+    if (isWaitingForCompanyData.value) return;
+
     applyThemePreview(primary, secondary);
   },
   { immediate: true },

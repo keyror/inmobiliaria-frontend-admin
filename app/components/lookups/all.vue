@@ -9,54 +9,57 @@
         </div>
 
         <div class="card-body admin-form">
-          <div class="row gx-3 gy-2 align-items-end">
-            <CommonInputfieldsSelectfield
-              v-model="filters.category"
-              :data="categoryOptions"
-              :error="filterErrors.category"
-              classes="col-12 col-md-6 col-xl-4"
-              label="Categoría"
-              searchable
-              show="Todas las categorías"
-            />
+          <form autocomplete="off" novalidate @submit.prevent="applyFilters">
+            <div class="row gx-3 gy-2 align-items-end">
+              <CommonInputfieldsSelectfield
+                v-model="filters.category"
+                :data="categoryOptions"
+                :error="filterErrors.category"
+                classes="col-12 col-md-6 col-xl-4"
+                label="Categoría"
+                searchable
+                show="Todas las categorías"
+              />
 
-            <CommonInputfieldsTextfield
-              v-model="filters.lang"
-              :error="filterErrors.lang"
-              :required="false"
-              classes="col-12 col-md-6 col-xl-2"
-              label="Idioma"
-              placeholder="ES"
-            />
+              <CommonInputfieldsTextfield
+                v-model="filters.lang"
+                :error="filterErrors.lang"
+                :required="false"
+                classes="col-12 col-md-6 col-xl-2"
+                label="Idioma"
+                placeholder="ES"
+              />
 
-            <CommonInputfieldsSelectfield
-              v-model="filters.is_active"
-              :data="statusOptions"
-              :error="filterErrors.is_active"
-              classes="col-12 col-md-6 col-xl-3"
-              label="Estado"
-              show="Todos"
-            />
-          </div>
-          <div class="mt-3">
-            <div class="d-flex flex-wrap gap-2 justify-content-xl-end">
-              <button
-                class="btn btn-pill btn-gradient color-4 lookup-filter-button"
-                type="button"
-                @click="applyFilters"
-              >
-                Filtrar
-              </button>
-
-              <button
-                class="btn btn-pill btn-dashed color-4 lookup-filter-button"
-                type="button"
-                @click="clearFilters"
-              >
-                Limpiar
-              </button>
+              <CommonInputfieldsSelectfield
+                v-model="filters.is_active"
+                :data="statusOptions"
+                :error="filterErrors.is_active"
+                classes="col-12 col-md-6 col-xl-3"
+                label="Estado"
+                show="Todos"
+              />
             </div>
-          </div>
+
+            <div class="mt-3">
+              <div class="d-flex flex-wrap gap-2 justify-content-xl-end">
+                <button
+                  class="btn btn-pill btn-gradient color-4 lookup-filter-button"
+                  type="submit"
+                >
+                  Filtrar
+                </button>
+
+                <button
+                  class="btn btn-pill btn-dashed color-4 lookup-filter-button"
+                  type="button"
+                  @click="clearFilters"
+                >
+                  Limpiar
+                </button>
+              </div>
+            </div>
+          </form>
+
           <div class="mt-3">
             <button
               class="btn btn-pill btn-gradient color-4"

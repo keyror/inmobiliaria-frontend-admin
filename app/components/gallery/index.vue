@@ -12,7 +12,7 @@
     >
       <!-- IMÁGENES -->
       <template #item="{ element, index }">
-        <div class="col-sm-12 col-lg-2">
+        <div :class="props.itemClasses">
           <div class="image-card">
             <img
               :src="element.url"
@@ -69,7 +69,7 @@
 
       <!-- AGREGAR -->
       <template #footer v-if="images.length < props.maxImages">
-        <div class="col-3">
+        <div :class="addItemClasses">
           <label class="image-card add-card">
             <input
               type="file"
@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 
 import draggable from "vuedraggable";
 
@@ -106,6 +106,11 @@ import { useApiHandler } from "~/composables/useApiHandler";
 import GalleryService from "~/services/GalleryService";
 
 import type { IImage, IImagePayload, ImageItem } from "~/interfaces/IImageItem";
+
+interface DragEndEvent {
+  oldIndex?: number;
+  newIndex?: number;
+}
 
 const { run } = useApiHandler();
 
@@ -117,10 +122,14 @@ const props = withDefaults(
   defineProps<{
     data?: IImage[];
     maxImages?: number;
+    itemClasses?: string;
+    addItemClasses?: string;
   }>(),
   {
     data: () => [],
     maxImages: 10,
+    itemClasses: "col-sm-12 col-lg-2",
+    addItemClasses: "",
   },
 );
 
@@ -129,6 +138,9 @@ const { optimizeImage } = useImageOptimizer();
 const images = ref<ImageItem[]>([]);
 const previewImage = ref<string | null>(null);
 const showPreview = ref(false);
+const addItemClasses = computed(
+  () => props.addItemClasses || props.itemClasses,
+);
 
 const openPreview = (url: string) => {
   previewImage.value = url;
@@ -272,7 +284,7 @@ const setCover = async (index: number) => {
   img.settingCover = false;
 };
 
-const onDragEnd = (event: any) => {
+const onDragEnd = (event: DragEndEvent) => {
   if (event.oldIndex !== event.newIndex) {
     emitImages();
   }

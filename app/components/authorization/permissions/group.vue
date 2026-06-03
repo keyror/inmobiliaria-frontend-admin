@@ -179,12 +179,19 @@ const getSelectedCount = (module) => {
     >
       <div class="row w-100 g-2">
         <div class="col-12 col-md-8">
-          <CommonInputfieldsTextfield
-            v-model="searchTerm"
-            classes=""
-            label=""
-            placeholder="Buscar módulo o permiso..."
-          />
+          <form
+            autocomplete="off"
+            class="admin-form permission-search-form"
+            novalidate
+            @submit.prevent
+          >
+            <CommonInputfieldsTextfield
+              v-model="searchTerm"
+              classes=""
+              label=""
+              placeholder="Buscar módulo o permiso..."
+            />
+          </form>
         </div>
         <div class="col-12 col-md-4">
           <br />

@@ -93,14 +93,16 @@
 </template>
 
 <script setup lang="ts">
+import Addresses from "~/components/addresses/index.vue";
+import CompanyGeneral from "~/components/company/general/index.vue";
+import Contacts from "~/components/contacts/index.vue";
 import { useApiHandler } from "~/composables/useApiHandler";
 import { Constants } from "~/constants/Constants";
 import AlertService from "~/services/AlertService";
 import CompanyService from "~/services/CompanyService";
 
+import type { ICompany } from "~/interfaces/ICompany";
 import type { ISaveCompany } from "~/interfaces/ISaveCompany";
-
-import { Addresses, CompanyGeneral, Contacts } from "#components";
 
 const { run } = useApiHandler();
 
@@ -109,7 +111,7 @@ const addressesRef = ref<InstanceType<typeof Addresses> | null>(null);
 const contactsRef = ref<InstanceType<typeof Contacts> | null>(null);
 
 const activeTab = ref<string>("company");
-const company = ref<any>(null);
+const company = ref<ICompany | null>();
 const isEditing = computed(() => !!company.value);
 
 const { lookups } = useLookups([
