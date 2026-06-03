@@ -106,9 +106,9 @@
 
               <!-- Paginación -->
               <nav
-                class="theme-pagination w-100 w-md-auto d-flex justify-content-center justify-content-md-end"
+                class="theme-pagination admin-table-pagination w-100 w-md-auto d-flex justify-content-center justify-content-md-end"
               >
-                <ul class="pagination mb-0 flex-wrap">
+                <ul class="pagination admin-pagination-pages mb-0 flex-wrap">
                   <li
                     :class="{ disabled: serverOptions.page === 1 }"
                     class="page-item"
@@ -123,12 +123,22 @@
                     </a>
                   </li>
                   <li
-                    v-for="page in totalPages"
+                    v-for="page in visiblePages"
                     :key="page"
-                    :class="{ active: serverOptions.page === page }"
+                    :class="{
+                      active: isPageNumber(page) && serverOptions.page === page,
+                      disabled: !isPageNumber(page),
+                    }"
                     class="page-item"
                   >
+                    <span
+                      v-if="!isPageNumber(page)"
+                      class="page-link admin-pagination-ellipsis"
+                    >
+                      ...
+                    </span>
                     <a
+                      v-else
                       class="page-link"
                       href="javascript:void(0)"
                       @click="changePage(page)"
@@ -237,7 +247,43 @@ const totalPages = computed(() =>
   ),
 );
 
+type PaginationItem = number | "ellipsis-left" | "ellipsis-right";
+
+const visiblePages = computed<PaginationItem[]>(() => {
+  const total = totalPages.value;
+  const current = serverOptions.value.page;
+
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, index) => index + 1);
+  }
+
+  const pages: PaginationItem[] = [1];
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+
+  if (start > 2) {
+    pages.push("ellipsis-left");
+  }
+
+  for (let page = start; page <= end; page += 1) {
+    pages.push(page);
+  }
+
+  if (end < total - 1) {
+    pages.push("ellipsis-right");
+  }
+
+  pages.push(total);
+
+  return pages;
+});
+
+const isPageNumber = (page: PaginationItem): page is number =>
+  typeof page === "number";
+
 const paginationText = computed(() => {
+  if (props.serverItemsLength === 0) return "0 de 0";
+
   const start =
     (serverOptions.value.page - 1) * serverOptions.value.rowsPerPage + 1;
   const end = Math.min(
@@ -316,4 +362,35 @@ watch(
 );
 </script>
 
-<style scoped></style>
+<style scoped>
+.admin-table-pagination {
+  margin-top: 0;
+  min-width: 0;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.admin-table-pagination .admin-pagination-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.admin-table-pagination .admin-pagination-pages .page-item + .page-item {
+  margin-left: 0;
+}
+
+.admin-pagination-ellipsis {
+  min-width: 40px;
+  pointer-events: none;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .admin-table-pagination .admin-pagination-pages {
+    justify-content: flex-end;
+  }
+}
+</style>

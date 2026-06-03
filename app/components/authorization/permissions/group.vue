@@ -65,12 +65,14 @@ const allFilteredSelected = computed(() => {
   );
 });
 
-// Alternar selección individual
-const toggle = (id) => {
+// Actualizar selección individual desde el checkbox reutilizable.
+const updatePermissionSelection = (id, isSelected) => {
   const selected = [...props.selectedPermissions];
   const index = selected.indexOf(id);
-  if (index > -1) selected.splice(index, 1);
-  else selected.push(id);
+
+  if (isSelected && index === -1) selected.push(id);
+  if (!isSelected && index > -1) selected.splice(index, 1);
+
   emit("update:selectedPermissions", selected);
 };
 
@@ -209,7 +211,7 @@ const getSelectedCount = (module) => {
     <!-- Acordeón con módulos en 2 columnas -->
     <div v-if="Object.keys(filteredModules).length > 0" class="row g-3">
       <div
-        v-for="(perms, module, index) in filteredModules"
+        v-for="(perms, module) in filteredModules"
         :key="module"
         class="col-12 col-lg-6"
       >
@@ -271,24 +273,19 @@ const getSelectedCount = (module) => {
             >
               <div class="accordion-body p-2">
                 <div class="permissions-list-compact">
-                  <div class="form-group mb-0">
-                    <div class="additional-checkbox">
-                      <label
-                        v-for="perm in perms"
-                        :key="perm.id"
-                        :for="`perm-${perm.id}`"
-                        class="permission-label"
-                      >
-                        <input
-                          :id="`perm-${perm.id}`"
-                          :checked="selectedPermissions.includes(perm.id)"
-                          class="checkbox_animated color-4"
-                          type="checkbox"
-                          @change="toggle(perm.id)"
-                        />
-                        <span class="permission-name">{{ perm.name }}</span>
-                      </label>
-                    </div>
+                  <div class="permissions-checkbox-list">
+                    <CommonInputfieldsCheckbox
+                      v-for="perm in perms"
+                      :id="`perm-${perm.id}`"
+                      :key="perm.id"
+                      classes="permission-checkbox"
+                      :label="perm.name"
+                      :model-value="selectedPermissions.includes(perm.id)"
+                      :name="`permission-${perm.id}`"
+                      @update:model-value="
+                        updatePermissionSelection(perm.id, $event)
+                      "
+                    />
                   </div>
                 </div>
               </div>
@@ -350,24 +347,27 @@ const getSelectedCount = (module) => {
   overflow-y: auto;
 }
 
-.permission-label {
-  display: flex;
-  align-items: center;
-  padding: 0.35rem 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  border-radius: 4px;
+.permissions-checkbox-list {
+  margin: 0;
+}
+
+.permission-checkbox {
   margin-bottom: 0.15rem;
+  width: 100%;
 }
 
-.permission-label:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+.permission-checkbox:last-child {
+  margin-bottom: 0;
 }
 
-.permission-name {
-  font-size: 0.875rem;
-  margin-left: 0.5rem;
+.permission-checkbox :deep(.common-checkbox-label) {
+  display: flex;
+  width: 100%;
+}
+
+.permission-checkbox :deep(.common-checkbox-text) {
   color: rgba(28, 45, 58, 0.78);
+  font-size: 0.875rem;
 }
 
 .module-name {
@@ -436,15 +436,13 @@ const getSelectedCount = (module) => {
   color: rgba(255, 255, 255, 0.9);
 }
 
-:global(body.dark-layout .accordion-compact .permission-label) {
+:global(body.dark-layout .accordion-compact .permission-checkbox) {
   color: rgba(255, 255, 255, 0.78);
 }
 
-:global(body.dark-layout .accordion-compact .permission-label:hover) {
-  background-color: rgba(255, 255, 255, 0.06);
-}
-
-:global(body.dark-layout .accordion-compact .permission-name) {
+:global(
+  body.dark-layout .accordion-compact .permission-checkbox .common-checkbox-text
+) {
   color: rgba(255, 255, 255, 0.78);
 }
 
@@ -519,7 +517,7 @@ const getSelectedCount = (module) => {
     font-size: 0.85rem;
   }
 
-  .permission-name {
+  .permission-checkbox :deep(.common-checkbox-text) {
     font-size: 0.8rem;
   }
 }

@@ -3,11 +3,14 @@ export interface ILookup {
   category: string;
   name: string;
   alias: string | null;
-  value: string | null;
+  value: string | number | null;
+  code: string | null;
+  icon: string | null;
   is_active: boolean;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
+  lang: string;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
 }
 
 export type ILookupsResponse = Record<string, ILookup[]>;

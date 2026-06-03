@@ -56,6 +56,12 @@ export class ApiUrls {
   // Desplegables
   static readonly LOOKUPS_POST = "/lookups";
   static readonly LOOKUPS_COUNTRY_COLOMBIA = "/lookups/co";
+  static readonly LOOKUPS_ADMIN_GET = "/lookups";
+  static readonly LOOKUPS_ADMIN_SHOW_GET = "/lookups";
+  static readonly LOOKUPS_ADMIN_CREATE_POST = "/lookups/manage";
+  static readonly LOOKUPS_ADMIN_UPDATE_PUT = "/lookups";
+  static readonly LOOKUPS_ADMIN_DELETE_DELETE = "/lookups";
+  static readonly LOOKUPS_ADMIN_CATEGORIES_GET = "/lookups/categories";
 
   // Properties URLs
   static readonly PROPERTIES_GET = "/properties";

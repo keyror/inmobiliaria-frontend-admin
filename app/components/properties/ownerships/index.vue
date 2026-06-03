@@ -149,7 +149,7 @@
           <CommonInputfieldsCheckbox
             v-model="field.value.is_principal_owner"
             :name="`ownerships.${index}.is_principal_owner`"
-            classes="col-md-12"
+            classes="col-md-12 mt-3"
             label="Propietario Principal"
             @change="setPrimaryOwner(index)"
             :error="getFieldError(0, 'is_principal_owner')"

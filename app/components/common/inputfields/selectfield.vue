@@ -33,6 +33,7 @@
           class="form-control mb-2 search-input"
           placeholder="Buscar..."
           @input="onSearch?.(search)"
+          @keydown.enter.prevent="selectCustomSearch"
           @click.stop
           autocomplete="off"
         />
@@ -54,6 +55,18 @@
             v-if="isSelected(item.id)"
             class="fas fa-check text-success ms-2 flex-shrink-0"
           ></i>
+        </a>
+
+        <a
+          v-if="canUseCustomValue"
+          href="javascript:void(0)"
+          class="dropdown-item custom-option d-flex flex-column align-items-start"
+          @click="selectCustomSearch"
+        >
+          <span class="text-truncate w-100">
+            Usar "{{ customSearchValue }}"
+          </span>
+          <small class="text-muted">Nueva opción</small>
         </a>
 
         <div v-if="multiple && selectedIds.length" class="mt-2 text-end">
@@ -95,12 +108,17 @@ import type { PropType } from "vue";
 
 import type { ILookup } from "~/interfaces/ILookup";
 
+type SelectModelValue = string | string[] | ILookup | ILookup[];
+
 const props = defineProps({
   classes: String,
   label: String,
   star: String,
   data: { type: Array as PropType<ILookup[]>, default: () => [] },
-  modelValue: { type: [String, Array] as PropType<any>, default: () => [] },
+  modelValue: {
+    type: [String, Array, Object] as PropType<SelectModelValue>,
+    default: "",
+  },
   multiple: { type: Boolean, default: false },
   show: { type: String, default: "Selecciona una opción..." },
   labelField: {
@@ -110,6 +128,7 @@ const props = defineProps({
   concat: { type: Boolean, default: false },
   concatField: { type: String, default: "alias" },
   searchable: { type: Boolean, default: false },
+  allowCustom: { type: Boolean, default: false },
   onSearch: {
     type: Function as PropType<(term: string) => void>,
     default: null,
@@ -127,8 +146,8 @@ const normalizedValue = computed({
   get() {
     const mv = props.modelValue;
     if (Array.isArray(mv)) {
-      return mv.length && typeof mv[0] === "object" && "id" in mv
-        ? mv.map((o: any) => o.id)
+      return mv.length && typeof mv[0] === "object" && "id" in mv[0]
+        ? (mv as ILookup[]).map((item) => item.id)
         : mv;
     }
     return mv && typeof mv === "object" && "id" in mv ? mv.id : mv;
@@ -152,7 +171,13 @@ const displayLabel = computed(() => {
   }
 
   const found = props.data.find((item) => item.id === normalizedValue.value);
-  return found ? getLabel(found) : props.show;
+  if (found) return getLabel(found);
+
+  if (props.allowCustom && typeof normalizedValue.value === "string") {
+    return normalizedValue.value || props.show;
+  }
+
+  return props.show;
 });
 
 const filteredData = computed(() => {
@@ -163,6 +188,27 @@ const filteredData = computed(() => {
   );
 });
 
+const customSearchValue = computed(() => search.value.trim());
+
+const customValueAlreadyExists = computed(() => {
+  const term = customSearchValue.value.toLowerCase();
+  if (!term) return false;
+
+  return props.data.some((item) => {
+    const itemId = String(item.id).toLowerCase();
+    const itemLabel = getLabel(item).toLowerCase();
+    return itemId === term || itemLabel === term;
+  });
+});
+
+const canUseCustomValue = computed(
+  () =>
+    props.allowCustom &&
+    !props.multiple &&
+    !!customSearchValue.value &&
+    !customValueAlreadyExists.value,
+);
+
 function getLabel(item: ILookup | undefined) {
   if (!item) return "";
   const base = item[props.labelField] ?? "";
@@ -171,7 +217,10 @@ function getLabel(item: ILookup | undefined) {
     : base;
 }
 
-const isSelected = (id: string) => selectedIds.value.includes(id);
+const isSelected = (id: string) =>
+  props.multiple
+    ? selectedIds.value.includes(id)
+    : normalizedValue.value === id;
 
 function select(item: ILookup) {
   if (props.multiple) {
@@ -182,6 +231,13 @@ function select(item: ILookup) {
   } else {
     normalizedValue.value = item.id;
   }
+}
+
+function selectCustomSearch() {
+  if (!canUseCustomValue.value) return;
+
+  normalizedValue.value = customSearchValue.value;
+  search.value = "";
 }
 
 function clearAll() {
@@ -210,5 +266,15 @@ function clearAll() {
   border-color: #ced4da !important;
   padding-right: 0.75rem !important;
   box-shadow: none !important;
+}
+
+.custom-option {
+  border-top: 1px solid rgba(88, 97, 103, 0.14);
+  margin-top: 0.25rem;
+  padding-top: 0.55rem;
+}
+
+:global(body.dark-layout) .custom-option {
+  border-top-color: rgba(255, 255, 255, 0.12);
 }
 </style>

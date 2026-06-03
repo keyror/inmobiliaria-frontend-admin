@@ -99,6 +99,25 @@
             "active":false
         },
         {
+            "icon":"lucide:list-tree",
+            "title":"Lookups",
+            "titlePage": "Gestión de lookups",
+            "collapse":true,
+            "active":false,
+            "children":[
+                {
+                    "link":"/lookups/all",
+                    "title":"Listado",
+                    "icon":"lucide:chevron-right"
+                },
+                {
+                    "link":"/lookups/add",
+                    "title":"Agregar",
+                    "icon":"lucide:chevron-right"
+                }
+            ]
+        },
+        {
             "icon":"lucide:lock",
             "title":"Autorizaciones",
             "titlePage": "Autorizaciones",
