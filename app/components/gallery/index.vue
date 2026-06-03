@@ -1,5 +1,5 @@
 <template>
-  <div class="container mt-3">
+  <div class="container">
     <draggable
       v-model="images"
       :item-key="(el) => el.id ?? el.tempId"
