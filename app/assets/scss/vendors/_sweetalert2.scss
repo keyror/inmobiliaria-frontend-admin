@@ -90,6 +90,13 @@ body {
   }
 }
 
+body.swal2-no-backdrop {
+  .swal2-container.swal2-safe-backdrop {
+    background-color: $swal2-backdrop !important;
+    pointer-events: auto !important;
+  }
+}
+
 .swal2-container {
   // centering
   display: flex;

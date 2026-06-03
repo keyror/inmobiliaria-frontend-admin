@@ -3,12 +3,13 @@ import Swal from "sweetalert2";
 
 import { DEFAULT_COMPANY_THEME_COLORS } from "~/constants/CompanyTheme";
 
-import type { SweetAlertResult } from "sweetalert2";
+import type { SweetAlertOptions, SweetAlertResult } from "sweetalert2";
 
 const CANCEL_BUTTON_COLOR = "#d2d2d2";
 const CONFIRM_BUTTON_THEME_VAR = "--theme-default6";
+const SAFE_BACKDROP_CLASS = "swal2-safe-backdrop";
 const ALERT_CUSTOM_CLASS = {
-  container: "swal2-custom-z-index",
+  container: `swal2-custom-z-index ${SAFE_BACKDROP_CLASS}`,
   confirmButton: "swal2-theme-confirm-button",
   cancelButton: "swal2-theme-cancel-button",
 };
@@ -25,6 +26,15 @@ const getThemeColor = (cssVariable: string, fallback: string): string => {
 
 const getConfirmButtonColor = (): string =>
   getThemeColor(CONFIRM_BUTTON_THEME_VAR, DEFAULT_COMPANY_THEME_COLORS.primary);
+
+const getBaseAlertOptions = (): SweetAlertOptions => ({
+  confirmButtonText: "OK",
+  confirmButtonColor: getConfirmButtonColor(),
+  allowOutsideClick: false,
+  allowEscapeKey: false,
+  backdrop: false,
+  customClass: ALERT_CUSTOM_CLASS,
+});
 
 interface AlertValidationError {
   response?: {
@@ -46,14 +56,10 @@ class AlertService {
     text?: string,
   ): Promise<SweetAlertResult> {
     return Swal.fire({
+      ...getBaseAlertOptions(),
       icon: "success",
       title,
       text,
-      confirmButtonText: "OK",
-      confirmButtonColor: getConfirmButtonColor(),
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      customClass: ALERT_CUSTOM_CLASS,
     });
   }
 
@@ -62,14 +68,10 @@ class AlertService {
     errors: unknown,
   ): Promise<SweetAlertResult> {
     return await Swal.fire({
+      ...getBaseAlertOptions(),
       icon: "error",
       title: title,
-      confirmButtonText: "OK",
-      confirmButtonColor: getConfirmButtonColor(),
       html: this.leerErroresDeValidacion(errors),
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      customClass: ALERT_CUSTOM_CLASS,
     });
   }
 
@@ -78,14 +80,10 @@ class AlertService {
     text?: string,
   ): Promise<SweetAlertResult> {
     return await Swal.fire({
+      ...getBaseAlertOptions(),
       icon: "warning",
       title,
       text,
-      confirmButtonText: "OK",
-      confirmButtonColor: getConfirmButtonColor(),
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      customClass: ALERT_CUSTOM_CLASS,
     });
   }
 
@@ -94,17 +92,14 @@ class AlertService {
     text?: string,
   ): Promise<SweetAlertResult> {
     return await Swal.fire({
+      ...getBaseAlertOptions(),
       icon: "question",
       title,
       text,
       showCancelButton: true,
       confirmButtonText: "Si",
-      confirmButtonColor: getConfirmButtonColor(),
       cancelButtonText: "No",
       cancelButtonColor: CANCEL_BUTTON_COLOR,
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      customClass: ALERT_CUSTOM_CLASS,
     });
 
     //alertaService.showConfirmation('', '').then( (result) => {
@@ -129,14 +124,10 @@ class AlertService {
 
   public async showFormError(): Promise<SweetAlertResult> {
     return Swal.fire({
+      ...getBaseAlertOptions(),
       icon: "error",
       title: "Errores en el formulario",
       text: "Revisa los campos antes de continuar.",
-      confirmButtonText: "OK",
-      confirmButtonColor: getConfirmButtonColor(),
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      customClass: ALERT_CUSTOM_CLASS,
     });
   }
 }
