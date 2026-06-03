@@ -109,7 +109,7 @@
 
 <script setup lang="ts">
 import { useCompanyForm } from "~/composables/forms/useCompanyForm";
-import { DEFAULT_COMPANY_THEME_COLORS } from "~/constants/CompanyTheme";
+import { normalizeCompanyThemeColors } from "~/constants/CompanyTheme";
 import { usecustomizerStore } from "~/store/costomizer";
 
 import type { Gallery } from "#components";
@@ -162,29 +162,13 @@ type CompanyRelationFallbackKey =
 type CompanyWithRelationFallbacks = ICompany &
   Partial<Record<CompanyRelationFallbackKey, ICompanyPersonRelation | null>>;
 
-const isHexThemeColor = (color?: string | null): color is string => {
-  return /^#[0-9A-Fa-f]{6}$/.test(color ?? "");
-};
-
-const normalizeThemeColors = (
-  primary?: string | null,
-  secondary?: string | null,
-) => ({
-  primary: isHexThemeColor(primary)
-    ? primary
-    : DEFAULT_COMPANY_THEME_COLORS.primary,
-  secondary: isHexThemeColor(secondary)
-    ? secondary
-    : DEFAULT_COMPANY_THEME_COLORS.secondary,
-});
-
 const applyThemePreview = (
   primary?: string | null,
   secondary?: string | null,
 ) => {
   if (!import.meta.client) return;
 
-  customizerStore.setcolor(normalizeThemeColors(primary, secondary));
+  customizerStore.setcolor(normalizeCompanyThemeColors(primary, secondary));
 };
 
 const getCompanyRelationPerson = (
@@ -219,7 +203,7 @@ const getCompanyPersonId = (
 };
 
 const getCompanyThemeColors = (company?: ICompany | null) =>
-  normalizeThemeColors(
+  normalizeCompanyThemeColors(
     company?.theme?.colors?.primary,
     company?.theme?.colors?.secondary,
   );
@@ -299,7 +283,7 @@ defineExpose({
       legal_representative_id: values.legal_representative_id,
       person_attendant_id: values.person_attendant_id,
       theme: {
-        colors: normalizeThemeColors(
+        colors: normalizeCompanyThemeColors(
           values.theme?.colors?.primary,
           values.theme?.colors?.secondary,
         ),
