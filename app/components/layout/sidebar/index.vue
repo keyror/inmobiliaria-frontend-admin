@@ -1,18 +1,18 @@
 <template>
   <div id="sidebar" class="page-sidebar">
     <div class="logo-wrap">
-      <nuxt-link to="/">
+      <nuxt-link v-if="showCompanyLogo" to="/">
         <img
           :alt="logoAlt"
-          :src="lightLogoUrl"
+          :src="companyLogoUrl"
           class="img-fluid for-light"
-          @error="setFallbackImage($event, defaultLightLogoUrl)"
+          @error="hideCompanyLogo"
         />
         <img
           :alt="logoAlt"
-          :src="darkLogoUrl"
+          :src="companyLogoUrl"
           class="img-fluid for-dark"
-          @error="setFallbackImage($event, defaultDarkLogoUrl)"
+          @error="hideCompanyLogo"
         />
       </nuxt-link>
       <div class="back-btn d-lg-none d-inline-block" @click="removesidebar()">
@@ -102,15 +102,13 @@ const alldata = ref<MenuItem[]>([]);
 
 const data = ref(sidebar);
 const activeMenu = ref<string[]>([]);
-const defaultLightLogoUrl = "/image/logo/4.png";
-const defaultDarkLogoUrl = "/image/logo/9.png";
 const defaultAvatarUrl = "/image/avatar/3.jpg";
+const logoLoadError = ref(false);
 
 const companyLogoUrl = computed(() => publicCompanyStore.logoUrl);
-const lightLogoUrl = computed(
-  () => companyLogoUrl.value || defaultLightLogoUrl,
+const showCompanyLogo = computed(
+  () => Boolean(companyLogoUrl.value) && !logoLoadError.value,
 );
-const darkLogoUrl = computed(() => companyLogoUrl.value || defaultDarkLogoUrl);
 const logoAlt = computed(
   () => publicCompanyStore.displayName || "Logo de la empresa",
 );
@@ -167,8 +165,16 @@ onMounted(() => {
   void publicCompanyStore.fetchCompany();
 });
 
+watch(companyLogoUrl, () => {
+  logoLoadError.value = false;
+});
+
 function getText(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function hideCompanyLogo() {
+  logoLoadError.value = true;
 }
 
 function setFallbackImage(event: Event, fallbackUrl: string) {
