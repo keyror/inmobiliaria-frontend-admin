@@ -20,7 +20,7 @@
             >
               <!-- Botón Actualizar -->
               <button
-                class="btn btn-gradient btn-pill color-1"
+                class="btn btn-gradient btn-pill color-4"
                 type="button"
                 @click="reloadData"
                 title="Actualizar"
