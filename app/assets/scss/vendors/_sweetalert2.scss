@@ -394,6 +394,32 @@ body {
     }
   }
 
+  .swal2-theme-confirm-button {
+    min-width: 78px;
+    border-radius: 30px !important;
+    background-color: var(--theme-default6) !important;
+    background-image: var(--theme-gradient8) !important;
+    background-size: 200% auto !important;
+    color: var(--theme-gradient-text, #{$swal2-white}) !important;
+    transition: all 0.5s ease;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: var(--theme-default6) !important;
+      background-image: var(--theme-gradient8) !important;
+      background-position: right center !important;
+      color: var(--theme-gradient-text, #{$swal2-white}) !important;
+    }
+
+    &:focus {
+      box-shadow:
+        0 0 0 2px $swal2-white,
+        0 0 0 4px rgba(0, 0, 0, 0.08),
+        -5.15px 8.572px 18px rgba(0, 0, 0, 0.12);
+    }
+  }
+
   .swal2-footer {
     justify-content: center;
     margin: $swal2-footer-margin;

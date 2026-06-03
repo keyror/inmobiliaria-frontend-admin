@@ -65,6 +65,7 @@ export class ApiUrls {
   static readonly PROPERTIES_DELETE_DELETE = "/properties";
 
   // Companies URLs
+  static readonly PUBLIC_COMPANY_GET = "/public/company";
   static readonly COMPANIES_CURRENT_GET = "/companies/current";
   static readonly COMPANIES_CREATE_POST = "/companies";
   static readonly COMPANIES_UPDATE_PUT = "/companies";

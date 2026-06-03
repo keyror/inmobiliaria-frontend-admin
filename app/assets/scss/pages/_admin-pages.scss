@@ -899,6 +899,81 @@ footer {
     }
 }
 
+.admin-table-section {
+    .admin-table-card {
+        overflow: hidden;
+        border: 1px solid rgba($title-color, 0.12);
+        box-shadow: 0 14px 35px rgba($black, 0.05);
+    }
+
+    .admin-table-toolbar {
+        background: linear-gradient(135deg, rgba($white, 0.98), rgba($light-blue, 0.78));
+        border-bottom: 1px solid rgba($title-color, 0.12);
+    }
+
+    .admin-table-body {
+        background: $white;
+    }
+
+    .admin-easy-table {
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 12px 30px rgba($black, 0.04);
+        --easy-table-border: 1px solid #{rgba($title-color, 0.16)};
+        --easy-table-row-border: 1px solid #{rgba($title-color, 0.12)};
+        --easy-table-header-font-color: #{$title-color};
+        --easy-table-header-background-color: #{$light-blue};
+        --easy-table-body-row-font-color: #{$theme-font-color};
+        --easy-table-body-row-background-color: #{$white};
+        --easy-table-body-row-hover-font-color: #{$theme-font-color};
+        --easy-table-body-row-hover-background-color: #{rgba($title-color, 0.08)};
+        --easy-table-body-even-row-font-color: #{$theme-font-color};
+        --easy-table-body-even-row-background-color: #{rgba($title-color, 0.04)};
+        --easy-table-footer-background-color: #{$white};
+        --easy-table-footer-font-color: #{$theme-font-color};
+        --easy-table-message-font-color: #{$theme-font-color};
+        --easy-table-loading-mask-background-color: #{$white};
+        --easy-table-scrollbar-track-color: #{$light-blue};
+        --easy-table-scrollbar-color: #{$light-blue};
+        --easy-table-scrollbar-thumb-color: var(--theme-default7);
+        --easy-table-scrollbar-corner-color: #{$light-blue};
+        --easy-table-buttons-pagination-border: 1px solid #{rgba($title-color, 0.16)};
+    }
+
+    .admin-table-footer {
+        margin-top: 18px;
+        color: rgba($theme-font-color, 0.72);
+    }
+
+    .table-row-actions {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        .btn-group {
+            display: inline-flex;
+            gap: 6px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            min-width: 38px;
+            height: 38px;
+            padding: 0;
+            border-radius: 50% !important;
+            background: rgba($white, 0.92);
+            box-shadow: 0 8px 18px rgba($black, 0.06);
+        }
+
+        .btn i {
+            color: inherit;
+        }
+    }
+}
+
 // user profile css
 .user-info {
     .media {
@@ -1771,6 +1846,91 @@ body {
             }
         }
 
+        .admin-table-section {
+            .admin-table-card {
+                background: $dark-bg2;
+                border-color: $dark-border-color;
+                box-shadow: 0 14px 35px rgba($black, 0.3);
+            }
+
+            .admin-table-toolbar {
+                background: linear-gradient(135deg, rgba($dark-bg2, 0.98), rgba($dark-bg3, 0.9));
+                border-bottom-color: $dark-border-color;
+            }
+
+            .admin-table-body {
+                background: $dark-bg2;
+            }
+
+            .admin-easy-table {
+                box-shadow: 0 12px 30px rgba($black, 0.25);
+                --easy-table-border: 1px solid #{$dark-border-color};
+                --easy-table-row-border: 1px solid #{$dark-border-color};
+                --easy-table-header-font-color: #{rgba($white, 0.9)};
+                --easy-table-header-background-color: #{$dark-bg3};
+                --easy-table-body-row-font-color: #{rgba($white, 0.78)};
+                --easy-table-body-row-background-color: #{$dark-bg2};
+                --easy-table-body-row-hover-font-color: #{rgba($white, 0.95)};
+                --easy-table-body-row-hover-background-color: #{rgba($white, 0.06)};
+                --easy-table-body-even-row-font-color: #{rgba($white, 0.82)};
+                --easy-table-body-even-row-background-color: #{$dark-bg3};
+                --easy-table-footer-background-color: #{$dark-bg2};
+                --easy-table-footer-font-color: #{rgba($white, 0.72)};
+                --easy-table-message-font-color: #{rgba($white, 0.78)};
+                --easy-table-loading-mask-background-color: #{$dark-bg2};
+                --easy-table-scrollbar-track-color: #{$dark-bg};
+                --easy-table-scrollbar-color: #{$dark-bg};
+                --easy-table-scrollbar-thumb-color: var(--theme-default7);
+                --easy-table-scrollbar-corner-color: #{$dark-bg};
+                --easy-table-buttons-pagination-border: 1px solid #{$dark-border-color};
+            }
+
+            .admin-table-footer {
+                color: rgba($white, 0.7);
+            }
+
+            .theme-pagination {
+                .pagination {
+                    .page-item {
+                        .page-link {
+                            color: rgba($white, 0.76);
+                            background-color: $dark-bg2;
+                            border-color: $dark-border-color;
+                        }
+
+                        &.active {
+                            .page-link {
+                                color: var(--theme-gradient-text, #{$white});
+                                background-color: var(--theme-default7);
+                                border-color: var(--theme-default7);
+                            }
+                        }
+
+                        &.disabled {
+                            .page-link {
+                                color: rgba($white, 0.35);
+                                background-color: $dark-bg;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .table-row-actions {
+                .btn {
+                    color: rgba($white, 0.82);
+                    background: $dark-bg;
+                    border-color: $dark-border-color;
+                    box-shadow: 0 8px 18px rgba($black, 0.28);
+                }
+
+                .btn:hover,
+                .btn:focus {
+                    background: $dark-bg3;
+                }
+            }
+        }
+
         .timeline-pay {
             ul {
                 li {
@@ -1852,7 +2012,27 @@ body {
             color: rgba($white, 0.6) !important;
         }
 
-        .card,
+        .card {
+            color: rgba($white, 0.86);
+            background-color: $dark-bg2;
+            border-color: $dark-border-color !important;
+            box-shadow: 0 14px 35px rgba($black, 0.3);
+            --bs-border-color: #{$dark-border-color};
+        }
+
+        .card.border {
+            border-color: $dark-border-color !important;
+        }
+
+        .card-header,
+        .card-footer {
+            border-color: $dark-border-color;
+        }
+
+        .card-body {
+            color: rgba($white, 0.78);
+        }
+
         footer {
             background-color: $dark-bg2;
         }

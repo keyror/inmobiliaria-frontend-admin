@@ -2,14 +2,14 @@
     "sidebar": [
         {
             "link":"/",
-            "icon":"material-symbols:airplay-outline",
+            "icon":"lucide:monitor",
             "title":"Dashboard",
             "titlePage": "All tenants",
             "collapse":false,
             "active":false
         },
         {
-            "icon":"bi:grid",
+            "icon":"lucide:grid-2x2",
             "title":"Propiedades",
             "collapse":true,
             "active":false,
@@ -17,27 +17,27 @@
                 {
                     "link":"/myproperties/addproperty",
                     "title":"add property",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/myproperties/editproperty",
                     "title":"edit property",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/properties/add",
                     "title":"Agregar",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/properties/all",
                     "title":"Listado",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/myproperties/favourites",
                     "title":"Favourites",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 }
             ]
         },
@@ -51,12 +51,12 @@
                 {
                     "link":"/central/tenants/all",
                     "title":"Listado tenants",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/central/tenants/add",
                     "title":"Agregar tenant",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 }
             ]
         },
@@ -70,23 +70,23 @@
                 {
                     "link":"/users/profile",
                     "title":"Profile",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/people/add",
                     "title":"Agregar",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/users/adduserwizard",
                     "title":"Add user wizard",
-                    "icon":"material-symbols:keyboard-double-arrow-right",
+                    "icon":"lucide:chevron-right",
                     "label":"new"
                 },
                 {
                     "link":"/people/all",
                     "title":"Listado",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 }
             ]
         },
@@ -108,28 +108,28 @@
                 {
                     "link":"/authorization/all-roles",
                     "title":"Roles/Permisos",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "title": "Usuarios",
-                    "icon": "material-symbols:keyboard-double-arrow-right",
+                    "icon": "lucide:chevron-right",
                     "children": [
                         {
                             "title": "Agregar",
                             "link": "/users/add",
-                            "icon": "material-symbols:keyboard-double-arrow-right"
+                            "icon": "lucide:chevron-right"
                         },
                         {
                             "title": "Listado",
                             "link": "/users/all",
-                            "icon": "material-symbols:keyboard-double-arrow-right"
+                            "icon": "lucide:chevron-right"
                         }
                     ]
                 }
             ]
         },
         {
-            "icon":"ic:baseline-person-add-alt",
+            "icon":"lucide:user-plus",
             "title":"Agents",
             "titlePage": "All tenants",
             "collapse":true,
@@ -138,46 +138,46 @@
                 {
                     "link":"/agent/agentprofile",
                     "title":"Profile",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/agent/addagent",
                     "title":"Add agent",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/agent/addagentwizard",
                     "title":"Add agent wizard",
-                    "icon":"material-symbols:keyboard-double-arrow-right",
+                    "icon":"lucide:chevron-right",
                     "label":"new"
                 },
                 {
                     "link":"/agent/editagent",
                     "title":"Edit agent",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/agent/allagent",
                     "title":"All agents",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/agent/invoice",
                     "title":"Invoice",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 }
             ]
         },
         {
             "link":"/map",
-            "icon":"material-symbols:location-on-outline-rounded",
+            "icon":"lucide:map-pin",
             "title":"Map",
             "titlePage": "All tenants",
             "collapse":false,
             "active":false
         },
         {
-            "icon":"ri:layout-5-line",
+            "icon":"lucide:layout-template",
             "title":"Types",
             "titlePage": "All tenants",
             "collapse":true,
@@ -186,28 +186,28 @@
                 {
                     "link":"/type/family",
                     "title":"Family House",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/type/cottage",
                     "title":"Cottage",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/type/appartment",
                     "title":"Appartment",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/type/condominium",
                     "title":"Condominium",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 }
             ]
         },
         {
             "link":"/report",
-            "icon":"ri:bar-chart-line",
+            "icon":"lucide:bar-chart-3",
             "title":"Reports",
             "titlePage": "All tenants",
             "collapse":false,
@@ -215,14 +215,14 @@
         },
         {
             "link":"/payment",
-            "icon":"ph:credit-card",
+            "icon":"lucide:credit-card",
             "title":"Payments",
             "titlePage": "All tenants",
             "collapse":false,
             "active":false
         },
         {
-            "icon":"gg:lock-unlock",
+            "icon":"lucide:lock-keyhole-open",
             "title":"Authentication",
             "titlePage": "All tenants",
             "collapse":true,
@@ -231,17 +231,17 @@
                 {
                     "link":"/authentication/login",
                     "title":"Log in",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/authentication/signup",
                     "title":"sign up",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 },
                 {
                     "link":"/authentication/404",
                     "title":"404",
-                    "icon":"material-symbols:keyboard-double-arrow-right"
+                    "icon":"lucide:chevron-right"
                 }
             ]
         }

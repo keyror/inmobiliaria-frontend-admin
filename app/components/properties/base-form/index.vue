@@ -6,53 +6,60 @@
     />
 
     <div class="container-fluid">
-      <nav>
+      <nav class="admin-theme-tabs">
         <div id="nav-tab" class="nav nav-tabs" role="tablist">
           <button
             :class="{ active: activeTab === 'property' }"
-            class="nav-link text-dark"
+            class="nav-link"
+            type="button"
             @click="switchTab('property')"
           >
             Propiedad
           </button>
           <button
             :class="{ active: activeTab === 'ownerships' }"
-            class="nav-link text-dark"
+            class="nav-link"
+            type="button"
             @click="switchTab('ownerships')"
           >
             Propietarios
           </button>
           <button
             :class="{ active: activeTab === 'addresses' }"
-            class="nav-link text-dark"
+            class="nav-link"
+            type="button"
             @click="switchTab('addresses')"
           >
             Dirección
           </button>
           <button
             :class="{ active: activeTab === 'contacts' }"
-            class="nav-link text-dark"
+            class="nav-link"
+            type="button"
             @click="switchTab('contacts')"
           >
             Contacto
           </button>
           <button
             :class="{ active: activeTab === 'areas' }"
-            class="nav-link text-dark"
+            class="nav-link"
+            type="button"
             @click="switchTab('areas')"
           >
             Áreas
           </button>
           <button
             :class="{ active: activeTab === 'publishChannels' }"
-            class="nav-link text-dark"
+            class="nav-link"
+            type="button"
             @click="switchTab('publishChannels')"
           >
             Redes Sociales
           </button>
           <button
             :class="{ active: activeTab === 'obligations' }"
-            class="nav-link text-dark"
+            class="nav-link"
+            type="button"
             @click="switchTab('obligations')"
           >
             Obligaciones

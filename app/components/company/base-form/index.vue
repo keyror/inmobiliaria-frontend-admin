@@ -3,25 +3,28 @@
     <CommonBreadcrumb page="Empresa" title="Configuración de empresa" />
 
     <div class="container-fluid">
-      <nav>
+      <nav class="admin-theme-tabs">
         <div id="nav-tab" class="nav nav-tabs" role="tablist">
           <button
             :class="{ active: activeTab === 'company' }"
-            class="nav-link text-dark"
+            class="nav-link"
+            type="button"
             @click="switchTab('company')"
           >
             Empresa
           </button>
           <button
             :class="{ active: activeTab === 'addresses' }"
-            class="nav-link text-dark"
+            class="nav-link"
+            type="button"
             @click="switchTab('addresses')"
           >
             Dirección
           </button>
           <button
             :class="{ active: activeTab === 'contacts' }"
-            class="nav-link text-dark"
+            class="nav-link"
+            type="button"
             @click="switchTab('contacts')"
           >
             Contacto

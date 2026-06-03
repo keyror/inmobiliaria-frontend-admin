@@ -1,7 +1,7 @@
 <template>
-  <div class="container-fluid">
-    <div class="card">
-      <div class="card-header admin-form pb-0">
+  <div class="container-fluid admin-table-section">
+    <div class="card admin-table-card">
+      <div class="card-header admin-form pb-0 admin-table-toolbar">
         <div class="row g-2 align-items-center">
           <!-- Búsqueda -->
           <div class="col-12 col-md-8 col-lg-6">
@@ -54,7 +54,7 @@
           </div>
         </div>
       </div>
-      <div class="card-body admin-form">
+      <div class="card-body admin-form admin-table-body">
         <div class="row">
           <div class="col">
             <EasyDataTable
@@ -65,8 +65,8 @@
               :server-items-length="serverItemsLength"
               hide-footer
               must-sort
-              table-class-name="shadow-sm p-3 bg-body rounded"
-              theme-color="#f24451"
+              table-class-name="admin-easy-table"
+              theme-color="var(--theme-default7)"
             >
               <template
                 v-for="name in Object.keys($slots)"
@@ -77,12 +77,14 @@
               </template>
 
               <template #item-actions="item">
-                <slot :item="item" name="item-actions" />
+                <div class="table-row-actions">
+                  <slot :item="item" name="item-actions" />
+                </div>
               </template>
             </EasyDataTable>
 
             <div
-              class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3"
+              class="admin-table-footer d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3"
             >
               <!-- Opciones de listado -->
               <div class="listing-option w-100 w-md-auto">
@@ -226,7 +228,7 @@ const updatePerPage = (value: string) => {
   }
 };
 
-const perPageOptions = ref<any[]>([10, 15, 25, 50, 100]);
+const perPageOptions = ref<string[]>(["10", "15", "25", "50", "100"]);
 
 const totalPages = computed(() =>
   Math.max(

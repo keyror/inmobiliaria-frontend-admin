@@ -6,11 +6,11 @@
     />
 
     <div class="container-fluid">
-      <nav>
+      <nav class="admin-theme-tabs">
         <div id="nav-tab" class="nav nav-tabs" role="tablist">
           <button
             :class="{ active: activeTab === 'roles' }"
-            class="nav-link text-dark"
+            class="nav-link"
             type="button"
             @click="switchTab('roles')"
           >
@@ -18,7 +18,7 @@
           </button>
           <button
             :class="{ active: activeTab === 'permissions' }"
-            class="nav-link text-dark"
+            class="nav-link"
             type="button"
             @click="switchTab('permissions')"
           >

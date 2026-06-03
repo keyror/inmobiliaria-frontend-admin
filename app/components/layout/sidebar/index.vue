@@ -1,9 +1,19 @@
 <template>
   <div id="sidebar" class="page-sidebar">
     <div class="logo-wrap">
-      <nuxt-link href="/">
-        <img alt="" class="img-fluid for-light" src="/image/logo/4.png" />
-        <img alt="" class="img-fluid for-dark" src="/image/logo/9.png" />
+      <nuxt-link to="/">
+        <img
+          :alt="logoAlt"
+          :src="lightLogoUrl"
+          class="img-fluid for-light"
+          @error="setFallbackImage($event, defaultLightLogoUrl)"
+        />
+        <img
+          :alt="logoAlt"
+          :src="darkLogoUrl"
+          class="img-fluid for-dark"
+          @error="setFallbackImage($event, defaultDarkLogoUrl)"
+        />
       </nuxt-link>
       <div class="back-btn d-lg-none d-inline-block" @click="removesidebar()">
         <Icon class="fs-3" name="mdi:chevron-double-left" />
@@ -13,11 +23,18 @@
       <div class="user-profile">
         <div class="media">
           <div class="change-pic">
-            <img alt="" class="img-fluid" src="/image/avatar/3.jpg" />
+            <img
+              :alt="userName"
+              :src="userAvatarUrl"
+              class="img-fluid"
+              @error="setFallbackImage($event, defaultAvatarUrl)"
+            />
           </div>
           <div class="media-body">
-            <nuxt-link to="/users/profile"><h6>Zack Lee</h6></nuxt-link>
-            <span class="font-roboto">zackle@gmail.com</span>
+            <nuxt-link to="/users/profile">
+              <h6 :title="userName">{{ userName }}</h6>
+            </nuxt-link>
+            <span :title="userEmail" class="font-roboto">{{ userEmail }}</span>
           </div>
         </div>
       </div>
@@ -60,7 +77,11 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from "pinia";
+
 import sidebar from "@/../public/data/sidebar.json";
+import { useAuthStore } from "@/store/authStore";
+import { usePublicCompanyStore } from "@/store/publicCompany";
 
 interface MenuItem {
   link?: string;
@@ -74,10 +95,88 @@ interface MenuItem {
 }
 
 const route = useRoute();
+const authStore = useAuthStore();
+const publicCompanyStore = usePublicCompanyStore();
+const { user } = storeToRefs(authStore);
 const alldata = ref<MenuItem[]>([]);
 
 const data = ref(sidebar);
 const activeMenu = ref<string[]>([]);
+const defaultLightLogoUrl = "/image/logo/4.png";
+const defaultDarkLogoUrl = "/image/logo/9.png";
+const defaultAvatarUrl = "/image/avatar/3.jpg";
+
+const companyLogoUrl = computed(() => publicCompanyStore.logoUrl);
+const lightLogoUrl = computed(
+  () => companyLogoUrl.value || defaultLightLogoUrl,
+);
+const darkLogoUrl = computed(() => companyLogoUrl.value || defaultDarkLogoUrl);
+const logoAlt = computed(
+  () => publicCompanyStore.displayName || "Logo de la empresa",
+);
+
+const userEmail = computed(() => {
+  const currentUser = user.value ?? {};
+  const profile = currentUser.person ?? currentUser.profile ?? {};
+
+  return getText(currentUser.email) || getText(profile.email) || "Sin correo";
+});
+
+const userName = computed(() => {
+  const currentUser = user.value ?? {};
+  const profile = currentUser.person ?? currentUser.profile ?? {};
+  const fullName =
+    getText(currentUser.name) ||
+    getText(currentUser.full_name) ||
+    getText(profile.name) ||
+    getText(profile.full_name) ||
+    [currentUser.first_name, currentUser.last_name]
+      .map(getText)
+      .join(" ")
+      .trim() ||
+    [profile.first_name, profile.last_name].map(getText).join(" ").trim() ||
+    getText(currentUser.username);
+
+  return fullName || userEmail.value || "Usuario";
+});
+
+const userAvatarUrl = computed(() => {
+  const currentUser = user.value ?? {};
+  const profile = currentUser.person ?? currentUser.profile ?? {};
+
+  return (
+    getText(currentUser.avatar?.url) ||
+    getText(currentUser.avatar) ||
+    getText(currentUser.photo?.url) ||
+    getText(currentUser.photo) ||
+    getText(currentUser.image?.url) ||
+    getText(currentUser.image) ||
+    getText(currentUser.profile_photo_url) ||
+    getText(currentUser.avatar_url) ||
+    getText(profile.avatar?.url) ||
+    getText(profile.avatar) ||
+    getText(profile.photo?.url) ||
+    getText(profile.photo) ||
+    getText(profile.image?.url) ||
+    getText(profile.image) ||
+    defaultAvatarUrl
+  );
+});
+
+onMounted(() => {
+  void publicCompanyStore.fetchCompany();
+});
+
+function getText(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function setFallbackImage(event: Event, fallbackUrl: string) {
+  const image = event.target as HTMLImageElement | null;
+  if (!image || image.src.endsWith(fallbackUrl)) return;
+
+  image.src = fallbackUrl;
+}
 
 function toggleMenu(path: string[]) {
   const pathString = path.join(".");

@@ -9,7 +9,9 @@
       class="sidebar-link"
       @click="handleClick"
     >
-      <Icon :class="level > 0 ? 'fs-6' : 'fs-3'" :name="item.icon" />
+      <span class="sidebar-menu-icon">
+        <Icon :name="item.icon" :size="iconSize" />
+      </span>
       <span>{{ item.title }}</span>
       <span v-if="item.label" class="label label-shadow ms-2">{{
         item.label
@@ -42,6 +44,8 @@
 </template>
 
 <script lang="ts" setup>
+import type { RouteLocationNormalizedLoaded } from "vue-router";
+
 interface MenuItem {
   link?: string;
   icon: string;
@@ -55,7 +59,7 @@ interface MenuItem {
 
 interface Props {
   item: MenuItem;
-  route: any;
+  route: RouteLocationNormalizedLoaded;
   activeMenu: string[];
   parentPath?: string[];
   level?: number;
@@ -95,6 +99,8 @@ const isActive = computed(() => {
   return false;
 });
 
+const iconSize = computed(() => (props.level > 0 ? 14 : 18));
+
 function hasActiveChild(children: MenuItem[]): boolean {
   for (const child of children) {
     if (child.link === props.route.path) {
@@ -126,8 +132,23 @@ function handleClick(event: Event) {
 }
 
 .sidebar-link {
-  display: flex;
+  display: flex !important;
   align-items: center;
-  gap: 10px;
+}
+
+.sidebar-menu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 18px;
+  margin-right: 10px;
+  color: currentColor;
+}
+
+.sidebar-link :deep(svg) {
+  margin-right: 0;
+  float: none;
+  stroke-width: 2;
 }
 </style>

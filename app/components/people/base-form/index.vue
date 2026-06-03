@@ -6,11 +6,11 @@
     />
 
     <div class="container-fluid">
-      <nav>
+      <nav class="admin-theme-tabs">
         <div id="nav-tab" class="nav nav-tabs" role="tablist">
           <button
             :class="{ active: activeTab === 'persons' }"
-            class="nav-link text-dark"
+            class="nav-link"
             type="button"
             @click="switchTab('persons')"
           >
@@ -18,7 +18,7 @@
           </button>
           <button
             :class="{ active: activeTab === 'fiscalProfiles' }"
-            class="nav-link text-dark"
+            class="nav-link"
             type="button"
             @click="switchTab('fiscalProfiles')"
           >
@@ -26,7 +26,7 @@
           </button>
           <button
             :class="{ active: activeTab === 'accountBank' }"
-            class="nav-link text-dark"
+            class="nav-link"
             type="button"
             @click="switchTab('accountBank')"
           >
@@ -34,7 +34,7 @@
           </button>
           <button
             :class="{ active: activeTab === 'addresses' }"
-            class="nav-link text-dark"
+            class="nav-link"
             type="button"
             @click="switchTab('addresses')"
           >
@@ -42,7 +42,7 @@
           </button>
           <button
             :class="{ active: activeTab === 'contacts' }"
-            class="nav-link text-dark"
+            class="nav-link"
             type="button"
             @click="switchTab('contacts')"
           >
