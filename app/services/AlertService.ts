@@ -1,7 +1,7 @@
 // src/services/AlertService.ts
 import Swal from "sweetalert2";
 
-import { DEFAULT_COMPANY_THEME_COLORS } from "~/constants/CompanyTheme";
+import { DEFAULT_REALSTATE_THEME } from "~/constants/RealstateTemplates";
 
 import type { SweetAlertOptions, SweetAlertResult } from "sweetalert2";
 
@@ -25,7 +25,7 @@ const getThemeColor = (cssVariable: string, fallback: string): string => {
 };
 
 const getConfirmButtonColor = (): string =>
-  getThemeColor(CONFIRM_BUTTON_THEME_VAR, DEFAULT_COMPANY_THEME_COLORS.primary);
+  getThemeColor(CONFIRM_BUTTON_THEME_VAR, DEFAULT_REALSTATE_THEME.primary);
 
 const getBaseAlertOptions = (): SweetAlertOptions => ({
   confirmButtonText: "OK",

@@ -53,7 +53,10 @@ function cleanPayload(payload: any): any {
   return cleaned;
 }
 
-type ApiOpts<T> = Parameters<typeof $fetch<T>>[1] & { silent?: boolean };
+type ApiOpts<T> = Parameters<typeof $fetch<T>>[1] & {
+  cleanPayload?: boolean;
+  silent?: boolean;
+};
 
 export function useApi<T>(
   request: Parameters<typeof $fetch<T>>[0],
@@ -62,9 +65,14 @@ export function useApi<T>(
   const config = useRuntimeConfig();
   const auth = useAuthStore();
   const silent = opts?.silent ?? false;
+  const shouldCleanPayload = opts?.cleanPayload ?? true;
 
-  // Extraer silent para que no llegue a $fetch
-  const { silent: _silent, ...restOpts } = opts ?? {};
+  // Extraer opciones internas para que no lleguen a $fetch
+  const {
+    cleanPayload: _cleanPayload,
+    silent: _silent,
+    ...restOpts
+  } = opts ?? {};
 
   const fetchOpts: Record<string, any> = {
     ...restOpts,
@@ -139,7 +147,9 @@ export function useApi<T>(
   if (restOpts?.body instanceof FormData) {
     fetchOpts.body = restOpts.body;
   } else if (restOpts?.body) {
-    fetchOpts.body = cleanPayload(restOpts.body);
+    fetchOpts.body = shouldCleanPayload
+      ? cleanPayload(restOpts.body)
+      : restOpts.body;
   }
 
   return $fetch<T>(request, fetchOpts);

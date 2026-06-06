@@ -76,6 +76,14 @@ export class ApiUrls {
   static readonly COMPANIES_CREATE_POST = "/companies";
   static readonly COMPANIES_UPDATE_PUT = "/companies";
 
+  // Realstate site management URLs
+  static readonly REALSTATE_SITE_TEMPLATE_GET =
+    "/admin/realstate/site-template";
+  static readonly REALSTATE_SITE_TEMPLATE_PUT =
+    "/admin/realstate/site-template";
+  static readonly REALSTATE_SITE_PAGES_GET = "/admin/realstate/site-pages";
+  static readonly REALSTATE_SITE_PAGES_PUT = "/admin/realstate/site-pages";
+
   static readonly IMAGES = "/images";
   static readonly IMAGE_COVER = "cover";
 }

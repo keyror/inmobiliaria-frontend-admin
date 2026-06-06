@@ -7,13 +7,14 @@
 
     <div
       class="dropdown w-100"
-      :class="{ 'is-invalid': error }"
+      :class="{ 'is-invalid': error, 'is-disabled': disabled }"
       ref="componentRef"
     >
       <span
         class="dropdown-toggle font-rubik d-flex justify-content-between align-items-center w-100"
-        :class="{ 'is-invalid': error }"
-        data-bs-toggle="dropdown"
+        :class="{ 'is-invalid': error, disabled }"
+        :aria-disabled="disabled"
+        :data-bs-toggle="disabled ? null : 'dropdown'"
         style="cursor: pointer"
       >
         <span class="text-truncate">{{ displayLabel }}</span>
@@ -32,6 +33,7 @@
           type="text"
           class="form-control mb-2 search-input"
           placeholder="Buscar..."
+          :disabled="disabled"
           @input="onSearch?.(search)"
           @keydown.enter.prevent="selectCustomSearch"
           @click.stop
@@ -73,6 +75,7 @@
           <button
             class="btn btn-pill btn-dashed color-4"
             type="button"
+            :disabled="disabled"
             @click.stop="clearAll"
           >
             Limpiar
@@ -120,6 +123,7 @@ const props = defineProps({
     default: "",
   },
   multiple: { type: Boolean, default: false },
+  disabled: { type: Boolean, default: false },
   show: { type: String, default: "Selecciona una opción..." },
   labelField: {
     type: String as PropType<"name" | "alias" | "code" | "value">,
@@ -223,6 +227,8 @@ const isSelected = (id: string) =>
     : normalizedValue.value === id;
 
 function select(item: ILookup) {
+  if (props.disabled) return;
+
   if (props.multiple) {
     const values = [...selectedIds.value];
     const index = values.indexOf(item.id);
@@ -234,13 +240,15 @@ function select(item: ILookup) {
 }
 
 function selectCustomSearch() {
-  if (!canUseCustomValue.value) return;
+  if (props.disabled || !canUseCustomValue.value) return;
 
   normalizedValue.value = customSearchValue.value;
   search.value = "";
 }
 
 function clearAll() {
+  if (props.disabled) return;
+
   normalizedValue.value = props.multiple ? [] : "";
 }
 </script>
@@ -248,6 +256,11 @@ function clearAll() {
 <style scoped>
 .dropdown.is-invalid {
   border: 1px solid #dc3545 !important;
+}
+
+.dropdown.is-disabled {
+  opacity: 0.65;
+  pointer-events: none;
 }
 
 .search-input {

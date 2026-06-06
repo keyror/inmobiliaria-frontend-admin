@@ -2,8 +2,9 @@ import { computed, ref } from "vue";
 
 import { defineStore } from "pinia";
 
-import { normalizeCompanyThemeColors } from "~/constants/CompanyTheme";
+import { normalizeRealstateTheme } from "~/constants/RealstateTemplates";
 import PublicCompanyService from "~/services/PublicCompanyService";
+import RealstateSiteManagementService from "~/services/RealstateSiteManagementService";
 import { usecustomizerStore } from "~/store/costomizer";
 
 import type { PublicCompany } from "~/interfaces/IPublicCompany";
@@ -23,22 +24,30 @@ export const usePublicCompanyStore = defineStore("public-company", () => {
       "",
   );
 
-  const getCompanyThemeColors = (companyData?: PublicCompany | null) =>
-    normalizeCompanyThemeColors(
-      companyData?.theme?.colors?.primary,
-      companyData?.theme?.colors?.secondary,
-    );
-
-  const applyCompanyTheme = (companyData?: PublicCompany | null) => {
+  const applySiteTheme = async () => {
     if (!import.meta.client) return;
 
     const customizerStore = usecustomizerStore();
-    customizerStore.setcolor(getCompanyThemeColors(companyData));
+
+    try {
+      const response = await RealstateSiteManagementService.getTemplate();
+      const theme = normalizeRealstateTheme(response.data?.theme);
+      customizerStore.setcolor({
+        primary: theme.primary,
+        secondary: theme.secondary,
+      });
+    } catch {
+      const theme = normalizeRealstateTheme();
+      customizerStore.setcolor({
+        primary: theme.primary,
+        secondary: theme.secondary,
+      });
+    }
   };
 
   const fetchCompany = async (force = false): Promise<PublicCompany | null> => {
     if (loading.value || (loaded.value && !force)) {
-      applyCompanyTheme(company.value);
+      await applySiteTheme();
       return company.value;
     }
 
@@ -49,13 +58,13 @@ export const usePublicCompanyStore = defineStore("public-company", () => {
       const response = await PublicCompanyService.getCompany();
       company.value = response.data ?? null;
       loaded.value = true;
-      applyCompanyTheme(company.value);
+      await applySiteTheme();
     } catch (err: unknown) {
       error.value =
         err instanceof Error
           ? err.message
           : "No fue posible cargar la empresa.";
-      applyCompanyTheme(null);
+      await applySiteTheme();
     } finally {
       loading.value = false;
     }
@@ -70,6 +79,7 @@ export const usePublicCompanyStore = defineStore("public-company", () => {
     error,
     logoUrl,
     displayName,
+    applySiteTheme,
     fetchCompany,
   };
 });
