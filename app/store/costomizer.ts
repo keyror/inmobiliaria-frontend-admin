@@ -1,56 +1,52 @@
-interface color {
+import {
+  applyCompanyThemeColors,
+  normalizeCompanyThemeColors,
+  readCompanyThemeCache,
+  writeCompanyThemeCache,
+} from "~/utils/companyTheme";
+
+import type { RealstateTheme } from "~/constants/RealstateTemplates";
+
+interface Color {
   primary: string;
   secondary: string;
+  accent?: string;
 }
 
-const getReadableTextColor = (backgroundColor: string): string => {
-  const hex = backgroundColor.replace("#", "");
-
-  if (!/^[0-9A-Fa-f]{6}$/.test(hex)) {
-    return "#ffffff";
-  }
-
-  const red = parseInt(hex.slice(0, 2), 16);
-  const green = parseInt(hex.slice(2, 4), 16);
-  const blue = parseInt(hex.slice(4, 6), 16);
-  const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
-
-  return luminance > 0.62 ? "#1c2d3a" : "#ffffff";
-};
+interface SetColorOptions {
+  persist?: boolean;
+}
 
 export const usecustomizerStore = defineStore("customizer", () => {
   const property = ref();
-  function setcolor(color: color) {
-    document.documentElement.style.setProperty(
-      "--theme-default3",
-      color.primary,
-    );
-    document.documentElement.style.setProperty(
-      "--theme-default4",
-      color.secondary,
-    );
-    document.documentElement.style.setProperty(
-      "--theme-default6",
-      color.primary,
-    );
-    document.documentElement.style.setProperty(
-      "--theme-default7",
-      color.secondary,
-    );
-    document.documentElement.style.setProperty(
-      "--theme-default8",
-      color.primary,
-    );
-    document.documentElement.style.setProperty(
-      "--theme-default9",
-      color.secondary,
-    );
-    document.documentElement.style.setProperty(
-      "--theme-gradient-text",
-      getReadableTextColor(color.secondary),
-    );
+
+  function setcolor(color: Color, options: SetColorOptions = {}) {
+    if (!import.meta.client) return;
+
+    const theme = normalizeCompanyThemeColors({
+      ...color,
+      accent: color.accent ?? color.primary,
+    });
+
+    applyCompanyThemeColors(theme);
+
+    if (options.persist) {
+      writeCompanyThemeCache(theme);
+    }
   }
+
+  function applyCachedColor(): RealstateTheme | null {
+    const cachedTheme = readCompanyThemeCache();
+
+    if (!cachedTheme) return null;
+
+    setcolor(cachedTheme.theme.colors);
+
+    return cachedTheme.theme.colors;
+  }
+
   return {
+    applyCachedColor,
     setcolor,
     property,
   };

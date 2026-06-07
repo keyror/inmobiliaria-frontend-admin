@@ -770,10 +770,16 @@ function normalizePages(
 function setAdminTheme(theme: RealstateTheme) {
   if (!import.meta.client) return;
 
-  customizerStore.setcolor({
-    primary: theme.primary,
-    secondary: theme.secondary,
-  });
+  customizerStore.setcolor(
+    {
+      primary: theme.primary,
+      secondary: theme.secondary,
+      accent: theme.accent,
+    },
+    {
+      persist: true,
+    },
+  );
 }
 
 function getThemePayload(theme: RealstateTheme): RealstateTheme {

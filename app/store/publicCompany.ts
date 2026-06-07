@@ -28,19 +28,29 @@ export const usePublicCompanyStore = defineStore("public-company", () => {
     if (!import.meta.client) return;
 
     const customizerStore = usecustomizerStore();
+    const cachedTheme = customizerStore.applyCachedColor();
 
     try {
       const response = await RealstateSiteManagementService.getTemplate();
       const theme = normalizeRealstateTheme(response.data?.theme);
-      customizerStore.setcolor({
-        primary: theme.primary,
-        secondary: theme.secondary,
-      });
+      customizerStore.setcolor(
+        {
+          primary: theme.primary,
+          secondary: theme.secondary,
+          accent: theme.accent,
+        },
+        {
+          persist: true,
+        },
+      );
     } catch {
+      if (cachedTheme) return;
+
       const theme = normalizeRealstateTheme();
       customizerStore.setcolor({
         primary: theme.primary,
         secondary: theme.secondary,
+        accent: theme.accent,
       });
     }
   };
