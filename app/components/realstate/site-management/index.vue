@@ -1,5 +1,5 @@
 <template>
-  <div class="page-body">
+  <div class="page-body site-management-page">
     <CommonBreadcrumb page="Sitio público" title="Configuración del sitio" />
 
     <div class="container-fluid">
@@ -73,7 +73,10 @@
             </div>
 
             <div class="col-12">
-              <div class="site-theme-preview" :style="themePreviewStyle">
+              <div
+                class="site-theme-preview card border"
+                :style="themePreviewStyle"
+              >
                 <span class="preview-dot preview-dot-primary"></span>
                 <span class="preview-dot preview-dot-secondary"></span>
                 <div>
@@ -119,7 +122,7 @@
               <button
                 v-for="page in REALSTATE_SITE_PAGE_OPTIONS"
                 :key="page.id"
-                class="site-page-nav-item"
+                class="site-page-nav-item card border"
                 :class="{ active: activePage === page.id }"
                 type="button"
                 @click="activePage = page.id"
@@ -158,7 +161,9 @@
                 />
               </div>
 
-              <div class="alert alert-light border d-flex flex-wrap gap-2">
+              <div
+                class="alert alert-light border d-flex flex-wrap gap-2 site-template-note"
+              >
                 <span>Template heredado:</span>
                 <strong>{{ globalTemplateLabel }}</strong>
                 <span class="text-muted">
@@ -176,7 +181,237 @@
               </div>
 
               <form class="row gx-3" @submit.prevent="saveActivePage">
-                <template v-if="activePage === 'propertyList'">
+                <template v-if="activePage === 'home'">
+                  <RealstateSiteManagementImagePicker
+                    v-model="homeContent.background_image_url"
+                    classes="col-12"
+                    label="Imagen de fondo del inicio"
+                    hint="Se usa como imagen principal de fondo en la página de inicio."
+                  />
+
+                  <div class="col-12">
+                    <div class="repeatable-section card border">
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-3"
+                      >
+                        <div>
+                          <h6>Slides del inicio</h6>
+                          <small class="text-muted">
+                            Estos textos alimentan el hero principal del sitio
+                            público.
+                          </small>
+                        </div>
+                        <button
+                          class="btn btn-pill btn-gradient color-4"
+                          type="button"
+                          @click="addHomeSlide"
+                        >
+                          Agregar slide
+                        </button>
+                      </div>
+
+                      <div
+                        v-if="!homeContent.hero_slides.length"
+                        class="text-muted"
+                      >
+                        No hay slides configurados.
+                      </div>
+
+                      <div
+                        v-for="(item, index) in homeContent.hero_slides"
+                        :key="`home-slide-${index}`"
+                        class="repeatable-item card border"
+                      >
+                        <div
+                          class="d-flex justify-content-between align-items-center mb-2"
+                        >
+                          <strong>Slide {{ index + 1 }}</strong>
+                          <button
+                            class="btn btn-dashed color-4"
+                            type="button"
+                            @click="removeHomeSlide(index)"
+                          >
+                            <i class="fa fa-trash"></i>
+                          </button>
+                        </div>
+
+                        <div class="row gx-3">
+                          <CommonInputfieldsTextfield
+                            v-model="item.title"
+                            classes="col-md-6"
+                            label="Título"
+                            :required="false"
+                          />
+
+                          <CommonInputfieldsTextfield
+                            v-model="item.description"
+                            classes="col-md-6"
+                            label="Descripción"
+                            :required="false"
+                          />
+
+                          <RealstateSiteManagementImagePicker
+                            v-model="item.img"
+                            classes="col-12"
+                            label="Imagen"
+                          />
+
+                          <CommonInputfieldsTextfield
+                            v-model="item.link"
+                            classes="col-md-6"
+                            label="Enlace"
+                            :required="false"
+                          />
+
+                          <CommonInputfieldsTextfield
+                            v-model="item.button_text"
+                            classes="col-md-6"
+                            label="Texto del botón"
+                            :required="false"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="repeatable-section card border">
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-3"
+                      >
+                        <div>
+                          <h6>Secciones destacadas</h6>
+                          <small class="text-muted">
+                            Grupos con enlaces e iconos SVG bajo el hero.
+                          </small>
+                        </div>
+                        <button
+                          class="btn btn-pill btn-gradient color-4"
+                          type="button"
+                          @click="addFeaturedSection"
+                        >
+                          Agregar grupo
+                        </button>
+                      </div>
+
+                      <div
+                        v-if="!homeContent.featured_sections.length"
+                        class="text-muted"
+                      >
+                        No hay secciones destacadas configuradas.
+                      </div>
+
+                      <div
+                        v-for="(
+                          section, index
+                        ) in homeContent.featured_sections"
+                        :key="`featured-${index}`"
+                        class="repeatable-item card border"
+                      >
+                        <div
+                          class="d-flex justify-content-between align-items-center mb-2"
+                        >
+                          <strong>Grupo {{ index + 1 }}</strong>
+                          <button
+                            class="btn btn-dashed color-4"
+                            type="button"
+                            @click="removeFeaturedSection(index)"
+                          >
+                            <i class="fa fa-trash"></i>
+                          </button>
+                        </div>
+
+                        <div class="row gx-3">
+                          <CommonInputfieldsTextfield
+                            v-model="section.heading"
+                            classes="col-md-8"
+                            label="Título del grupo"
+                            :required="false"
+                          />
+
+                          <CommonInputfieldsTextfield
+                            v-model="section.type"
+                            classes="col-md-4"
+                            label="Tipo"
+                            :required="false"
+                          />
+                        </div>
+
+                        <div
+                          class="d-flex justify-content-between align-items-center mt-3 mb-2"
+                        >
+                          <small class="text-muted"> Items del grupo </small>
+                          <button
+                            class="btn btn-pill btn-gradient color-4"
+                            type="button"
+                            @click="addFeaturedIcon(index)"
+                          >
+                            Agregar item
+                          </button>
+                        </div>
+
+                        <div
+                          v-if="!section.icons.length"
+                          class="text-muted small"
+                        >
+                          No hay items configurados en este grupo.
+                        </div>
+
+                        <div
+                          v-for="(item, itemIndex) in section.icons"
+                          :key="`featured-${index}-${itemIndex}`"
+                          class="featured-icon-item card border"
+                        >
+                          <div
+                            class="d-flex justify-content-between align-items-center mb-2"
+                          >
+                            <small class="text-muted">
+                              Item {{ itemIndex + 1 }}
+                            </small>
+                            <button
+                              class="btn btn-dashed color-4"
+                              type="button"
+                              @click="removeFeaturedIcon(index, itemIndex)"
+                            >
+                              <i class="fa fa-trash"></i>
+                            </button>
+                          </div>
+
+                          <div class="row gx-3">
+                            <CommonInputfieldsTextfield
+                              v-model="item.name"
+                              classes="col-md-4"
+                              label="Título"
+                              :required="false"
+                            />
+
+                            <CommonInputfieldsTextfield
+                              v-model="item.icon"
+                              classes="col-md-4"
+                              label="Ícono SVG"
+                              :required="false"
+                            />
+
+                            <CommonInputfieldsTextfield
+                              v-model="item.path"
+                              classes="col-md-4"
+                              label="Enlace"
+                              :required="false"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+
+                <template v-else-if="activePage === 'propertyList'">
+                  <RealstateSiteManagementImagePicker
+                    v-model="propertyListContent.banner_image_url"
+                    classes="col-12"
+                    label="Imagen del banner"
+                  />
+
                   <CommonInputfieldsTextfield
                     v-model="propertyListContent.title"
                     :error="getPageError('title')"
@@ -209,9 +444,77 @@
                     label="Título de contacto"
                     :required="false"
                   />
+
+                  <CommonInputfieldsTextarea
+                    v-model="propertyDetailContent.contact_description"
+                    :error="getPageError('contact_description')"
+                    classes="col-md-6"
+                    label="Descripción de contacto"
+                    :required="false"
+                  />
+
+                  <CommonInputfieldsTextfield
+                    v-model="propertyDetailContent.related_title"
+                    :error="getPageError('related_title')"
+                    classes="col-md-6"
+                    label="Título de relacionados"
+                    :required="false"
+                  />
+
+                  <div class="col-12">
+                    <div class="repeatable-section card border">
+                      <RealstateSiteManagementImagePicker
+                        v-model="propertyDetailContent.gallery_fallback"
+                        classes="col-12"
+                        hint="Se usan solo si la propiedad no tiene imágenes propias."
+                        item-classes="col-12 col-sm-6 col-lg-3"
+                        label="Imágenes fallback de la galería"
+                        :max-images="10"
+                      />
+                    </div>
+                  </div>
                 </template>
 
                 <template v-else-if="activePage === 'about'">
+                  <RealstateSiteManagementImagePicker
+                    v-model="aboutContent.banner_image_url"
+                    classes="col-12"
+                    label="Imagen del banner"
+                  />
+
+                  <div class="col-12">
+                    <div class="repeatable-section card border">
+                      <h6 class="mb-3">Introducción</h6>
+
+                      <div class="row gx-3">
+                        <CommonInputfieldsTextfield
+                          v-model="aboutContent.intro.title"
+                          :error="getPageError('intro.title')"
+                          classes="col-md-6"
+                          label="Título introductorio"
+                          :required="false"
+                        />
+
+                        <CommonInputfieldsTextarea
+                          v-model="aboutContent.intro.description"
+                          :error="getPageError('intro.description')"
+                          classes="col-md-6"
+                          label="Descripción introductoria"
+                          :required="false"
+                        />
+
+                        <RealstateSiteManagementImagePicker
+                          v-model="aboutIntroImageUrls"
+                          classes="col-12"
+                          hint="Estas son las dos imágenes sobrepuestas de la sección Nosotros."
+                          item-classes="col-12 col-md-6"
+                          label="Imágenes sobrepuestas"
+                          :max-images="2"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   <CommonInputfieldsTextarea
                     v-model="aboutContent.history"
                     :error="getPageError('history')"
@@ -237,13 +540,13 @@
                   />
 
                   <div class="col-12">
-                    <div class="repeatable-section">
+                    <div class="repeatable-section card border">
                       <div
                         class="d-flex justify-content-between align-items-center mb-3"
                       >
                         <h6>Por qué elegirnos</h6>
                         <button
-                          class="btn btn-pill btn-dashed color-4"
+                          class="btn btn-pill btn-gradient color-4"
                           type="button"
                           @click="addWhyChooseUs"
                         >
@@ -261,32 +564,39 @@
                       <div
                         v-for="(item, index) in aboutContent.why_choose_us"
                         :key="`why-${index}`"
-                        class="repeatable-item"
+                        class="repeatable-item card border"
                       >
                         <div
                           class="d-flex justify-content-between align-items-center mb-2"
                         >
                           <strong>Razón {{ index + 1 }}</strong>
                           <button
-                            class="btn btn-sm btn-outline-danger"
+                            class="btn btn-dashed color-4"
                             type="button"
                             @click="removeWhyChooseUs(index)"
                           >
-                            Eliminar
+                            <i class="fa fa-trash"></i>
                           </button>
                         </div>
 
                         <div class="row gx-3">
                           <CommonInputfieldsTextfield
+                            v-model="item.icon"
+                            classes="col-md-4"
+                            label="Ícono"
+                            :required="false"
+                          />
+
+                          <CommonInputfieldsTextfield
                             v-model="item.title"
-                            classes="col-md-5"
+                            classes="col-md-8"
                             label="Título"
                             :required="false"
                           />
 
                           <CommonInputfieldsTextarea
                             v-model="item.description"
-                            classes="col-md-7"
+                            classes="col-12"
                             label="Descripción"
                             :required="false"
                           />
@@ -297,14 +607,54 @@
                 </template>
 
                 <template v-else-if="activePage === 'services'">
+                  <RealstateSiteManagementImagePicker
+                    v-model="servicesContent.banner_image_url"
+                    classes="col-12"
+                    label="Imagen del banner"
+                  />
+
+                  <CommonInputfieldsTextfield
+                    v-model="servicesContent.hero.title"
+                    classes="col-md-6"
+                    label="Título del hero"
+                    :required="false"
+                  />
+
+                  <CommonInputfieldsTextarea
+                    v-model="servicesContent.hero.description"
+                    classes="col-md-6"
+                    label="Descripción del hero"
+                    :required="false"
+                  />
+
+                  <RealstateSiteManagementImagePicker
+                    v-model="servicesContent.hero.image"
+                    classes="col-12"
+                    label="Imagen del hero"
+                  />
+
+                  <CommonInputfieldsTextfield
+                    v-model="servicesContent.hero.button_text"
+                    classes="col-md-6"
+                    label="Texto del botón"
+                    :required="false"
+                  />
+
+                  <CommonInputfieldsTextfield
+                    v-model="servicesContent.hero.button_link"
+                    classes="col-md-6"
+                    label="Enlace del botón"
+                    :required="false"
+                  />
+
                   <div class="col-12">
-                    <div class="repeatable-section">
+                    <div class="repeatable-section card border">
                       <div
                         class="d-flex justify-content-between align-items-center mb-3"
                       >
                         <h6>Servicios prestados</h6>
                         <button
-                          class="btn btn-pill btn-dashed color-4"
+                          class="btn btn-pill btn-gradient color-4"
                           type="button"
                           @click="addProvidedService"
                         >
@@ -324,32 +674,46 @@
                           item, index
                         ) in servicesContent.provided_services"
                         :key="`provided-${index}`"
-                        class="repeatable-item"
+                        class="repeatable-item card border"
                       >
                         <div
                           class="d-flex justify-content-between align-items-center mb-2"
                         >
                           <strong>Servicio {{ index + 1 }}</strong>
                           <button
-                            class="btn btn-sm btn-outline-danger"
+                            class="btn btn-dashed color-4"
                             type="button"
                             @click="removeProvidedService(index)"
                           >
-                            Eliminar
+                            <i class="fa fa-trash"></i>
                           </button>
                         </div>
 
                         <div class="row gx-3">
                           <CommonInputfieldsTextfield
                             v-model="item.title"
-                            classes="col-md-5"
+                            classes="col-md-4"
                             label="Título"
+                            :required="false"
+                          />
+
+                          <CommonInputfieldsTextfield
+                            v-model="item.icon"
+                            classes="col-md-4"
+                            label="Ícono"
+                            :required="false"
+                          />
+
+                          <CommonInputfieldsTextfield
+                            v-model="item.link"
+                            classes="col-md-4"
+                            label="Enlace"
                             :required="false"
                           />
 
                           <CommonInputfieldsTextarea
                             v-model="item.description"
-                            classes="col-md-7"
+                            classes="col-12"
                             label="Descripción"
                             :required="false"
                           />
@@ -359,13 +723,13 @@
                   </div>
 
                   <div class="col-12">
-                    <div class="repeatable-section">
+                    <div class="repeatable-section card border">
                       <div
                         class="d-flex justify-content-between align-items-center mb-3"
                       >
                         <h6>Servicios de propiedades</h6>
                         <button
-                          class="btn btn-pill btn-dashed color-4"
+                          class="btn btn-pill btn-gradient color-4"
                           type="button"
                           @click="addPropertyService"
                         >
@@ -385,63 +749,122 @@
                           item, index
                         ) in servicesContent.property_services"
                         :key="`property-service-${index}`"
-                        class="repeatable-item"
+                        class="repeatable-item card border"
                       >
                         <div
                           class="d-flex justify-content-between align-items-center mb-2"
                         >
                           <strong>Servicio {{ index + 1 }}</strong>
                           <button
-                            class="btn btn-sm btn-outline-danger"
+                            class="btn btn-dashed color-4"
                             type="button"
                             @click="removePropertyService(index)"
                           >
-                            Eliminar
+                            <i class="fa fa-trash"></i>
                           </button>
                         </div>
 
                         <div class="row gx-3">
                           <CommonInputfieldsTextfield
                             v-model="item.title"
-                            classes="col-md-5"
+                            classes="col-md-4"
                             label="Título"
+                            :required="false"
+                          />
+
+                          <CommonInputfieldsTextfield
+                            v-model="item.icon"
+                            classes="col-md-4"
+                            label="Ícono"
+                            :required="false"
+                          />
+
+                          <CommonInputfieldsTextfield
+                            v-model="item.link"
+                            classes="col-md-4"
+                            label="Enlace"
                             :required="false"
                           />
 
                           <CommonInputfieldsTextarea
                             v-model="item.description"
-                            classes="col-md-7"
+                            classes="col-md-6"
                             label="Descripción"
                             :required="false"
                           />
+
+                          <div class="form-group col-md-6">
+                            <label>Puntos destacados</label>
+                            <textarea
+                              class="form-control"
+                              rows="4"
+                              :value="pointsToText(item.points)"
+                              @input="setItemPoints(item, $event)"
+                            ></textarea>
+                            <small class="text-muted">
+                              Escribe un punto por línea.
+                            </small>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </template>
 
-                <template v-else>
-                  <div
-                    class="form-group col-12"
-                    :class="{ 'was-validated': getPageError('content') }"
-                  >
-                    <label :for="`site-page-${activePage}-json`">
-                      Contenido JSON
-                    </label>
-                    <textarea
-                      :id="`site-page-${activePage}-json`"
-                      v-model="pageJsonDrafts[activePage]"
-                      class="form-control site-json-editor"
-                      :class="{ 'is-invalid': getPageError('content') }"
-                      rows="12"
-                    ></textarea>
-                    <small class="text-muted">
-                      Usa un objeto JSON válido. Ejemplo: {}
-                    </small>
-                    <small v-if="getPageError('content')" class="text-danger">
-                      {{ getPageError("content") }}
-                    </small>
-                  </div>
+                <template v-else-if="activePage === 'contact'">
+                  <RealstateSiteManagementImagePicker
+                    v-model="contactContent.banner_image_url"
+                    classes="col-12"
+                    label="Imagen del banner"
+                  />
+
+                  <CommonInputfieldsTextfield
+                    v-model="contactContent.title"
+                    classes="col-md-6"
+                    label="Título"
+                    :required="false"
+                  />
+
+                  <CommonInputfieldsTextarea
+                    v-model="contactContent.description"
+                    classes="col-md-6"
+                    label="Descripción"
+                    :required="false"
+                  />
+
+                  <RealstateSiteManagementImagePicker
+                    v-model="contactContent.image"
+                    classes="col-12"
+                    label="Imagen principal"
+                  />
+
+                  <CommonInputfieldsTextfield
+                    v-model="contactContent.form_title"
+                    classes="col-md-6"
+                    label="Título del formulario"
+                    :required="false"
+                  />
+
+                  <CommonInputfieldsTextarea
+                    v-model="contactContent.form_description"
+                    classes="col-md-6"
+                    label="Descripción del formulario"
+                    :required="false"
+                  />
+
+                  <CommonInputfieldsTextfield
+                    v-model="contactContent.success_message"
+                    classes="col-md-6"
+                    label="Mensaje de éxito"
+                    :required="false"
+                  />
+
+                  <CommonInputfieldsTextfield
+                    v-model="contactContent.contact_cards_title"
+                    classes="col-md-6"
+                    label="Título de canales de contacto"
+                    :required="false"
+                  />
                 </template>
 
                 <div class="form-btn col-12 mt-3">
@@ -482,7 +905,15 @@ import type {
 import type { ILookup } from "~/interfaces/ILookup";
 import type {
   RealstateAboutContent,
+  RealstateAboutIntroContent,
+  RealstateContactContent,
   RealstateContentItem,
+  RealstateEditableImage,
+  RealstateFeaturedIcon,
+  RealstateFeaturedSection,
+  RealstateHeroContent,
+  RealstateHomeContent,
+  RealstateHomeSlide,
   RealstatePropertyDetailContent,
   RealstatePropertyListContent,
   RealstateServicesContent,
@@ -497,10 +928,36 @@ import type {
 type ThemeFieldKey = Exclude<keyof RealstateTheme, "accent">;
 
 const DEFAULT_TEMPLATE_SET: RealstateTemplateSet = "template1";
-const JSON_EDITABLE_PAGES: RealstateSitePageKey[] = ["home", "contact"];
 const EMPTY_ITEM: RealstateContentItem = {
+  icon: "fas fa-home",
   title: "",
   description: "",
+  link: "",
+  points: [],
+};
+const EMPTY_FEATURED_ICON: RealstateFeaturedIcon = {
+  name: "",
+  icon: "/svg/icons.svg#home-lock",
+  path: "/realstate/property",
+};
+const EMPTY_FEATURED_SECTION: RealstateFeaturedSection = {
+  heading: "Servicios destacados",
+  type: "filter",
+  icons: [],
+};
+const EMPTY_HERO: RealstateHeroContent = {
+  label: "",
+  title: "",
+  subtitle: "",
+  button_text: "",
+  button_link: "",
+};
+const EMPTY_HOME_SLIDE: RealstateHomeSlide = {
+  title: "",
+  description: "",
+  img: "",
+  link: "",
+  button_text: "",
 };
 
 const themeFields: { key: ThemeFieldKey; label: string }[] = [
@@ -521,8 +978,6 @@ const templateForm = ref<RealstateSiteTemplatePayload>({
   theme: normalizeRealstateTheme(),
 });
 const pagesForm = ref<RealstateSitePages>(createPagesState());
-const pageJsonDrafts =
-  ref<Record<RealstateSitePageKey, string>>(createJsonDrafts());
 const templateErrors = ref<Record<string, string>>({});
 const pageErrors =
   ref<Record<RealstateSitePageKey, Record<string, string>>>(createPageErrors());
@@ -576,9 +1031,26 @@ const currentPageErrorMessages = computed(() =>
   ),
 );
 
+const homeContent = computed(
+  () => pagesForm.value.home.content as RealstateHomeContent,
+);
 const aboutContent = computed(
   () => pagesForm.value.about.content as RealstateAboutContent,
 );
+const aboutIntroImageUrls = computed<string[]>({
+  get: () =>
+    aboutContent.value.intro.images
+      .map((image) => image.url.trim())
+      .filter(Boolean),
+  set: (urls) => {
+    const currentImages = aboutContent.value.intro.images;
+
+    aboutContent.value.intro.images = urls.map((url, index) => ({
+      url,
+      alt: currentImages[index]?.alt ?? "",
+    }));
+  },
+});
 const servicesContent = computed(
   () => pagesForm.value.services.content as RealstateServicesContent,
 );
@@ -589,16 +1061,9 @@ const propertyDetailContent = computed(
   () =>
     pagesForm.value.propertyDetail.content as RealstatePropertyDetailContent,
 );
-
-function createJsonDrafts(): Record<RealstateSitePageKey, string> {
-  return REALSTATE_SITE_PAGE_OPTIONS.reduce(
-    (drafts, page) => {
-      drafts[page.id] = "{}";
-      return drafts;
-    },
-    {} as Record<RealstateSitePageKey, string>,
-  );
-}
+const contactContent = computed(
+  () => pagesForm.value.contact.content as RealstateContactContent,
+);
 
 function createPageErrors(): Record<
   RealstateSitePageKey,
@@ -631,8 +1096,18 @@ function createPageState(page: RealstateSitePageKey): RealstateSitePage {
 function createDefaultContent(
   page: RealstateSitePageKey,
 ): RealstateSitePageContent {
+  if (page === "home") {
+    return {
+      background_image_url: "",
+      hero_slides: [],
+      featured_sections: [],
+    };
+  }
+
   if (page === "about") {
     return {
+      banner_image_url: "",
+      intro: cloneAboutIntro(),
       history: "",
       mission: "",
       vision: "",
@@ -642,6 +1117,8 @@ function createDefaultContent(
 
   if (page === "services") {
     return {
+      banner_image_url: "",
+      hero: cloneHero(),
       provided_services: [],
       property_services: [],
     };
@@ -649,6 +1126,7 @@ function createDefaultContent(
 
   if (page === "propertyList") {
     return {
+      banner_image_url: "",
       title: "",
       subtitle: "",
     };
@@ -658,6 +1136,22 @@ function createDefaultContent(
     return {
       show_related_properties: true,
       contact_title: "",
+      contact_description: "",
+      related_title: "",
+      gallery_fallback: [],
+    };
+  }
+
+  if (page === "contact") {
+    return {
+      banner_image_url: "",
+      title: "",
+      description: "",
+      image: "",
+      form_title: "",
+      form_description: "",
+      success_message: "",
+      contact_cards_title: "",
     };
   }
 
@@ -676,12 +1170,155 @@ function toText(value: unknown): string {
   return typeof value === "string" ? value : "";
 }
 
+function toEditableText(value: unknown): string {
+  if (typeof value === "string") return value;
+
+  const record = asRecord(value);
+  return toText(record.description ?? record.content ?? record.title);
+}
+
 function toNullableText(value: unknown): string | null {
   const text = toText(value).trim();
   return text || null;
 }
 
-function normalizeItems(value: unknown): RealstateContentItem[] {
+interface NormalizeItemOptions {
+  includeLink?: boolean;
+  includePoints?: boolean;
+}
+
+function normalizeItems(
+  value: unknown,
+  options: NormalizeItemOptions = {},
+): RealstateContentItem[] {
+  if (!Array.isArray(value)) return [];
+
+  const includeLink = options.includeLink ?? true;
+  const includePoints = options.includePoints ?? true;
+
+  return value
+    .map((item) => {
+      const record = asRecord(item);
+      const normalized: RealstateContentItem = {
+        icon: toText(record.icon),
+        title: toText(record.title),
+        description: toText(record.description),
+      };
+
+      if (includeLink) normalized.link = toText(record.link);
+      if (includePoints) {
+        normalized.points = normalizeStringArray(record.points);
+      }
+
+      return normalized;
+    })
+    .filter((item) => item.title.trim() || item.description.trim());
+}
+
+function normalizeFeaturedSections(value: unknown): RealstateFeaturedSection[] {
+  if (!Array.isArray(value)) return [];
+
+  const groups = value
+    .map((item) => {
+      const record = asRecord(item);
+
+      if (!Array.isArray(record.icons)) return null;
+
+      const icons = normalizeFeaturedIcons(record.icons);
+
+      if (!icons.length) return null;
+
+      return {
+        heading:
+          toText(record.heading ?? record.title) || "Servicios destacados",
+        type: toText(record.type) || "filter",
+        icons,
+      };
+    })
+    .filter(Boolean) as RealstateFeaturedSection[];
+
+  if (groups.length) return groups;
+
+  const legacyIcons = normalizeFeaturedIcons(value);
+
+  return legacyIcons.length
+    ? [
+        {
+          heading: "Servicios destacados",
+          type: "filter",
+          icons: legacyIcons,
+        },
+      ]
+    : [];
+}
+
+function normalizeFeaturedIcons(value: unknown): RealstateFeaturedIcon[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((item) => {
+      const record = asRecord(item);
+      return {
+        name: toText(record.name ?? record.title),
+        icon: toText(record.icon) || EMPTY_FEATURED_ICON.icon,
+        path: toText(record.path ?? record.link) || EMPTY_FEATURED_ICON.path,
+      };
+    })
+    .filter((item) => item.name.trim() || item.icon.trim() || item.path.trim());
+}
+
+function normalizeStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+
+  return value.map((item) => toText(item).trim()).filter(Boolean);
+}
+
+function normalizeEditableImages(value: unknown): RealstateEditableImage[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((item) => {
+      const record = asRecord(item);
+      const url = typeof item === "string" ? item : toText(record.url);
+
+      return {
+        url: url.trim(),
+        alt: toText(record.alt),
+      };
+    })
+    .filter((image) => image.url);
+}
+
+function normalizeAboutIntro(value: unknown): RealstateAboutIntroContent {
+  const record = asRecord(value);
+
+  return {
+    title: toText(record.title),
+    description: toText(record.description),
+    images: normalizeEditableImages(record.images),
+  };
+}
+
+function normalizeHero(value: unknown): RealstateHeroContent {
+  const record = asRecord(value);
+
+  return {
+    ...record,
+    label: toText(record.label),
+    title: toText(record.title),
+    subtitle: toText(record.subtitle),
+    description: toText(record.description),
+    image: toText(record.image),
+    button_text: toText(record.button_text),
+    button_link: toText(record.button_link),
+  };
+}
+
+function cloneHero(): RealstateHeroContent {
+  return { ...EMPTY_HERO };
+}
+
+function normalizeHomeSlides(value: unknown): RealstateHomeSlide[] {
   if (!Array.isArray(value)) return [];
 
   return value
@@ -690,13 +1327,46 @@ function normalizeItems(value: unknown): RealstateContentItem[] {
       return {
         title: toText(record.title),
         description: toText(record.description),
+        img: toText(record.img ?? record.image),
+        link: toText(record.link),
+        button_text: toText(record.button_text ?? record.buttonText),
       };
     })
-    .filter((item) => item.title.trim() || item.description.trim());
+    .filter(
+      (item) =>
+        item.title.trim() ||
+        item.description.trim() ||
+        item.img.trim() ||
+        item.link.trim() ||
+        item.button_text.trim(),
+    );
 }
 
 function cloneItem(): RealstateContentItem {
   return { ...EMPTY_ITEM };
+}
+
+function cloneFeaturedIcon(): RealstateFeaturedIcon {
+  return { ...EMPTY_FEATURED_ICON };
+}
+
+function cloneFeaturedSection(): RealstateFeaturedSection {
+  return {
+    ...EMPTY_FEATURED_SECTION,
+    icons: [cloneFeaturedIcon()],
+  };
+}
+
+function cloneHomeSlide(): RealstateHomeSlide {
+  return { ...EMPTY_HOME_SLIDE };
+}
+
+function cloneAboutIntro(): RealstateAboutIntroContent {
+  return {
+    title: "",
+    description: "",
+    images: [],
+  };
 }
 
 function normalizeContentForForm(
@@ -705,20 +1375,38 @@ function normalizeContentForForm(
 ): RealstateSitePageContent {
   const record = asRecord(content);
 
+  if (page === "home") {
+    return {
+      ...record,
+      background_image_url: toText(record.background_image_url),
+      hero_slides: normalizeHomeSlides(record.hero_slides ?? record.slides),
+      featured_sections: normalizeFeaturedSections(record.featured_sections),
+    };
+  }
+
   if (page === "about") {
     return {
       ...record,
-      history: toText(record.history),
-      mission: toText(record.mission),
-      vision: toText(record.vision),
-      why_choose_us: normalizeItems(record.why_choose_us),
+      banner_image_url: toText(record.banner_image_url),
+      intro: normalizeAboutIntro(record.intro),
+      history: toEditableText(record.history),
+      mission: toEditableText(record.mission),
+      vision: toEditableText(record.vision),
+      why_choose_us: normalizeItems(record.why_choose_us, {
+        includeLink: false,
+        includePoints: false,
+      }),
     };
   }
 
   if (page === "services") {
     return {
       ...record,
-      provided_services: normalizeItems(record.provided_services),
+      banner_image_url: toText(record.banner_image_url),
+      hero: normalizeHero(record.hero),
+      provided_services: normalizeItems(record.provided_services, {
+        includePoints: false,
+      }),
       property_services: normalizeItems(record.property_services),
     };
   }
@@ -726,6 +1414,7 @@ function normalizeContentForForm(
   if (page === "propertyList") {
     return {
       ...record,
+      banner_image_url: toText(record.banner_image_url),
       title: toText(record.title),
       subtitle: toText(record.subtitle),
     };
@@ -739,6 +1428,23 @@ function normalizeContentForForm(
           ? record.show_related_properties
           : true,
       contact_title: toText(record.contact_title),
+      contact_description: toText(record.contact_description),
+      related_title: toText(record.related_title),
+      gallery_fallback: normalizeStringArray(record.gallery_fallback),
+    };
+  }
+
+  if (page === "contact") {
+    return {
+      ...record,
+      banner_image_url: toText(record.banner_image_url),
+      title: toText(record.title),
+      description: toText(record.description),
+      image: toText(record.image),
+      form_title: toText(record.form_title),
+      form_description: toText(record.form_description),
+      success_message: toText(record.success_message),
+      contact_cards_title: toText(record.contact_cards_title),
     };
   }
 
@@ -802,20 +1508,6 @@ function applyTemplateData(data?: Partial<RealstateSiteTemplateData> | null) {
   setAdminTheme(theme);
 }
 
-function syncJsonDraft(page: RealstateSitePageKey) {
-  if (!JSON_EDITABLE_PAGES.includes(page)) return;
-
-  pageJsonDrafts.value[page] = JSON.stringify(
-    pagesForm.value[page].content ?? {},
-    null,
-    2,
-  );
-}
-
-function syncAllJsonDrafts() {
-  JSON_EDITABLE_PAGES.forEach(syncJsonDraft);
-}
-
 function getTemplateError(field: string): string | undefined {
   return templateErrors.value[field];
 }
@@ -863,24 +1555,70 @@ function validateTemplateForm(): boolean {
   return !Object.keys(errors).length;
 }
 
+function getHeroPayload(hero: RealstateHeroContent): RealstateHeroContent {
+  return {
+    ...hero,
+    label: toNullableText(hero.label),
+    title: toNullableText(hero.title),
+    subtitle: toNullableText(hero.subtitle),
+    description: toNullableText(hero.description),
+    image: toNullableText(hero.image),
+    button_text: toNullableText(hero.button_text),
+    button_link: toNullableText(hero.button_link),
+  };
+}
+
+function getAboutIntroPayload(
+  intro: RealstateAboutIntroContent,
+): RealstateAboutIntroContent {
+  return {
+    title: toNullableText(intro.title),
+    description: toNullableText(intro.description),
+    images: normalizeEditableImages(intro.images).map((image) => ({
+      url: image.url,
+      alt: toNullableText(image.alt),
+    })),
+  };
+}
+
 function getKnownContentPayload(
   page: RealstateSitePageKey,
 ): RealstateSitePageContent {
+  if (page === "home") {
+    return {
+      background_image_url: toNullableText(
+        homeContent.value.background_image_url,
+      ),
+      hero_slides: normalizeHomeSlides(homeContent.value.hero_slides),
+      featured_sections: normalizeFeaturedSections(
+        homeContent.value.featured_sections,
+      ),
+    };
+  }
+
   if (page === "about") {
     return {
       ...aboutContent.value,
+      banner_image_url: toNullableText(aboutContent.value.banner_image_url),
+      intro: getAboutIntroPayload(aboutContent.value.intro),
       history: toNullableText(aboutContent.value.history),
       mission: toNullableText(aboutContent.value.mission),
       vision: toNullableText(aboutContent.value.vision),
-      why_choose_us: normalizeItems(aboutContent.value.why_choose_us),
+      why_choose_us: normalizeItems(aboutContent.value.why_choose_us, {
+        includeLink: false,
+        includePoints: false,
+      }),
     };
   }
 
   if (page === "services") {
     return {
       ...servicesContent.value,
+      banner_image_url: toNullableText(servicesContent.value.banner_image_url),
+      hero: getHeroPayload(servicesContent.value.hero),
       provided_services: normalizeItems(
         servicesContent.value.provided_services,
+        { includePoints: false },
       ),
       property_services: normalizeItems(
         servicesContent.value.property_services,
@@ -891,6 +1629,9 @@ function getKnownContentPayload(
   if (page === "propertyList") {
     return {
       ...propertyListContent.value,
+      banner_image_url: toNullableText(
+        propertyListContent.value.banner_image_url,
+      ),
       title: toNullableText(propertyListContent.value.title),
       subtitle: toNullableText(propertyListContent.value.subtitle),
     };
@@ -898,11 +1639,33 @@ function getKnownContentPayload(
 
   if (page === "propertyDetail") {
     return {
-      ...propertyDetailContent.value,
       show_related_properties: Boolean(
         propertyDetailContent.value.show_related_properties,
       ),
       contact_title: toNullableText(propertyDetailContent.value.contact_title),
+      contact_description: toNullableText(
+        propertyDetailContent.value.contact_description,
+      ),
+      related_title: toNullableText(propertyDetailContent.value.related_title),
+      gallery_fallback: normalizeStringArray(
+        propertyDetailContent.value.gallery_fallback,
+      ),
+    };
+  }
+
+  if (page === "contact") {
+    return {
+      ...contactContent.value,
+      banner_image_url: toNullableText(contactContent.value.banner_image_url),
+      title: toNullableText(contactContent.value.title),
+      description: toNullableText(contactContent.value.description),
+      image: toNullableText(contactContent.value.image),
+      form_title: toNullableText(contactContent.value.form_title),
+      form_description: toNullableText(contactContent.value.form_description),
+      success_message: toNullableText(contactContent.value.success_message),
+      contact_cards_title: toNullableText(
+        contactContent.value.contact_cards_title,
+      ),
     };
   }
 
@@ -913,32 +1676,6 @@ async function getPagePayload(
   page: RealstateSitePageKey,
 ): Promise<RealstateSitePagePayload | null> {
   setPageErrors(page, {});
-
-  if (JSON_EDITABLE_PAGES.includes(page)) {
-    try {
-      const draft = pageJsonDrafts.value[page]?.trim() || "{}";
-      const parsed = JSON.parse(draft);
-
-      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-        setPageErrors(page, {
-          content: "El contenido debe ser un objeto JSON.",
-        });
-        await AlertService.showFormError();
-        return null;
-      }
-
-      return {
-        is_active: Boolean(pagesForm.value[page].is_active),
-        content: parsed as Record<string, unknown>,
-      };
-    } catch {
-      setPageErrors(page, {
-        content: "El JSON no es válido.",
-      });
-      await AlertService.showFormError();
-      return null;
-    }
-  }
 
   return {
     is_active: Boolean(pagesForm.value[page].is_active),
@@ -964,7 +1701,6 @@ async function loadPages() {
     response.data.pages,
     response.data.template_set,
   );
-  syncAllJsonDrafts();
 }
 
 async function loadAll() {
@@ -1036,7 +1772,6 @@ async function savePage(page: RealstateSitePageKey) {
           templateForm.value.template_set,
         ),
       };
-      syncJsonDraft(page);
     }
   } finally {
     isSavingPage.value = false;
@@ -1045,6 +1780,32 @@ async function savePage(page: RealstateSitePageKey) {
 
 async function saveActivePage() {
   await savePage(activePage.value);
+}
+
+function addHomeSlide() {
+  homeContent.value.hero_slides.push(cloneHomeSlide());
+}
+
+function removeHomeSlide(index: number) {
+  homeContent.value.hero_slides.splice(index, 1);
+}
+
+function addFeaturedSection() {
+  homeContent.value.featured_sections.push(cloneFeaturedSection());
+}
+
+function removeFeaturedSection(index: number) {
+  homeContent.value.featured_sections.splice(index, 1);
+}
+
+function addFeaturedIcon(sectionIndex: number) {
+  homeContent.value.featured_sections[sectionIndex]?.icons.push(
+    cloneFeaturedIcon(),
+  );
+}
+
+function removeFeaturedIcon(sectionIndex: number, iconIndex: number) {
+  homeContent.value.featured_sections[sectionIndex]?.icons.splice(iconIndex, 1);
 }
 
 function addWhyChooseUs() {
@@ -1069,6 +1830,18 @@ function addPropertyService() {
 
 function removePropertyService(index: number) {
   servicesContent.value.property_services.splice(index, 1);
+}
+
+function pointsToText(points?: string[]): string {
+  return Array.isArray(points) ? points.join("\n") : "";
+}
+
+function setItemPoints(item: RealstateContentItem, event: Event) {
+  const target = event.target as HTMLTextAreaElement | null;
+  item.points = target?.value
+    .split("\n")
+    .map((point) => point.trim())
+    .filter(Boolean);
 }
 
 onMounted(() => {
@@ -1106,6 +1879,8 @@ onMounted(() => {
   border: 1px solid rgba(88, 97, 103, 0.14);
   border-radius: 12px;
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 0.75rem;
   padding: 1rem;
 }
@@ -1144,8 +1919,6 @@ onMounted(() => {
 }
 
 .site-page-nav-item {
-  background: #ffffff;
-  border: 1px solid rgba(88, 97, 103, 0.14);
   border-radius: 12px;
   color: inherit;
   display: grid;
@@ -1183,8 +1956,6 @@ onMounted(() => {
 }
 
 .repeatable-section {
-  background: color-mix(in srgb, var(--theme-default7) 4%, #ffffff);
-  border: 1px solid rgba(88, 97, 103, 0.14);
   border-radius: 12px;
   margin-bottom: 1rem;
   padding: 1rem;
@@ -1195,26 +1966,66 @@ onMounted(() => {
 }
 
 .repeatable-item {
-  background: #ffffff;
-  border: 1px solid rgba(88, 97, 103, 0.12);
   border-radius: 10px;
   margin-top: 0.85rem;
   padding: 1rem;
 }
 
-.site-json-editor {
-  font-family: monospace;
-  min-height: 260px;
+.featured-icon-item {
+  border-radius: 10px;
+  margin-top: 0.85rem;
+  padding: 0.85rem;
 }
 
-:global(body.dark-layout) .site-theme-preview,
-:global(body.dark-layout) .site-page-nav-item,
-:global(body.dark-layout) .repeatable-item {
+:global(body.dark-layout) .site-theme-preview {
   background: #1f1f1f;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.88);
 }
 
-:global(body.dark-layout) .repeatable-section {
-  background: rgba(255, 255, 255, 0.03);
+:global(body.dark-layout) .site-page-nav-item,
+:global(body.dark-layout) .repeatable-section,
+:global(body.dark-layout) .repeatable-item,
+:global(body.dark-layout) .featured-icon-item {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+:global(body.dark-layout) .site-template-note {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+:global(body.dark-layout) .site-management-page .text-muted,
+:global(body.dark-layout) .site-theme-preview small,
+:global(body.dark-layout) .site-page-nav-item small,
+:global(body.dark-layout) .site-color-value {
+  color: rgba(255, 255, 255, 0.62) !important;
+}
+
+:global(body.dark-layout) .site-page-nav-item.active {
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--theme-default7) 12%, transparent),
+      rgba(255, 255, 255, 0.04)
+    ),
+    #1f1f1f;
+  border-color: var(--theme-default7);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+}
+
+:global(body.dark-layout) .repeatable-section h6,
+:global(body.dark-layout) .repeatable-item strong,
+:global(body.dark-layout) .site-theme-preview strong,
+:global(body.dark-layout) .site-page-nav-item > span:first-child {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+:global(body.dark-layout) .site-management-page textarea.form-control {
+  background-color: #1f1f1f;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.86);
 }
 
 @media (max-width: 991.98px) {
