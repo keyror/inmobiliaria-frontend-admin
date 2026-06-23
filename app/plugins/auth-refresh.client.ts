@@ -2,15 +2,24 @@
 import { useAuthStore } from "~/store/authStore";
 
 export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.hook("app:mounted", () => {
+  nuxtApp.hook("app:mounted", async () => {
     const auth = useAuthStore();
 
     // Verificar expiración al montar
     if (auth.token && auth.expiresAt && auth.expiresAt < Date.now()) {
-      console.warn("🔒 Token expirado, cerrando sesión automáticamente");
       auth.clearAuth();
       navigateTo("/authentication/login");
       return;
+    }
+
+    if (auth.token) {
+      try {
+        await auth.getUser();
+      } catch {
+        auth.clearAuth();
+        navigateTo("/authentication/login");
+        return;
+      }
     }
 
     // Programar refresh
@@ -23,13 +32,11 @@ export default defineNuxtPlugin((nuxtApp) => {
 
       const delay = auth.expiresAt - now - 60 * 1000; // 1 min antes
 
-      console.log("⏳ Tiempo hasta el refresh (segundos):", delay / 1000);
-
       if (delay <= 0) {
-        auth.refreshToken();
+        void auth.refreshToken();
       } else {
         setTimeout(() => {
-          auth.refreshToken();
+          void auth.refreshToken();
         }, delay);
       }
     };

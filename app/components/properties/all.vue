@@ -20,11 +20,13 @@
               >
                 <template #item-actions="item">
                   <div
+                    v-if="can('properties.edit') || can('properties.delete')"
                     class="btn-group"
                     role="group"
                     aria-label="Basic example"
                   >
                     <button
+                      v-if="can('properties.edit')"
                       class="btn btn-dashed color-1"
                       type="button"
                       @click="edit(item)"
@@ -32,6 +34,7 @@
                       <i class="fas fa-pen"></i>
                     </button>
                     <button
+                      v-if="can('properties.delete')"
                       class="btn btn-dashed color-4"
                       type="button"
                       @click="deleteProperty(item)"
@@ -58,6 +61,7 @@ import AlertService from "~/services/AlertService";
 import type { IParamsTable } from "~/interfaces/IParamsTable";
 
 const { run } = useApiHandler();
+const { can } = useAuthorization();
 
 const data = ref([]);
 
@@ -80,10 +84,14 @@ const properties = async (params: IParamsTable) => {
 };
 
 const edit = (item: any) => {
+  if (!can("properties.edit")) return;
+
   navigateTo(`/properties/edit/${item.id}`);
 };
 
 const deleteProperty = async (item: any) => {
+  if (!can("properties.delete")) return;
+
   const result = await AlertService.showConfirmation(
     "¿ Está seguro de realizar esta operación ?",
     `Esta seguro de eliminar el registro : ${item.title}`,

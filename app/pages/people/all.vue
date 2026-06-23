@@ -3,6 +3,10 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  permission: "people.view",
+});
+
 useHead({
   title: "Gestión de Personas",
 });

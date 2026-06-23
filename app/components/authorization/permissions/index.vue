@@ -1,7 +1,10 @@
 <template>
   <div class="container-fluid">
     <div class="row mb-4">
-      <div class="col-md-12">
+      <div
+        v-if="can('permissions.create') || can('permissions.edit')"
+        class="col-md-12"
+      >
         <div class="card">
           <div class="card-header pb-0">
             <h5>{{ isEditing ? "Actualizar" : "Guardar" }} permiso</h5>
@@ -50,8 +53,14 @@
               @reload="reloadDataTable"
             >
               <template #item-actions="item">
-                <div aria-label="Acciones" class="btn-group" role="group">
+                <div
+                  v-if="can('permissions.edit') || can('permissions.delete')"
+                  aria-label="Acciones"
+                  class="btn-group"
+                  role="group"
+                >
                   <button
+                    v-if="can('permissions.edit')"
                     class="btn btn-dashed color-1"
                     type="button"
                     @click="editPermission(item)"
@@ -59,6 +68,7 @@
                     <i class="fas fa-pen"></i>
                   </button>
                   <button
+                    v-if="can('permissions.delete')"
                     class="btn btn-dashed color-4"
                     type="button"
                     @click="deletePermission(item)"
@@ -86,6 +96,7 @@ import AlertaService from "~/services/AlertService";
 import type { IParamsTable } from "~/interfaces/IParamsTable";
 
 const { run } = useApiHandler();
+const { can } = useAuthorization();
 const { usePermissionCreateForm } = usePermissionForm();
 
 const { allPermissions, loadPermissions, total } = usePermissions();
@@ -114,6 +125,9 @@ const paramsTable = ref<IParamsTable>({
 });
 
 const savePermission = handleSubmit(async (values) => {
+  if (isEditing.value && !can("permissions.edit")) return;
+  if (!isEditing.value && !can("permissions.create")) return;
+
   const promise = isEditing.value
     ? RolePermissionService.updatePermission(editingId.value, values)
     : RolePermissionService.createPermission(values);
@@ -135,6 +149,8 @@ const savePermission = handleSubmit(async (values) => {
 });
 
 const editPermission = (item: any) => {
+  if (!can("permissions.edit")) return;
+
   isEditing.value = true;
   editingId.value = item.id;
 
@@ -162,6 +178,8 @@ const resetPermissionForm = () => {
 };
 
 const deletePermission = async (item: any) => {
+  if (!can("permissions.delete")) return;
+
   const result = await AlertaService.showConfirmation(
     "¿Está seguro de realizar esta operación?",
     `¿Eliminar el permiso: ${item.name}?`,

@@ -16,4 +16,14 @@ export default defineNuxtRouteMiddleware((to) => {
   if (!auth.isAuthenticated) {
     return navigateTo("/authentication/login");
   }
+
+  const requiredPermission = to.meta.permission;
+
+  if (
+    (typeof requiredPermission === "string" ||
+      (Array.isArray(requiredPermission) && requiredPermission.length > 0)) &&
+    !auth.hasAnyPermission(requiredPermission)
+  ) {
+    return navigateTo("/authentication/403");
+  }
 });

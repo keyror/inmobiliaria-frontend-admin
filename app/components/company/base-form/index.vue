@@ -71,7 +71,7 @@
                 />
               </div>
 
-              <div class="form-btn mt-3">
+              <div v-if="canSaveCompany" class="form-btn mt-3">
                 <button class="btn btn-pill btn-gradient color-4" @click="save">
                   {{ isEditing ? "Actualizar" : "Crear" }}
                 </button>
@@ -105,6 +105,7 @@ import type { ICompany } from "~/interfaces/ICompany";
 import type { ISaveCompany } from "~/interfaces/ISaveCompany";
 
 const { run } = useApiHandler();
+const { can } = useAuthorization();
 
 const companyRef = ref<InstanceType<typeof CompanyGeneral> | null>(null);
 const addressesRef = ref<InstanceType<typeof Addresses> | null>(null);
@@ -113,6 +114,9 @@ const contactsRef = ref<InstanceType<typeof Contacts> | null>(null);
 const activeTab = ref<string>("company");
 const company = ref<ICompany | null>();
 const isEditing = computed(() => !!company.value);
+const canSaveCompany = computed(() =>
+  isEditing.value ? can("companies.edit") : can("companies.create"),
+);
 
 const { lookups } = useLookups([
   Constants.ROAD_TYPE,
@@ -150,6 +154,8 @@ const getCompany = async () => {
 };
 
 const save = async () => {
+  if (!canSaveCompany.value) return;
+
   const forms = [
     { key: "company", ref: companyRef },
     { key: "addresses", ref: addressesRef },

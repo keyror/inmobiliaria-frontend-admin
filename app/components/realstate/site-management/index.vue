@@ -91,6 +91,7 @@
 
             <div class="form-btn col-12 mt-2">
               <button
+                v-if="canEditSiteSettings"
                 class="btn btn-pill btn-gradient color-4"
                 type="button"
                 :disabled="isSavingTemplate"
@@ -869,6 +870,7 @@
 
                 <div class="form-btn col-12 mt-3">
                   <button
+                    v-if="canEditSiteSettings"
                     class="btn btn-pill btn-gradient color-4"
                     type="submit"
                     :disabled="isSavingPage"
@@ -966,7 +968,9 @@ const themeFields: { key: ThemeFieldKey; label: string }[] = [
 ];
 
 const { run } = useApiHandler();
+const { can } = useAuthorization();
 const customizerStore = usecustomizerStore();
+const canEditSiteSettings = computed(() => can("site-settings.edit"));
 
 const isLoading = ref(false);
 const isSavingTemplate = ref(false);
@@ -1715,6 +1719,8 @@ async function loadAll() {
 }
 
 async function saveTemplate() {
+  if (!canEditSiteSettings.value) return;
+
   if (!validateTemplateForm()) {
     await AlertService.showFormError();
     return;
@@ -1748,6 +1754,8 @@ async function saveTemplate() {
 }
 
 async function savePage(page: RealstateSitePageKey) {
+  if (!canEditSiteSettings.value) return;
+
   const payload = await getPagePayload(page);
   if (!payload) return;
 
@@ -1783,52 +1791,76 @@ async function saveActivePage() {
 }
 
 function addHomeSlide() {
+  if (!canEditSiteSettings.value) return;
+
   homeContent.value.hero_slides.push(cloneHomeSlide());
 }
 
 function removeHomeSlide(index: number) {
+  if (!canEditSiteSettings.value) return;
+
   homeContent.value.hero_slides.splice(index, 1);
 }
 
 function addFeaturedSection() {
+  if (!canEditSiteSettings.value) return;
+
   homeContent.value.featured_sections.push(cloneFeaturedSection());
 }
 
 function removeFeaturedSection(index: number) {
+  if (!canEditSiteSettings.value) return;
+
   homeContent.value.featured_sections.splice(index, 1);
 }
 
 function addFeaturedIcon(sectionIndex: number) {
+  if (!canEditSiteSettings.value) return;
+
   homeContent.value.featured_sections[sectionIndex]?.icons.push(
     cloneFeaturedIcon(),
   );
 }
 
 function removeFeaturedIcon(sectionIndex: number, iconIndex: number) {
+  if (!canEditSiteSettings.value) return;
+
   homeContent.value.featured_sections[sectionIndex]?.icons.splice(iconIndex, 1);
 }
 
 function addWhyChooseUs() {
+  if (!canEditSiteSettings.value) return;
+
   aboutContent.value.why_choose_us.push(cloneItem());
 }
 
 function removeWhyChooseUs(index: number) {
+  if (!canEditSiteSettings.value) return;
+
   aboutContent.value.why_choose_us.splice(index, 1);
 }
 
 function addProvidedService() {
+  if (!canEditSiteSettings.value) return;
+
   servicesContent.value.provided_services.push(cloneItem());
 }
 
 function removeProvidedService(index: number) {
+  if (!canEditSiteSettings.value) return;
+
   servicesContent.value.provided_services.splice(index, 1);
 }
 
 function addPropertyService() {
+  if (!canEditSiteSettings.value) return;
+
   servicesContent.value.property_services.push(cloneItem());
 }
 
 function removePropertyService(index: number) {
+  if (!canEditSiteSettings.value) return;
+
   servicesContent.value.property_services.splice(index, 1);
 }
 

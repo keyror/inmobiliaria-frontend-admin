@@ -5,6 +5,7 @@ import { defineStore } from "pinia";
 import { normalizeRealstateTheme } from "~/constants/RealstateTemplates";
 import PublicCompanyService from "~/services/PublicCompanyService";
 import RealstateSiteManagementService from "~/services/RealstateSiteManagementService";
+import { useAuthStore } from "~/store/authStore";
 import { usecustomizerStore } from "~/store/costomizer";
 
 import type { PublicCompany } from "~/interfaces/IPublicCompany";
@@ -28,7 +29,20 @@ export const usePublicCompanyStore = defineStore("public-company", () => {
     if (!import.meta.client) return;
 
     const customizerStore = usecustomizerStore();
+    const authStore = useAuthStore();
     const cachedTheme = customizerStore.applyCachedColor();
+
+    if (!authStore.hasPermission("site-settings.theme-view")) {
+      if (cachedTheme) return;
+
+      const theme = normalizeRealstateTheme();
+      customizerStore.setcolor({
+        primary: theme.primary,
+        secondary: theme.secondary,
+        accent: theme.accent,
+      });
+      return;
+    }
 
     try {
       const response = await RealstateSiteManagementService.getTemplate();

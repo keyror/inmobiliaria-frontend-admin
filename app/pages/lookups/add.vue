@@ -3,6 +3,10 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  permission: "lookups.create",
+});
+
 useHead({
   title: "Crear lookup",
 });

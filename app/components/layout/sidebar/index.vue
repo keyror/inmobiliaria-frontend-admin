@@ -91,6 +91,7 @@ interface MenuItem {
   collapse?: boolean;
   active?: boolean;
   label?: string;
+  permission?: string | string[];
   children?: MenuItem[];
 }
 
@@ -200,6 +201,32 @@ function removesidebar() {
   document.getElementById("sidebar")?.classList.add("close_icon");
 }
 
+function canShowMenuItem(item: MenuItem) {
+  if (!item.permission) return true;
+
+  return authStore.hasAnyPermission(item.permission);
+}
+
+function filterMenuItems(items: MenuItem[]): MenuItem[] {
+  return items
+    .map((item) => {
+      const children = item.children ? filterMenuItems(item.children) : [];
+      const nextItem = { ...item };
+
+      if (item.children) {
+        nextItem.children = children;
+      }
+
+      return nextItem;
+    })
+    .filter((item) => {
+      if (item.children?.length) return canShowMenuItem(item);
+      if (item.children && item.children.length === 0) return false;
+
+      return canShowMenuItem(item);
+    });
+}
+
 // Función recursiva para encontrar el menú activo basado en la ruta
 function findActiveMenuPath(
   items: MenuItem[],
@@ -225,7 +252,7 @@ function findActiveMenuPath(
 
 watchEffect(() => {
   if (data.value) {
-    alldata.value = data.value?.sidebar || [];
+    alldata.value = filterMenuItems(data.value?.sidebar || []);
   }
 });
 

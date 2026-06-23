@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid">
     <div class="row mb-4">
-      <div class="col-md-12">
+      <div v-if="can('roles.create') || can('roles.edit')" class="col-md-12">
         <div class="card">
           <div class="card-header pb-0">
             <h5>
@@ -52,8 +52,18 @@
               @reload="reloadDataTable"
             >
               <template #item-actions="item">
-                <div aria-label="Acciones" class="btn-group" role="group">
+                <div
+                  v-if="
+                    can('roles.assign-permissions') ||
+                    can('roles.edit') ||
+                    can('roles.delete')
+                  "
+                  aria-label="Acciones"
+                  class="btn-group"
+                  role="group"
+                >
                   <button
+                    v-if="can('roles.assign-permissions')"
                     class="btn btn-dashed color-2"
                     type="button"
                     @click="openPermissionsModal(item)"
@@ -61,6 +71,7 @@
                     <i class="fas fa-lock color-1"></i>
                   </button>
                   <button
+                    v-if="can('roles.edit')"
                     class="btn btn-dashed color-1"
                     type="button"
                     @click="editRole(item)"
@@ -68,6 +79,7 @@
                     <i class="fas fa-pen"></i>
                   </button>
                   <button
+                    v-if="can('roles.delete')"
                     class="btn btn-dashed color-4"
                     type="button"
                     @click="deleteRole(item)"
@@ -97,6 +109,7 @@
       <!-- Botones de acción -->
       <template #actions>
         <button
+          v-if="can('roles.assign-permissions')"
           :disabled="loadingPermissions"
           class="btn btn-pill btn-gradient color-4"
           type="button"
@@ -120,6 +133,7 @@ import AlertaService from "~/services/AlertService";
 import type { IParamsTable } from "~/interfaces/IParamsTable";
 
 const { run } = useApiHandler();
+const { can } = useAuthorization();
 const { allPermissions, loadPermissions } = usePermissions();
 
 const { handleSubmit, errors, defineField, resetForm, setErrors } =
@@ -159,6 +173,9 @@ const loadRoles = async (params: IParamsTable) => {
 };
 
 const save = handleSubmit(async (values) => {
+  if (isEditing.value && !can("roles.edit")) return;
+  if (!isEditing.value && !can("roles.create")) return;
+
   const promise = isEditing.value
     ? RolePermissionService.updateRole(selectedRole.value, values)
     : RolePermissionService.createRole(values);
@@ -187,6 +204,8 @@ const resetRoleForm = () => {
 };
 
 const editRole = (item: any) => {
+  if (!can("roles.edit")) return;
+
   isEditing.value = true;
   selectedRole.value = item.id;
 
@@ -203,6 +222,8 @@ const editRole = (item: any) => {
 };
 
 const deleteRole = async (item: any) => {
+  if (!can("roles.delete")) return;
+
   const result = await AlertaService.showConfirmation(
     "¿Está seguro de realizar esta operación?",
     `¿Eliminar el rol: ${item.name}?`,
@@ -221,12 +242,15 @@ const deleteRole = async (item: any) => {
 };
 
 const openPermissionsModal = (item: any) => {
+  if (!can("roles.assign-permissions")) return;
+
   selectedRole.value = item;
   selectedPermissions.value = item.permissions.map((p: any) => p.id);
   showModal.value = true;
 };
 
 const savePermissions = async () => {
+  if (!can("roles.assign-permissions")) return;
   if (!selectedRole.value) return;
 
   const response = await run(

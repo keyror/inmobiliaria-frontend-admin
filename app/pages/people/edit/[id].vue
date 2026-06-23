@@ -3,6 +3,10 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  permission: "people.edit",
+});
+
 useHead({
   title: "Sheltos - Admin Dashboard Page",
 });

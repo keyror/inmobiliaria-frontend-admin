@@ -54,6 +54,7 @@ interface MenuItem {
   collapse?: boolean;
   active?: boolean;
   label?: string;
+  permission?: string | string[];
   children?: MenuItem[];
 }
 

@@ -17,6 +17,7 @@
             Persona
           </button>
           <button
+            v-if="canManageFiscalProfile"
             :class="{ active: activeTab === 'fiscalProfiles' }"
             class="nav-link"
             type="button"
@@ -65,6 +66,7 @@
               </div>
               <div v-show="activeTab === 'fiscalProfiles'">
                 <PeopleFiscalProfiles
+                  v-if="canManageFiscalProfile"
                   ref="fiscalProfileRef"
                   :lookups="fiscalProfilesLookups || {}"
                   :data="person?.fiscal_profile"
@@ -94,7 +96,7 @@
                   :isEditing="props.isEditing"
                 />
               </div>
-              <div class="form-btn mt-3">
+              <div v-if="canSavePerson" class="form-btn mt-3">
                 <button class="btn btn-pill btn-gradient color-4" @click="save">
                   {{ props.isEditing ? "Actualizar" : "Crear" }}
                 </button>
@@ -138,6 +140,7 @@ import {
 } from "#components";
 
 const { run } = useApiHandler();
+const { can } = useAuthorization();
 
 const props = defineProps({
   isEditing: {
@@ -155,6 +158,14 @@ const addressesRef = ref<InstanceType<typeof Addresses> | null>(null);
 const contactsRef = ref<InstanceType<typeof Contacts> | null>(null);
 
 const activeTab = ref<string>("persons");
+const canSavePerson = computed(() =>
+  props.isEditing ? can("people.edit") : can("people.create"),
+);
+const canManageFiscalProfile = computed(() =>
+  props.isEditing
+    ? can("fiscal-profiles.edit")
+    : can("fiscal-profiles.create"),
+);
 
 const route = useRoute();
 const idPersona = route.params.id as string;
@@ -180,6 +191,8 @@ const { lookups } = useLookups([
 ]);
 
 const switchTab = (tab: string) => {
+  if (tab === "fiscalProfiles" && !canManageFiscalProfile.value) return;
+
   activeTab.value = tab;
 };
 
@@ -202,9 +215,13 @@ const { distributeErrors } = useFormErrorDistributor(
 );
 
 const save = async () => {
+  if (!canSavePerson.value) return;
+
   const forms = [
     { key: "persons", ref: personRef },
-    { key: "fiscalProfiles", ref: fiscalProfileRef },
+    ...(canManageFiscalProfile.value
+      ? [{ key: "fiscalProfiles", ref: fiscalProfileRef }]
+      : []),
     { key: "accountBank", ref: accountBankRef },
     { key: "addresses", ref: addressesRef },
     { key: "contacts", ref: contactsRef },

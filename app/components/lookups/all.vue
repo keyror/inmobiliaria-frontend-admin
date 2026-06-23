@@ -62,6 +62,7 @@
 
           <div class="mt-3">
             <button
+              v-if="can('lookups.create')"
               class="btn btn-pill btn-gradient color-4"
               type="button"
               @click="createLookup"
@@ -112,8 +113,14 @@
                 </template>
 
                 <template #item-actions="item">
-                  <div aria-label="Acciones" class="btn-group" role="group">
+                  <div
+                    v-if="can('lookups.edit') || can('lookups.delete')"
+                    aria-label="Acciones"
+                    class="btn-group"
+                    role="group"
+                  >
                     <button
+                      v-if="can('lookups.edit')"
                       class="btn btn-dashed color-1"
                       type="button"
                       @click="editLookup(item)"
@@ -122,6 +129,7 @@
                     </button>
 
                     <button
+                      v-if="can('lookups.delete')"
                       class="btn btn-dashed color-4"
                       type="button"
                       @click="deleteLookup(item)"
@@ -165,6 +173,7 @@ interface LookupFilterErrors {
 }
 
 const { run } = useApiHandler();
+const { can } = useAuthorization();
 
 const lookupsData = ref<ILookup[]>([]);
 const lookupsTotal = ref(0);
@@ -327,14 +336,20 @@ const clearFilters = () => {
 };
 
 const createLookup = () => {
+  if (!can("lookups.create")) return;
+
   navigateTo("/lookups/add");
 };
 
 const editLookup = (item: ILookup) => {
+  if (!can("lookups.edit")) return;
+
   navigateTo(`/lookups/edit/${item.id}`);
 };
 
 const deleteLookup = async (item: ILookup) => {
+  if (!can("lookups.delete")) return;
+
   const result = await AlertService.showConfirmation(
     "¿Está seguro de realizar esta operación?",
     `¿Eliminar el lookup: ${item.name}?`,

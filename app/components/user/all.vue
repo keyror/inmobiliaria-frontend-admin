@@ -44,11 +44,13 @@
 
                 <template #item-actions="item">
                   <div
+                    v-if="can('users.edit') || can('users.delete')"
                     class="btn-group"
                     role="group"
                     aria-label="Basic example"
                   >
                     <button
+                      v-if="can('users.edit')"
                       class="btn btn-dashed color-1"
                       type="button"
                       @click="editUser(item)"
@@ -56,6 +58,7 @@
                       <i class="fas fa-pen"></i>
                     </button>
                     <button
+                      v-if="can('users.delete')"
                       class="btn btn-dashed color-4"
                       type="button"
                       @click="deleteUser(item)"
@@ -85,10 +88,12 @@ import type { IExportOptions } from "~/interfaces/IExportOptions";
 import type { IParamsTable } from "~/interfaces/IParamsTable";
 
 const { run } = useApiHandler();
+const { can } = useAuthorization();
 
 const usersData = ref([]);
 
-const exportUsers: IExportOptions = {
+const exportUsers: IExportOptions | undefined = can("users.export")
+  ? {
   name: "usuarios",
   pdf: {
     url: ApiUrls.USERS_EXPORT_TO_PDF_GET,
@@ -98,7 +103,8 @@ const exportUsers: IExportOptions = {
     url: ApiUrls.USERS_EXPORT_TO_EXCEL_GET,
     extension: Constants.EXCEL,
   },
-};
+}
+  : undefined;
 
 const paramsTable = ref<IParamsTable>({
   page: 1,
@@ -119,10 +125,14 @@ const users = async (params: IParamsTable) => {
 };
 
 const editUser = (item: any) => {
+  if (!can("users.edit")) return;
+
   navigateTo(`/users/edit/${item.id}`);
 };
 
 const deleteUser = async (item: any) => {
+  if (!can("users.delete")) return;
+
   const result = await AlertService.showConfirmation(
     "¿ Está seguro de realizar esta operación ?",
     `Esta seguro de eliminar el registro : ${item.email}`,

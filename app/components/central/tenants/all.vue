@@ -18,13 +18,57 @@
                 :server-items-length="tenantsTotal"
                 @reload="reloadDataTable"
               >
+                <template #item-status.name="{ status }">
+                  <span
+                    v-if="status?.name === Constants.ACTIVO"
+                    class="label label-light label-flat color-3 me-1"
+                  >
+                    {{ status.name }}
+                  </span>
+
+                  <span v-else class="label label-light label-flat color-4">
+                    {{ status?.name ?? "-" }}
+                  </span>
+                </template>
+
                 <template #item-actions="item">
                   <div
+                    v-if="
+                      canAny([
+                        'tenants.edit',
+                        'tenants.delete',
+                        'tenants.activate',
+                        'tenants.deactivate',
+                      ])
+                    "
                     class="btn-group"
                     role="group"
                     aria-label="Basic example"
                   >
                     <button
+                      v-if="
+                        item.status?.name === Constants.ACTIVO &&
+                        can('tenants.deactivate')
+                      "
+                      class="btn btn-dashed color-4"
+                      type="button"
+                      @click="deactivate(item)"
+                    >
+                      <i class="fas fa-ban"></i>
+                    </button>
+                    <button
+                      v-if="
+                        item.status?.name !== Constants.ACTIVO &&
+                        can('tenants.activate')
+                      "
+                      class="btn btn-dashed color-3"
+                      type="button"
+                      @click="activate(item)"
+                    >
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button
+                      v-if="can('tenants.edit')"
                       class="btn btn-dashed color-1"
                       type="button"
                       @click="edit(item)"
@@ -32,6 +76,7 @@
                       <i class="fas fa-pen"></i>
                     </button>
                     <button
+                      v-if="can('tenants.delete')"
                       class="btn btn-dashed color-4"
                       type="button"
                       @click="deleted(item)"
@@ -53,12 +98,14 @@
 import sidebar from "@/../public/data/sidebar.json";
 import TenantService from "@/services/TenantService";
 import { useApiHandler } from "~/composables/useApiHandler";
+import { Constants } from "~/constants/Constants";
 import { tenantsHeader } from "~/constants/tableHeaders/TenantsHeader";
 import AlertService from "~/services/AlertService";
 
 import type { IParamsTable } from "~/interfaces/IParamsTable";
 
 const { run } = useApiHandler();
+const { can, canAny } = useAuthorization();
 
 const sidebarData = ref(sidebar);
 const tenantsData = ref([]);
@@ -83,6 +130,8 @@ const tenants = async (params: IParamsTable) => {
 };
 
 const deleted = async (item: any) => {
+  if (!can("tenants.delete")) return;
+
   const result = await AlertService.showConfirmation(
     "¿ Está seguro de realizar esta operación ?",
     `Esta seguro de eliminar el registro : ${item.name}`,
@@ -100,7 +149,35 @@ const deleted = async (item: any) => {
   }
 };
 
+const activate = async (item: any) => {
+  if (!can("tenants.activate")) return;
+
+  const response = await run(TenantService.activateTenant(item.id), {
+    showSuccess: true,
+    successMessage: "Tenant activado correctamente",
+  });
+
+  if (response) {
+    await tenants(paramsTable.value);
+  }
+};
+
+const deactivate = async (item: any) => {
+  if (!can("tenants.deactivate")) return;
+
+  const response = await run(TenantService.deactivateTenant(item.id), {
+    showSuccess: true,
+    successMessage: "Tenant desactivado correctamente",
+  });
+
+  if (response) {
+    await tenants(paramsTable.value);
+  }
+};
+
 const edit = (item: any) => {
+  if (!can("tenants.edit")) return;
+
   navigateTo(`/central/tenants/edit/${item.id}`);
 };
 

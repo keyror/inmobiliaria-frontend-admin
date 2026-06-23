@@ -3,6 +3,10 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  permission: "tenants.create",
+});
+
 useHead({
   title: "Sheltos - Admin Dashboard Page",
 });

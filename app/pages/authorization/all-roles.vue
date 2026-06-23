@@ -9,6 +9,7 @@
       <nav class="admin-theme-tabs">
         <div id="nav-tab" class="nav nav-tabs" role="tablist">
           <button
+            v-if="can('roles.view')"
             :class="{ active: activeTab === 'roles' }"
             class="nav-link"
             type="button"
@@ -17,6 +18,7 @@
             Roles
           </button>
           <button
+            v-if="can('permissions.view')"
             :class="{ active: activeTab === 'permissions' }"
             class="nav-link"
             type="button"
@@ -43,14 +45,23 @@
 </template>
 
 <script setup lang="ts">
-const activeTab = ref<string>("roles");
+definePageMeta({
+  permission: ["roles.view", "permissions.view"],
+});
+
+const { can } = useAuthorization();
+
+const activeTab = ref<string>(can("roles.view") ? "roles" : "permissions");
 
 const loadedTabs = ref<{ [key: string]: boolean }>({
-  roles: true,
-  permissions: false,
+  roles: can("roles.view"),
+  permissions: !can("roles.view") && can("permissions.view"),
 });
 
 const switchTab = (tab: string) => {
+  if (tab === "roles" && !can("roles.view")) return;
+  if (tab === "permissions" && !can("permissions.view")) return;
+
   activeTab.value = tab;
   // Marca como cargado cuando se activa, util cuando se carga data al hacer click a la pestaña
   loadedTabs.value[tab] = true;

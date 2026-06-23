@@ -4,40 +4,29 @@
       "link": "/",
       "icon": "lucide:monitor",
       "title": "Dashboard",
-      "titlePage": "All tenants",
+      "titlePage": "Dashboard",
       "collapse": false,
       "active": false
     },
     {
       "icon": "lucide:building-2",
       "title": "Propiedades",
+      "titlePage": "Administrar propiedades",
       "collapse": true,
       "active": false,
+      "permission": "properties.view",
       "children": [
         {
-          "link": "/myproperties/addproperty",
-          "title": "add property",
-          "icon": "lucide:chevron-right"
-        },
-        {
-          "link": "/myproperties/editproperty",
-          "title": "edit property",
-          "icon": "lucide:chevron-right"
+          "link": "/properties/all",
+          "title": "Listado",
+          "icon": "lucide:chevron-right",
+          "permission": "properties.view"
         },
         {
           "link": "/properties/add",
           "title": "Agregar",
-          "icon": "lucide:chevron-right"
-        },
-        {
-          "link": "/properties/all",
-          "title": "Listado",
-          "icon": "lucide:chevron-right"
-        },
-        {
-          "link": "/myproperties/favourites",
-          "title": "Favourites",
-          "icon": "lucide:chevron-right"
+          "icon": "lucide:chevron-right",
+          "permission": "properties.create"
         }
       ]
     },
@@ -47,16 +36,19 @@
       "titlePage": "Listado tenants",
       "collapse": true,
       "active": false,
+      "permission": "tenants.view",
       "children": [
         {
           "link": "/central/tenants/all",
           "title": "Listado tenants",
-          "icon": "lucide:chevron-right"
+          "icon": "lucide:chevron-right",
+          "permission": "tenants.view"
         },
         {
           "link": "/central/tenants/add",
           "title": "Agregar tenant",
-          "icon": "lucide:chevron-right"
+          "icon": "lucide:chevron-right",
+          "permission": "tenants.create"
         }
       ]
     },
@@ -66,26 +58,23 @@
       "titlePage": "Personas",
       "collapse": true,
       "active": false,
+      "permission": "people.view",
       "children": [
         {
-          "link": "/users/profile",
-          "title": "Profile",
-          "icon": "lucide:chevron-right"
+          "link": "/people/all",
+          "title": "Listado",
+          "icon": "lucide:chevron-right",
+          "permission": "people.view"
         },
         {
           "link": "/people/add",
           "title": "Agregar",
-          "icon": "lucide:chevron-right"
-        },
-        {
-          "link": "/users/adduserwizard",
-          "title": "Add user wizard",
           "icon": "lucide:chevron-right",
-          "label": "new"
+          "permission": "people.create"
         },
         {
-          "link": "/people/all",
-          "title": "Listado",
+          "link": "/users/profile",
+          "title": "Perfil",
           "icon": "lucide:chevron-right"
         }
       ]
@@ -96,7 +85,8 @@
       "title": "Empresa",
       "titlePage": "Configuración de empresa",
       "collapse": false,
-      "active": false
+      "active": false,
+      "permission": "companies.view"
     },
     {
       "link": "/realstate/site-management",
@@ -104,7 +94,8 @@
       "title": "Sitio público",
       "titlePage": "Configuración del sitio",
       "collapse": false,
-      "active": false
+      "active": false,
+      "permission": "site-settings.view"
     },
     {
       "icon": "lucide:list-tree",
@@ -112,16 +103,19 @@
       "titlePage": "Gestión de lookups",
       "collapse": true,
       "active": false,
+      "permission": "lookups.view",
       "children": [
         {
           "link": "/lookups/all",
           "title": "Listado",
-          "icon": "lucide:chevron-right"
+          "icon": "lucide:chevron-right",
+          "permission": "lookups.view"
         },
         {
           "link": "/lookups/add",
           "title": "Agregar",
-          "icon": "lucide:chevron-right"
+          "icon": "lucide:chevron-right",
+          "permission": "lookups.create"
         }
       ]
     },
@@ -131,144 +125,32 @@
       "titlePage": "Autorizaciones",
       "collapse": true,
       "active": false,
+      "permission": ["roles.view", "permissions.view", "users.view"],
       "children": [
         {
           "link": "/authorization/all-roles",
           "title": "Roles/Permisos",
-          "icon": "lucide:chevron-right"
+          "icon": "lucide:chevron-right",
+          "permission": ["roles.view", "permissions.view"]
         },
         {
           "title": "Usuarios",
           "icon": "lucide:chevron-right",
+          "permission": "users.view",
           "children": [
-            {
-              "title": "Agregar",
-              "link": "/users/add",
-              "icon": "lucide:chevron-right"
-            },
             {
               "title": "Listado",
               "link": "/users/all",
-              "icon": "lucide:chevron-right"
+              "icon": "lucide:chevron-right",
+              "permission": "users.view"
+            },
+            {
+              "title": "Agregar",
+              "link": "/users/add",
+              "icon": "lucide:chevron-right",
+              "permission": "users.create"
             }
           ]
-        }
-      ]
-    },
-    {
-      "icon": "lucide:user-plus",
-      "title": "Agents",
-      "titlePage": "All tenants",
-      "collapse": true,
-      "active": false,
-      "children": [
-        {
-          "link": "/agent/agentprofile",
-          "title": "Profile",
-          "icon": "lucide:chevron-right"
-        },
-        {
-          "link": "/agent/addagent",
-          "title": "Add agent",
-          "icon": "lucide:chevron-right"
-        },
-        {
-          "link": "/agent/addagentwizard",
-          "title": "Add agent wizard",
-          "icon": "lucide:chevron-right",
-          "label": "new"
-        },
-        {
-          "link": "/agent/editagent",
-          "title": "Edit agent",
-          "icon": "lucide:chevron-right"
-        },
-        {
-          "link": "/agent/allagent",
-          "title": "All agents",
-          "icon": "lucide:chevron-right"
-        },
-        {
-          "link": "/agent/invoice",
-          "title": "Invoice",
-          "icon": "lucide:chevron-right"
-        }
-      ]
-    },
-    {
-      "link": "/map",
-      "icon": "lucide:map-pin",
-      "title": "Map",
-      "titlePage": "All tenants",
-      "collapse": false,
-      "active": false
-    },
-    {
-      "icon": "lucide:layout-template",
-      "title": "Types",
-      "titlePage": "All tenants",
-      "collapse": true,
-      "active": false,
-      "children": [
-        {
-          "link": "/type/family",
-          "title": "Family House",
-          "icon": "lucide:chevron-right"
-        },
-        {
-          "link": "/type/cottage",
-          "title": "Cottage",
-          "icon": "lucide:chevron-right"
-        },
-        {
-          "link": "/type/appartment",
-          "title": "Appartment",
-          "icon": "lucide:chevron-right"
-        },
-        {
-          "link": "/type/condominium",
-          "title": "Condominium",
-          "icon": "lucide:chevron-right"
-        }
-      ]
-    },
-    {
-      "link": "/report",
-      "icon": "lucide:bar-chart-3",
-      "title": "Reports",
-      "titlePage": "All tenants",
-      "collapse": false,
-      "active": false
-    },
-    {
-      "link": "/payment",
-      "icon": "lucide:credit-card",
-      "title": "Payments",
-      "titlePage": "All tenants",
-      "collapse": false,
-      "active": false
-    },
-    {
-      "icon": "lucide:lock-keyhole-open",
-      "title": "Authentication",
-      "titlePage": "All tenants",
-      "collapse": true,
-      "active": false,
-      "children": [
-        {
-          "link": "/authentication/login",
-          "title": "Log in",
-          "icon": "lucide:chevron-right"
-        },
-        {
-          "link": "/authentication/signup",
-          "title": "sign up",
-          "icon": "lucide:chevron-right"
-        },
-        {
-          "link": "/authentication/404",
-          "title": "404",
-          "icon": "lucide:chevron-right"
         }
       ]
     }

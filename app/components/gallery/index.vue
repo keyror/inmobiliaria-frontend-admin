@@ -6,8 +6,10 @@
       class="row g-2"
       ghost-class="ghost"
       chosen-class="chosen"
-      :disabled="images.some((i) => i.uploading)"
-      :class="{ 'draggable-disabled': images.some((i) => i.uploading) }"
+      :disabled="!can('images.edit') || images.some((i) => i.uploading)"
+      :class="{
+        'draggable-disabled': !can('images.edit') || images.some((i) => i.uploading),
+      }"
       @end="onDragEnd"
     >
       <!-- IMÁGENES -->
@@ -42,7 +44,10 @@
               class="icon-btn delete"
               @click="remove(index)"
               v-if="
-                !element.uploading && !element.deleting && !element.settingCover
+                can('images.delete') &&
+                !element.uploading &&
+                !element.deleting &&
+                !element.settingCover
               "
             >
               <i class="fas fa-times"></i>
@@ -54,7 +59,10 @@
               :class="{ active: element.is_cover }"
               @click="setCover(index)"
               v-if="
-                !element.uploading && !element.deleting && !element.settingCover
+                can('images.edit') &&
+                !element.uploading &&
+                !element.deleting &&
+                !element.settingCover
               "
             >
               <i class="fas fa-star"></i>
@@ -68,7 +76,7 @@
       </template>
 
       <!-- AGREGAR -->
-      <template #footer v-if="images.length < props.maxImages">
+      <template #footer v-if="can('images.create') && images.length < props.maxImages">
         <div :class="addItemClasses">
           <label class="image-card add-card">
             <input
@@ -113,6 +121,7 @@ interface DragEndEvent {
 }
 
 const { run } = useApiHandler();
+const { can } = useAuthorization();
 
 const emit = defineEmits<{
   (e: "updateImages", value: IImagePayload[]): void;
@@ -176,6 +185,8 @@ const ensureSingleCover = () => {
 // SUBIR IMÁGENES
 //
 const onFileChange = async (event: Event) => {
+  if (!can("images.create")) return;
+
   const target = event.target as HTMLInputElement;
   if (!target.files) return;
 
@@ -238,6 +249,8 @@ const onFileChange = async (event: Event) => {
 // ELIMINAR
 //
 const remove = async (index: number) => {
+  if (!can("images.delete")) return;
+
   const img = images.value[index];
 
   if (!img.id) {
@@ -265,6 +278,8 @@ const remove = async (index: number) => {
 // PORTADA
 //
 const setCover = async (index: number) => {
+  if (!can("images.edit")) return;
+
   const img = images.value[index];
   if (!img.id) return;
 
@@ -285,6 +300,8 @@ const setCover = async (index: number) => {
 };
 
 const onDragEnd = (event: DragEndEvent) => {
+  if (!can("images.edit")) return;
+
   if (event.oldIndex !== event.newIndex) {
     emitImages();
   }

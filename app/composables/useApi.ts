@@ -110,6 +110,7 @@ export function useApi<T>(
           mensaje,
           response._data.errors ?? undefined,
           response.status,
+          response._data.required_permissions ?? undefined,
         );
       }
     },
@@ -128,9 +129,9 @@ export function useApi<T>(
         isLoggingOut = true;
 
         try {
-          await auth.logout();
+          auth.clearAuth();
         } finally {
-          navigateTo("/login");
+          navigateTo("/authentication/login");
           isLoggingOut = false;
         }
       }
@@ -139,6 +140,7 @@ export function useApi<T>(
         mensaje,
         response?._data?.errors ?? undefined,
         response?.status,
+        response?._data?.required_permissions ?? undefined,
       );
     },
   };

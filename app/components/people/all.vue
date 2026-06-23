@@ -17,11 +17,17 @@
               >
                 <template #item-actions="item">
                   <div
+                    v-if="
+                      can('people.edit') ||
+                      can('people.delete') ||
+                      can('properties.edit')
+                    "
                     class="btn-group"
                     role="group"
                     aria-label="Basic example"
                   >
                     <button
+                      v-if="can('people.edit')"
                       class="btn btn-dashed color-1"
                       type="button"
                       @click="edit(item)"
@@ -29,6 +35,7 @@
                       <i class="fas fa-pen"></i>
                     </button>
                     <button
+                      v-if="can('people.delete')"
                       class="btn btn-dashed color-4"
                       type="button"
                       @click="deletePerson(item)"
@@ -36,6 +43,7 @@
                       <i class="fa fa-trash"></i>
                     </button>
                     <button
+                      v-if="can('properties.edit')"
                       class="btn btn-dashed color-2"
                       @click="openPropertiesModal(item)"
                     >
@@ -94,6 +102,7 @@ import AlertService from "~/services/AlertService";
 import type { IParamsTable } from "~/interfaces/IParamsTable";
 
 const { run } = useApiHandler();
+const { can } = useAuthorization();
 
 const data = ref([]);
 
@@ -109,11 +118,15 @@ const showPropertiesModal = ref(false);
 const selectedPerson = ref<any>(null);
 
 const openPropertiesModal = (item: any) => {
+  if (!can("properties.edit")) return;
+
   selectedPerson.value = item;
   showPropertiesModal.value = true;
 };
 
 const goToProperty = (id: string) => {
+  if (!can("properties.edit")) return;
+
   navigateTo(`/properties/edit/${id}`);
 };
 
@@ -127,10 +140,14 @@ const people = async (params: IParamsTable) => {
 };
 
 const edit = (item: any) => {
+  if (!can("people.edit")) return;
+
   navigateTo(`/people/edit/${item.id}`);
 };
 
 const deletePerson = async (item: any) => {
+  if (!can("people.delete")) return;
+
   const result = await AlertService.showConfirmation(
     "¿ Está seguro de realizar esta operación ?",
     `Esta seguro de eliminar el registro : ${item.full_name}`,
