@@ -1,38 +1,17 @@
 <template>
-  <div class="page-wrapper">
-    <div class="page-not-found">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-lg-6 col-md-8 col-sm-10">
-            <div class="not-found-img">
-              <img src="/image/svg/3.svg" class="img-fluid" alt="" />
-              <div class="animation-error">
-                <img src="/image/svg/error.svg" class="img-fluid" alt="" />
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-6 col-md-8 col-sm-10">
-            <div class="not-found-content">
-              <h2>No tienes permisos para acceder a este recurso.</h2>
-              <p class="font-roboto light-font">
-                Contacta con el administrador o soporte del sistema si necesitas mas información.
-              </p>
-              <div class="btns">
-                <nuxt-link to="/" class="btn btn-pill btn-gradient color-4"
-                >Volver al inicio</nuxt-link
-                >
-<!--                <nuxt-link to="/" class="btn btn-pill btn-dashed color-4 ms-2"
-                >Report problem</nuxt-link
-                >-->
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <main class="forbidden-page">
+    <section class="forbidden-panel">
+      <div class="forbidden-code">403</div>
+      <h1>Acceso restringido</h1>
+      <p>
+        Tu usuario no tiene permisos para consultar este recurso.
+      </p>
+      <NuxtLink class="btn btn-pill btn-gradient color-4" to="/">
+        Volver a inicio
+      </NuxtLink>
+    </section>
+  </main>
 </template>
-<Page404 />
 
 <script setup lang="ts">
 definePageMeta({
@@ -40,6 +19,47 @@ definePageMeta({
 });
 
 useHead({
-  title: "Acceso denegado",
+  title: "Acceso restringido",
 });
 </script>
+
+<style scoped>
+.forbidden-page {
+  align-items: center;
+  background: #f7f8fa;
+  display: flex;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.forbidden-panel {
+  background: #ffffff;
+  border: 1px solid rgba(28, 45, 58, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 16px 40px rgba(28, 45, 58, 0.08);
+  margin: 0 auto;
+  max-width: 460px;
+  padding: 32px;
+  text-align: center;
+}
+
+.forbidden-code {
+  color: var(--theme-default7, #586167);
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+h1 {
+  color: #1c2d3a;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #6c757d;
+  line-height: 1.6;
+  margin: 0 auto 24px;
+}
+</style>
