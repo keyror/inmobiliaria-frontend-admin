@@ -75,6 +75,18 @@
                     >
                       <i class="fas fa-pen"></i>
                     </button>
+
+                    <!-- DOMAIN BUTTON -->
+                    <a
+                      v-if="item.domain"
+                      :href="formatDomain(item.domain)"
+                      class="btn btn-dashed color-2"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <i class="fas fa-external-link-alt"></i>
+                    </a>
+
                     <button
                       v-if="can('tenants.delete')"
                       class="btn btn-dashed color-4"
@@ -179,6 +191,13 @@ const edit = (item: any) => {
   if (!can("tenants.edit")) return;
 
   navigateTo(`/central/tenants/edit/${item.id}`);
+};
+
+const formatDomain = (domain: string) => {
+  if (!domain) return "";
+  // If domain already contains protocol, return as-is
+  if (/^https?:\/\//i.test(domain)) return domain;
+  return `https://${domain}`;
 };
 
 const reloadDataTable = () => {
