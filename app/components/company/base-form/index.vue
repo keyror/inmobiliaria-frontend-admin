@@ -146,6 +146,17 @@ const { distributeErrors } = useFormErrorDistributor(
   switchTab,
 );
 
+const hasValue = (value: unknown): boolean => {
+  if (Array.isArray(value)) return value.some(hasValue);
+  if (value && typeof value === "object") {
+    return Object.entries(value).some(
+      ([key, nestedValue]) => key !== "is_principal" && hasValue(nestedValue),
+    );
+  }
+
+  return value !== null && value !== undefined && String(value).trim() !== "";
+};
+
 const getCompany = async () => {
   const response = await run(CompanyService.getCurrentCompany());
   if (response) {
@@ -157,14 +168,18 @@ const save = async () => {
   if (!canSaveCompany.value) return;
 
   const forms = [
-    { key: "company", ref: companyRef },
-    { key: "addresses", ref: addressesRef },
-    { key: "contacts", ref: contactsRef },
+    { key: "company", ref: companyRef, optional: false },
+    { key: "addresses", ref: addressesRef, optional: true },
+    { key: "contacts", ref: contactsRef, optional: true },
   ];
 
   const data: ISaveCompany = {};
 
   for (const form of forms) {
+    const values = form.ref.value?.getValues();
+
+    if (form.optional && !hasValue(values)) continue;
+
     const isValid = await form.ref.value?.validateForm();
 
     if (!isValid) {
@@ -172,8 +187,6 @@ const save = async () => {
       await AlertService.showFormError();
       return;
     }
-
-    const values = form.ref.value?.getValues();
 
     if (form.key === "company") data.company = values;
     if (form.key === "addresses") data.addresses = values;

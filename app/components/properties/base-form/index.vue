@@ -253,30 +253,42 @@ const { distributeErrors } = useFormErrorDistributor(
   switchTab,
 );
 
+const hasValue = (value: unknown): boolean => {
+  if (Array.isArray(value)) return value.some(hasValue);
+  if (value && typeof value === "object") {
+    return Object.entries(value).some(
+      ([key, nestedValue]) => key !== "is_principal" && hasValue(nestedValue),
+    );
+  }
+
+  return value !== null && value !== undefined && String(value).trim() !== "";
+};
+
 const save = async () => {
   const forms = [
-    { key: "property", ref: propertyRef },
-    { key: "ownerships", ref: ownershipsRef },
-    { key: "addresses", ref: addressesRef },
-    { key: "contacts", ref: contactsRef },
-    { key: "areas", ref: areasRef },
-    { key: "publishChannels", ref: publishChannelsRef },
-    { key: "obligations", ref: obligationsRef },
+    { key: "property", ref: propertyRef, optional: false },
+    { key: "ownerships", ref: ownershipsRef, optional: false },
+    { key: "addresses", ref: addressesRef, optional: false },
+    { key: "contacts", ref: contactsRef, optional: false },
+    { key: "areas", ref: areasRef, optional: false },
+    { key: "publishChannels", ref: publishChannelsRef, optional: false },
+    { key: "obligations", ref: obligationsRef, optional: false },
   ];
 
   const data: ISaveProperty = {};
 
   for (const form of forms) {
+    const values = form.ref.value?.getValues();
+
+    if (form.optional && !hasValue(values)) continue;
+
     const isValid = await form.ref.value?.validateForm();
 
     if (!isValid) {
-      console.log("form", form.key);
       switchTab(form.key);
       await AlertService.showFormError();
       return;
     }
-
-    const values = form.ref.value?.getValues();
 
     if (form.key === "property") data.property = values;
     if (form.key === "ownerships") data.ownerships = values;

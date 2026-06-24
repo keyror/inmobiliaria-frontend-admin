@@ -214,22 +214,37 @@ const { distributeErrors } = useFormErrorDistributor(
   switchTab,
 );
 
+const hasValue = (value: unknown): boolean => {
+  if (Array.isArray(value)) return value.some(hasValue);
+  if (value && typeof value === "object") {
+    return Object.entries(value).some(
+      ([key, nestedValue]) => key !== "is_principal" && hasValue(nestedValue),
+    );
+  }
+
+  return value !== null && value !== undefined && String(value).trim() !== "";
+};
+
 const save = async () => {
   if (!canSavePerson.value) return;
 
   const forms = [
-    { key: "persons", ref: personRef },
+    { key: "persons", ref: personRef, optional: false },
     ...(canManageFiscalProfile.value
-      ? [{ key: "fiscalProfiles", ref: fiscalProfileRef }]
+      ? [{ key: "fiscalProfiles", ref: fiscalProfileRef, optional: true }]
       : []),
-    { key: "accountBank", ref: accountBankRef },
-    { key: "addresses", ref: addressesRef },
-    { key: "contacts", ref: contactsRef },
+    { key: "accountBank", ref: accountBankRef, optional: true },
+    { key: "addresses", ref: addressesRef, optional: true },
+    { key: "contacts", ref: contactsRef, optional: false },
   ];
 
   const data: ISavePerson = {};
 
   for (const form of forms) {
+    const values = form.ref.value?.getValues();
+
+    if (form.optional && !hasValue(values)) continue;
+
     const isValid = await form.ref.value?.validateForm();
 
     if (!isValid) {
@@ -239,8 +254,6 @@ const save = async () => {
     }
 
     // recolectar data
-    const values = form.ref.value?.getValues();
-
     if (form.key === "persons") data.person = values as IPerson;
     if (form.key === "fiscalProfiles")
       data.fiscal_profile = values as IFiscalProfile;
