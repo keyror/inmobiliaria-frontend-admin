@@ -8,7 +8,8 @@
       chosen-class="chosen"
       :disabled="!can('images.edit') || images.some((i) => i.uploading)"
       :class="{
-        'draggable-disabled': !can('images.edit') || images.some((i) => i.uploading),
+        'draggable-disabled':
+          !can('images.edit') || images.some((i) => i.uploading),
       }"
       @end="onDragEnd"
     >
@@ -17,11 +18,16 @@
         <div :class="props.itemClasses">
           <div class="image-card">
             <img
+              v-if="element.url"
               :src="element.url"
               @load="element.imageLoading = false"
               @error="element.imageLoading = false"
               alt="img"
             />
+            <!-- PLACEHOLDER -->
+            <div v-else class="placeholder">
+              <div class="placeholder-text">{{ props.dimensions }}</div>
+            </div>
 
             <!-- LOADING GLOBAL -->
             <!-- Overlay spinner actualizado -->
@@ -59,6 +65,7 @@
               :class="{ active: element.is_cover }"
               @click="setCover(index)"
               v-if="
+                props.showCover &&
                 can('images.edit') &&
                 !element.uploading &&
                 !element.deleting &&
@@ -76,9 +83,17 @@
       </template>
 
       <!-- AGREGAR -->
-      <template #footer v-if="can('images.create') && images.length < props.maxImages">
+      <template
+        #footer
+        v-if="can('images.create') && images.length < props.maxImages"
+      >
         <div :class="addItemClasses">
-          <label class="image-card add-card">
+          <label
+            class="image-card add-card"
+            :class="{
+              'with-dimensions': images.length === 0 && props.dimensions,
+            }"
+          >
             <input
               type="file"
               :multiple="props.maxImages > 1"
@@ -87,6 +102,13 @@
               hidden
             />
             <span class="plus">+</span>
+            <!-- Dimensiones dentro de la misma card cuando aún no hay imágenes -->
+            <span
+              v-if="images.length === 0 && props.dimensions"
+              class="placeholder-text"
+            >
+              {{ props.dimensions }}
+            </span>
           </label>
         </div>
       </template>
@@ -133,12 +155,16 @@ const props = withDefaults(
     maxImages?: number;
     itemClasses?: string;
     addItemClasses?: string;
+    dimensions?: string;
+    showCover?: boolean;
   }>(),
   {
     data: () => [],
     maxImages: 10,
     itemClasses: "col-sm-12 col-lg-2",
     addItemClasses: "",
+    dimensions: "",
+    showCover: true,
   },
 );
 
@@ -347,6 +373,24 @@ defineExpose({
   object-fit: cover;
 }
 
+/* PLACEHOLDER */
+.placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #bbb;
+}
+
+.placeholder-text {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+  text-align: center;
+}
+
 /* ADD */
 .add-card {
   display: flex;
@@ -356,8 +400,15 @@ defineExpose({
   color: #888;
 }
 
+/* Solo cuando se muestra el texto de dimensiones junto al "+" (placeholder vacío) */
+.add-card.with-dimensions {
+  flex-direction: column;
+  gap: 6px;
+}
+
 .plus {
   font-size: 40px;
+  line-height: 1;
 }
 
 /* OVERLAY */

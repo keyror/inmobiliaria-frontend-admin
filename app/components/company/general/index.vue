@@ -55,6 +55,8 @@
         item-classes="col"
         :maxImages="1"
         @updateImages="handleLogo"
+        dimensions="230x69"
+        :showCover="false"
       />
       <small v-if="errors.logo_image_id" class="text-danger">
         {{ errors.logo_image_id }}

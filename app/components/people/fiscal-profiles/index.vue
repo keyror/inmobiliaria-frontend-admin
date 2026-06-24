@@ -69,14 +69,14 @@
       :error="errors.ica_withholding"
     />
 
-    <CommonInputfieldsNumberfield
+    <!--    <CommonInputfieldsNumberfield
       v-model="rental_fee"
       type="number"
       classes="col-md-6 col-sm-6"
       label="Canon de arrendamiento"
       placeholder="Ej: 1.5"
       :error="errors.rental_fee"
-    />
+    />-->
   </form>
 </template>
 <script lang="ts" setup>
