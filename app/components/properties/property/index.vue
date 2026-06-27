@@ -140,6 +140,14 @@
       label="Cupos de Garaje"
     />
 
+    <!-- Propiedad destacada -->
+    <CommonInputfieldsCheckbox
+      v-model="is_featured"
+      name="is_featured"
+      label="Propiedad destacada"
+      classes="col-12"
+    />
+
     <!-- Precios -->
     <div class="col-12 mt-3 mb-3">
       <div class="d-flex justify-content-between align-items-center mb-2">
@@ -311,6 +319,7 @@ const [bedrooms] = defineField("bedrooms");
 const [bathrooms] = defineField("bathrooms");
 const [garage_type_id] = defineField("garage_type_id");
 const [garage_spots] = defineField("garage_spots");
+const [is_featured] = defineField("is_featured");
 const [description] = defineField("description");
 const [features] = defineField("features");
 const [url_google_map] = defineField("url_google_map");

@@ -23,6 +23,7 @@ export const propertySchema = Yup.object({
   garage_type_id: Yup.string().nullable().notRequired(),
   garage_spots: Yup.string().nullable().notRequired(),
 
+  is_featured: Yup.boolean().notRequired(),
   description: Yup.string().nullable().notRequired(),
 
   features: Yup.array().of(Yup.string()).nullable().notRequired(),

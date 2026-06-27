@@ -21,6 +21,7 @@ export const usePropertyForm = (initialData?: any) => {
       bathrooms: initialData?.bathrooms ?? "",
       garage_type_id: initialData?.garage_type_id ?? "",
       garage_spots: initialData?.garage_spots ?? "",
+      is_featured: initialData?.is_featured ?? false,
       description: initialData?.description ?? "",
       features: initialData?.features ?? [],
       url_google_map: initialData?.url_google_map ?? "",
