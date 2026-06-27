@@ -35,5 +35,5 @@ export interface IProperty {
   publish_channels?: IPublishChannel[];
   features?: any[];
   obligations: IPropertyObligation[];
-  price: IPropertyPrice;
+  prices: IPropertyPrice[];
 }

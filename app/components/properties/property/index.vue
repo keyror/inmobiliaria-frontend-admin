@@ -140,38 +140,70 @@
       label="Cupos de Garaje"
     />
 
-    <!-- Precio -->
-    <CommonInputfieldsSelectfield
-      v-model="price_type_id"
-      :data="lookups.priceTypes"
-      classes="col-md-3"
-      label="Tipo de Precio"
-      labelField="name"
-    />
+    <!-- Precios -->
+    <div class="col-12 mt-3 mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0">Precios</h6>
+        <button
+          v-if="offer_type_id"
+          type="button"
+          class="btn btn-pill btn-dashed color-4"
+          @click="showPricesModal = true"
+        >
+          <i class="bi bi-pencil me-1"></i>
+          Editar precios
+        </button>
+      </div>
 
-    <CommonInputfieldsTextfield
-      v-model="price_min"
-      classes="col-md-3"
-      label="Precio Mínimo"
-    />
+      <div v-if="!offer_type_id" class="alert alert-warning mb-0">
+        Seleccione un tipo de oferta para configurar los precios.
+      </div>
+      <div v-else-if="values.prices?.length" class="d-flex flex-wrap gap-2">
+        <span
+          v-for="price in values.prices"
+          :key="String(price.price_type_id)"
+          class="badge bg-light text-dark border p-2 fs-6"
+        >
+          <span class="fw-semibold"
+            >{{ getPriceTypeName(price.price_type_id) }}:</span
+          >
+          {{ price.price ? formatCOP(price.price) : 'Sin valor' }}
+        </span>
+      </div>
+      <div v-else class="alert alert-info mb-0">
+        Sin precios configurados.
+        <button
+          type="button"
+          class="btn btn-sm btn-link p-0 ms-2"
+          @click="showPricesModal = true"
+        >Configurar ahora</button>
+      </div>
+    </div>
 
-    <CommonInputfieldsTextfield
-      v-model="price_max"
-      classes="col-md-3"
-      label="Precio Máximo"
-    />
-
-    <CommonInputfieldsTextfield
-      v-model="price"
-      classes="col-md-3"
-      label="Precio"
-    />
-
-    <CommonInputfieldsTextfield
-      v-model="currency"
-      classes="col-md-3"
-      label="Moneda"
-    />
+    <CommonModal
+      v-model:show="showPricesModal"
+      title="Configurar Precios"
+      size="xl"
+      @close="onPricesModalClose"
+    >
+      <form class="admin-form" @submit.prevent>
+        <PropertiesPrices
+          ref="pricesRef"
+          :price-types="filteredPriceTypes"
+          :show-add-button="false"
+          :locked-type="true"
+        />
+      </form>
+      <template #actions>
+        <button
+          type="button"
+          class="btn btn-pill btn-gradient color-4"
+          @click="savePricesModal"
+        >
+          Guardar
+        </button>
+      </template>
+    </CommonModal>
 
     <!-- Descripción -->
     <CommonInputfieldsTextarea
@@ -234,6 +266,7 @@ import type { Gallery } from "#components";
 import type { IImagePayload } from "~/interfaces/IImageItem";
 import type { ILookup } from "~/interfaces/ILookup";
 import type { IProperty } from "~/interfaces/IProperty";
+import type { IPropertyPrice } from "~/interfaces/IPropertyPrice";
 
 interface PropertyFeatureFormValue {
   feature_type_id: string;
@@ -286,12 +319,73 @@ const [url_google_map] = defineField("url_google_map");
 const [latitude] = defineField("latitude");
 const [longitude] = defineField("longitude");
 
-// nested (price)
-const [price_type_id] = defineField("price.price_type_id");
-const [price_min] = defineField("price.price_min");
-const [price_max] = defineField("price.price_max");
-const [price] = defineField("price.price");
-const [currency] = defineField("price.currency");
+// sincronización oferta ↔ precio (dirigida por offer_type.code en el lookup)
+const isResettingForm = ref(false);
+const showPricesModal = ref(false);
+
+const selectedOfferType = computed(
+  () => props.lookups.offerType?.find((o) => o.id === offer_type_id.value) ?? null,
+);
+
+const allowedPriceAliases = computed((): string[] => {
+  const code = selectedOfferType.value?.code;
+  if (!code) return [];
+  return code.split(",").map((s) => s.trim());
+});
+
+const filteredPriceTypes = computed(() =>
+  (props.lookups.priceTypes ?? []).filter((pt) =>
+    allowedPriceAliases.value.includes(pt.alias ?? ""),
+  ),
+);
+
+const prePopulatePrices = (): IPropertyPrice[] =>
+  allowedPriceAliases.value
+    .map((alias) => {
+      const priceType = props.lookups.priceTypes.find((pt) => pt.alias === alias);
+      if (!priceType) return null;
+      return { id: null, price_type_id: priceType.id, price_min: "", price_max: "", price: null, currency: "COP" };
+    })
+    .filter((p): p is IPropertyPrice => p !== null);
+
+const getPriceTypeName = (priceTypeId: string | null): string =>
+  props.lookups.priceTypes.find((pt) => pt.id === priceTypeId)?.name ?? "";
+
+const copFormatter = new Intl.NumberFormat("es-CO");
+const formatCOP = (value: string | number | null | undefined): string => {
+  if (value === null || value === undefined || value === "") return "";
+  return copFormatter.format(Number(value));
+};
+
+type PricesComponentRef = { validatePrices: () => boolean; resetValidation: () => void };
+const pricesRef = ref<PricesComponentRef | null>(null);
+
+const isNewOfferTypeSelection = ref(false);
+
+watch(offer_type_id, (newVal, oldVal) => {
+  if (isResettingForm.value || !newVal || oldVal === newVal) return;
+  setFieldValue("prices", prePopulatePrices());
+  isNewOfferTypeSelection.value = true;
+  pricesRef.value?.resetValidation();
+  showPricesModal.value = true;
+});
+
+const savePricesModal = () => {
+  if (!pricesRef.value?.validatePrices()) return;
+  isNewOfferTypeSelection.value = false;
+  showPricesModal.value = false;
+};
+
+const onPricesModalClose = () => {
+  if (!isNewOfferTypeSelection.value) return;
+  isResettingForm.value = true;
+  setFieldValue("offer_type_id", null);
+  setFieldValue("prices", []);
+  nextTick(() => {
+    isResettingForm.value = false;
+  });
+  isNewOfferTypeSelection.value = false;
+};
 
 // gallery
 const galleryRef = ref<InstanceType<typeof Gallery> | null>(null);
@@ -303,8 +397,9 @@ const handleImages = (imgs: IImagePayload[]) => {
 // cargar edición
 watch(
   () => props.data,
-  (newData) => {
+  async (newData) => {
     if (newData) {
+      isResettingForm.value = true;
       resetForm({
         values: {
           ...newData,
@@ -312,8 +407,11 @@ watch(
             newData.features?.map(
               (feature: PropertyFeatureFormValue) => feature.feature_type_id,
             ) ?? [],
+          prices: newData.prices ?? [],
         },
       });
+      await nextTick();
+      isResettingForm.value = false;
     }
   },
   { immediate: true },
@@ -337,6 +435,7 @@ defineExpose({
       features: values.features?.map((id: string) => ({
         feature_type_id: id,
       })),
+      prices: values.prices ?? [],
     } as IProperty;
   },
   reset() {

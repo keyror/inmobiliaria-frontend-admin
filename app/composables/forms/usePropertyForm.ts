@@ -27,14 +27,7 @@ export const usePropertyForm = (initialData?: any) => {
       latitude: initialData?.latitude ?? "",
       longitude: initialData?.longitude ?? "",
 
-      // nested
-      price: {
-        price_type_id: initialData?.price?.price_type_id ?? "",
-        price_min: initialData?.price?.price_min ?? "",
-        price_max: initialData?.price?.price_max ?? "",
-        price: initialData?.price?.price ?? "",
-        currency: initialData?.price?.currency ?? "",
-      },
+      prices: initialData?.prices ?? [],
 
       images: initialData?.images ?? [],
     },

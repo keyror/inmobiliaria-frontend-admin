@@ -162,6 +162,7 @@ import { Constants } from "~/constants/Constants";
 import AlertService from "~/services/AlertService";
 import PropertyService from "~/services/PropertyService";
 
+import type { IProperty } from "~/interfaces/IProperty";
 import type { ISaveProperty } from "~/interfaces/ISaveProperty";
 
 import {
@@ -290,7 +291,11 @@ const save = async () => {
       return;
     }
 
-    if (form.key === "property") data.property = values;
+    if (form.key === "property") {
+      const { prices, ...propertyData } = values as IProperty;
+      data.property = propertyData;
+      data.prices = prices;
+    }
     if (form.key === "ownerships") data.ownerships = values;
     if (form.key === "addresses") data.addresses = values;
     if (form.key === "contacts") data.contacts = values;

@@ -31,13 +31,17 @@ export const propertySchema = Yup.object({
   latitude: Yup.string().nullable().notRequired(),
   longitude: Yup.string().nullable().notRequired(),
 
-  price: Yup.object({
-    price_type_id: Yup.string().nullable().notRequired(),
-    price_min: Yup.string().nullable().notRequired(),
-    price_max: Yup.string().nullable().notRequired(),
-    price: Yup.string().nullable().notRequired(),
-    currency: Yup.string().nullable().notRequired(),
-  })
+  prices: Yup.array()
+    .of(
+      Yup.object({
+        id: Yup.string().nullable().notRequired(),
+        price_type_id: Yup.string().nullable().notRequired(),
+        price_min: Yup.mixed().required("Requerido"),
+        price_max: Yup.mixed().required("Requerido"),
+        price: Yup.mixed().required("Requerido"),
+        currency: Yup.string().nullable().notRequired(),
+      }),
+    )
     .nullable()
     .notRequired(),
 

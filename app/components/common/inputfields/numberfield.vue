@@ -6,6 +6,23 @@
     </label>
 
     <input
+      v-if="format"
+      ref="inputRef"
+      type="text"
+      inputmode="numeric"
+      class="form-control input-field"
+      :class="{ 'is-invalid': error }"
+      :placeholder="placeholder"
+      :value="displayValue"
+      :required="required"
+      :readonly="readonly"
+      :disabled="disabled"
+      :name="name"
+      @input="onFormattedInput"
+    />
+
+    <input
+      v-else
       ref="inputRef"
       type="number"
       class="form-control input-field"
@@ -41,17 +58,35 @@ const props = defineProps({
   min: Number,
   max: Number,
   step: Number,
+  format: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(["update:modelValue"]);
 
 const inputRef = ref<HTMLInputElement | null>(null);
 
+const formatter = new Intl.NumberFormat("es-CO");
+
+const displayValue = computed(() => {
+  const num = Number(props.modelValue || 0);
+  return num ? formatter.format(num) : "";
+});
+
+const onFormattedInput = (event: Event) => {
+  const raw = (event.target as HTMLInputElement).value.replace(/\D/g, "");
+  const num = raw === "" ? null : Number(raw);
+
+  if (inputRef.value) {
+    inputRef.value.value = num ? formatter.format(num) : "";
+  }
+
+  emit("update:modelValue", num);
+};
+
 const localValue = computed({
   get: () => props.modelValue,
   set: (val: string | number | null) => {
     const parsed = val === "" || val === null ? null : Number(val);
-
     emit("update:modelValue", isNaN(parsed as number) ? null : parsed);
   },
 });
