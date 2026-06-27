@@ -88,9 +88,27 @@ const result = await run(XxxService.create(payload), {
 // result is null on error, response data on success
 ```
 
+## Verificación post-cambio (OBLIGATORIA)
+
+Después de aplicar cualquier cambio, **siempre**:
+
+1. Levantar el proyecto con `npm run dev` desde `frontend/`
+2. Observar la salida en busca de errores de compilación, TypeScript o Vite
+3. Si hay errores: leerlos, identificar el archivo y línea, corregirlos
+4. Repetir hasta que el servidor arranque sin errores en consola
+5. Solo entonces reportar el trabajo como terminado
+
+```powershell
+# Desde admin/frontend/
+npm run dev
+```
+
+Si el servidor ya está corriendo (error de puerto ocupado), revisar si el proceso existente tiene errores o simplemente ya está activo.
+
 ## When Done
 
-- Verify TypeScript has no errors (no `any` unless justified)
-- Check that API URLs are added to `constants/ApiUrls.ts`
-- Check that new interfaces are added to `interfaces/`
-- Verify permission guards are applied to sensitive actions
+- Verificación post-cambio ejecutada y sin errores de compilación
+- TypeScript sin errores (no `any` sin justificación)
+- API URLs agregadas a `constants/ApiUrls.ts`
+- Interfaces nuevas en `interfaces/`
+- Permission guards aplicados a acciones sensibles
