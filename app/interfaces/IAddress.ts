@@ -1,5 +1,6 @@
 export interface IAddress {
   id?: string | null;
+  name?: string | null;
   address: string;
   city_id: string;
   department_id: string;

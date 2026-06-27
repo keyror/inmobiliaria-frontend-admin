@@ -5,6 +5,7 @@ export const addressFormSchema = yup.object({
     .array()
     .of(
       yup.object({
+        name: yup.string().nullable().notRequired(),
         address: yup.string().required("La dirección es obligatoria"),
 
         via_type_id: yup.string().required("Seleccione el tipo de vía"),

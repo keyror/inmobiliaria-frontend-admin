@@ -29,6 +29,7 @@ const getFieldError = (index: number, field: string): string => {
 };
 
 const emptyContact: IContact = {
+  name: "",
   phone: "",
   mobile: "",
   email: "",
@@ -135,6 +136,14 @@ defineExpose({
         </div>
 
         <form class="row gx-3">
+          <CommonInputfieldsTextfield
+            v-model="field.value.name"
+            classes="col-md-12"
+            label="Nombre"
+            placeholder="Ej: Juan Pérez"
+            :error="getFieldError(index, 'name')"
+          />
+
           <CommonInputfieldsTextfield
             v-model="field.value.phone"
             type="text"

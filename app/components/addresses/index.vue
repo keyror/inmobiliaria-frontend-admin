@@ -41,6 +41,7 @@ const getFieldError = (index: number, field: string): string => {
 };
 
 const emptyAddress: IAddress = {
+  name: "",
   address: "",
   via_type_id: "",
   via_number: "",
@@ -206,6 +207,14 @@ defineExpose({
         </div>
 
         <form class="row gx-3">
+          <CommonInputfieldsTextfield
+            v-model="field.value.name"
+            classes="col-12"
+            label="Nombre / Etiqueta"
+            placeholder="Ej: Casa, Oficina, Bodega"
+            :error="getFieldError(index, 'name')"
+          />
+
           <div class="col-12 mb-3">
             <label class="form-label fw-bold">Construir Dirección</label>
             <div class="row gx-2">

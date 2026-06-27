@@ -5,6 +5,7 @@ export const contactFormSchema = yup.object({
     .array()
     .of(
       yup.object({
+        name: yup.string().nullable().notRequired(),
         phone: yup.string().nullable().notRequired(),
 
         mobile: yup.string().required("El teléfono móvil es obligatorio"),
