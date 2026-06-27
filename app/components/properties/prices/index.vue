@@ -27,7 +27,6 @@
         <div class="d-flex justify-content-between align-items-start mb-3">
           <h6 class="mb-0">Precio #{{ index + 1 }}</h6>
           <button
-            v-if="!lockedType"
             type="button"
             class="btn btn-dashed color-4"
             @click="remove(index)"
@@ -39,8 +38,7 @@
         <div class="row gx-3">
           <CommonInputfieldsSelectfield
             v-model="field.value.price_type_id"
-            :data="priceTypes"
-            :disabled="lockedType"
+            :data="availableTypesByIndex[index]"
             classes="col-md-3"
             label="Tipo de Precio"
             labelField="name"
@@ -94,18 +92,29 @@ const props = withDefaults(
   defineProps<{
     priceTypes?: ILookup[];
     showAddButton?: boolean;
-    lockedType?: boolean;
   }>(),
   {
     priceTypes: () => [],
     showAddButton: true,
-    lockedType: false,
   },
 );
 
 const { fields, push, remove } = useFieldArray<IPropertyPrice>("prices");
 
 const hasTriedSubmit = ref(false);
+
+// Tipos disponibles por card: todos menos los ya seleccionados en otras cards
+const availableTypesByIndex = computed(() =>
+  fields.value.map((_, index) => {
+    const usedElsewhere = new Set(
+      fields.value
+        .filter((_, i) => i !== index)
+        .map((f) => f.value.price_type_id)
+        .filter(Boolean),
+    );
+    return props.priceTypes.filter((pt) => !usedElsewhere.has(pt.id));
+  }),
+);
 
 const isLimitReached = computed(
   () => fields.value.length >= props.priceTypes.length,
@@ -140,9 +149,16 @@ const validatePrices = (): boolean => {
   );
 };
 
+const cleanEmptyCards = (): void => {
+  for (let i = fields.value.length - 1; i >= 0; i--) {
+    const allEmpty = REQUIRED_FIELDS.every((key) => isEmpty(fields.value[i]?.value[key]));
+    if (allEmpty) remove(i);
+  }
+};
+
 const resetValidation = (): void => {
   hasTriedSubmit.value = false;
 };
 
-defineExpose({ validatePrices, resetValidation });
+defineExpose({ validatePrices, resetValidation, cleanEmptyCards });
 </script>

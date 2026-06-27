@@ -184,7 +184,7 @@ onBeforeUnmount(() => {
 }
 
 .common-modal-body :deep(.text-muted),
-.common-modal-body :deep(small) {
+.common-modal-body :deep(small:not(.text-danger)) {
   color: rgba(28, 45, 58, 0.58) !important;
 }
 
@@ -233,7 +233,7 @@ onBeforeUnmount(() => {
 }
 
 :global(body.dark-layout .common-modal-body .text-muted),
-:global(body.dark-layout .common-modal-body small) {
+:global(body.dark-layout .common-modal-body small:not(.text-danger)) {
   color: rgba(255, 255, 255, 0.58) !important;
 }
 

@@ -189,9 +189,7 @@
       <form class="admin-form" @submit.prevent>
         <PropertiesPrices
           ref="pricesRef"
-          :price-types="filteredPriceTypes"
-          :show-add-button="false"
-          :locked-type="true"
+          :price-types="lookups.priceTypes"
         />
       </form>
       <template #actions>
@@ -357,7 +355,7 @@ const formatCOP = (value: string | number | null | undefined): string => {
   return copFormatter.format(Number(value));
 };
 
-type PricesComponentRef = { validatePrices: () => boolean; resetValidation: () => void };
+type PricesComponentRef = { validatePrices: () => boolean; resetValidation: () => void; cleanEmptyCards: () => void };
 const pricesRef = ref<PricesComponentRef | null>(null);
 
 const isNewOfferTypeSelection = ref(false);
@@ -377,6 +375,8 @@ const savePricesModal = () => {
 };
 
 const onPricesModalClose = () => {
+  pricesRef.value?.cleanEmptyCards();
+
   if (!isNewOfferTypeSelection.value) return;
   isResettingForm.value = true;
   setFieldValue("offer_type_id", null);
@@ -439,7 +439,11 @@ defineExpose({
     } as IProperty;
   },
   reset() {
+    isResettingForm.value = true;
     resetForm();
+    nextTick(() => {
+      isResettingForm.value = false;
+    });
   },
   setBackendErrors(backendErrors: Record<string, string>) {
     setErrors(backendErrors);
