@@ -29,6 +29,14 @@
           >
             Contacto
           </button>
+          <button
+            :class="{ active: activeTab === 'publish_channels' }"
+            class="nav-link"
+            type="button"
+            @click="switchTab('publish_channels')"
+          >
+            Redes sociales
+          </button>
         </div>
       </nav>
 
@@ -71,6 +79,23 @@
                 />
               </div>
 
+              <div v-show="activeTab === 'publish_channels'">
+                <div class="alert alert-info d-flex align-items-center gap-2">
+                  <i class="fa fa-info-circle"></i>
+                  <span>
+                    Los canales con enlace externo se mostrarán en el footer del
+                    sitio público.
+                  </span>
+                </div>
+
+                <PublishChannels
+                  ref="publishChannelsRef"
+                  :data="company?.publish_channels"
+                  :lookups="publishChannelsLookups"
+                  :isEditing="isEditing"
+                />
+              </div>
+
               <div v-if="canSaveCompany" class="form-btn mt-3">
                 <button class="btn btn-pill btn-gradient color-4" @click="save">
                   {{ isEditing ? "Actualizar" : "Crear" }}
@@ -96,6 +121,7 @@
 import Addresses from "~/components/addresses/index.vue";
 import CompanyGeneral from "~/components/company/general/index.vue";
 import Contacts from "~/components/contacts/index.vue";
+import PublishChannels from "~/components/publish-channels/index.vue";
 import { useApiHandler } from "~/composables/useApiHandler";
 import { Constants } from "~/constants/Constants";
 import AlertService from "~/services/AlertService";
@@ -110,6 +136,7 @@ const { can } = useAuthorization();
 const companyRef = ref<InstanceType<typeof CompanyGeneral> | null>(null);
 const addressesRef = ref<InstanceType<typeof Addresses> | null>(null);
 const contactsRef = ref<InstanceType<typeof Contacts> | null>(null);
+const publishChannelsRef = ref<InstanceType<typeof PublishChannels> | null>(null);
 
 const activeTab = ref<string>("company");
 const company = ref<ICompany | null>();
@@ -126,6 +153,8 @@ const { lookups } = useLookups([
   Constants.COUNTRY,
   Constants.DEPARTMENT,
   Constants.CITY,
+  Constants.PUBLISH_CHANNEL,
+  Constants.STATUS,
 ]);
 
 const switchTab = (tab: string) => {
@@ -137,11 +166,13 @@ const { distributeErrors } = useFormErrorDistributor(
     company: companyRef,
     addresses: addressesRef,
     contacts: contactsRef,
+    publish_channels: publishChannelsRef,
   },
   {
     company: "company",
     addresses: "addresses",
     contacts: "contacts",
+    publish_channels: "publish_channels",
   },
   switchTab,
 );
@@ -171,6 +202,7 @@ const save = async () => {
     { key: "company", ref: companyRef, optional: false },
     { key: "addresses", ref: addressesRef, optional: true },
     { key: "contacts", ref: contactsRef, optional: true },
+    { key: "publish_channels", ref: publishChannelsRef, optional: true },
   ];
 
   const data: ISaveCompany = {};
@@ -191,6 +223,7 @@ const save = async () => {
     if (form.key === "company") data.company = values;
     if (form.key === "addresses") data.addresses = values;
     if (form.key === "contacts") data.contacts = values;
+    if (form.key === "publish_channels") data.publish_channels = values;
   }
 
   const promise = isEditing.value
@@ -214,6 +247,7 @@ const cancel = () => {
   companyRef.value?.reset();
   addressesRef.value?.reset();
   contactsRef.value?.reset();
+  publishChannelsRef.value?.reset();
 };
 
 const addressesLookups = computed(() => ({
@@ -224,6 +258,11 @@ const addressesLookups = computed(() => ({
   country: lookups.value[Constants.COUNTRY],
   cities: lookups.value[Constants.CITY],
   departments: lookups.value[Constants.DEPARTMENT],
+}));
+
+const publishChannelsLookups = computed(() => ({
+  publishChannels: lookups.value[Constants.PUBLISH_CHANNEL] ?? [],
+  status: lookups.value[Constants.STATUS] ?? [],
 }));
 
 getCompany();

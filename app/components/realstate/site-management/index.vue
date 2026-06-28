@@ -190,6 +190,13 @@
                     hint="Se usa como imagen principal de fondo en la página de inicio."
                   />
 
+                  <RealstateSiteManagementImagePicker
+                    v-model="homeContent.featured_sections_bg_url"
+                    classes="col-12"
+                    label="Imagen de fondo — Propiedades destacadas"
+                    hint="Fondo de la sección de propiedades destacadas en la página de inicio."
+                  />
+
                   <div class="col-12">
                     <div class="repeatable-section card border">
                       <div
@@ -840,6 +847,15 @@
                   />
                 </template>
 
+                <template v-else-if="activePage === 'layout'">
+                  <RealstateSiteManagementImagePicker
+                    v-model="layoutContent.footer_bg_url"
+                    classes="col-12"
+                    label="Imagen de fondo del footer"
+                    hint="Se aplica como fondo de la sección footer en todas las páginas del sitio público."
+                  />
+                </template>
+
                 <div class="form-btn col-12 mt-3">
                   <button
                     v-if="canEditSiteSettings"
@@ -888,6 +904,7 @@ import type {
   RealstateHeroContent,
   RealstateHomeContent,
   RealstateHomeSlide,
+  RealstateLayoutContent,
   RealstatePropertyDetailContent,
   RealstatePropertyListContent,
   RealstateServicesContent,
@@ -1040,6 +1057,9 @@ const propertyDetailContent = computed(
 const contactContent = computed(
   () => pagesForm.value.contact.content as RealstateContactContent,
 );
+const layoutContent = computed(
+  () => pagesForm.value.layout.content as RealstateLayoutContent,
+);
 
 function createPageErrors(): Record<
   RealstateSitePageKey,
@@ -1075,6 +1095,7 @@ function createDefaultContent(
   if (page === "home") {
     return {
       background_image_url: "",
+      featured_sections_bg_url: "",
       hero_slides: [],
       featured_sections: [],
     };
@@ -1124,6 +1145,12 @@ function createDefaultContent(
       title: "",
       description: "",
       image: "",
+    };
+  }
+
+  if (page === "layout") {
+    return {
+      footer_bg_url: "",
     };
   }
 
@@ -1351,6 +1378,7 @@ function normalizeContentForForm(
     return {
       ...record,
       background_image_url: toText(record.background_image_url),
+      featured_sections_bg_url: toText(record.featured_sections_bg_url),
       hero_slides: normalizeHomeSlides(record.hero_slides ?? record.slides),
       featured_sections: normalizeFeaturedSections(record.featured_sections),
     };
@@ -1413,6 +1441,13 @@ function normalizeContentForForm(
       title: toText(record.title),
       description: toText(record.description),
       image: toText(record.image),
+    };
+  }
+
+  if (page === "layout") {
+    return {
+      ...record,
+      footer_bg_url: toText(record.footer_bg_url),
     };
   }
 
@@ -1557,6 +1592,9 @@ function getKnownContentPayload(
       background_image_url: toNullableText(
         homeContent.value.background_image_url,
       ),
+      featured_sections_bg_url: toNullableText(
+        homeContent.value.featured_sections_bg_url,
+      ),
       hero_slides: normalizeHomeSlides(homeContent.value.hero_slides),
       featured_sections: normalizeFeaturedSections(
         homeContent.value.featured_sections,
@@ -1628,6 +1666,12 @@ function getKnownContentPayload(
       title: toNullableText(contactContent.value.title),
       description: toNullableText(contactContent.value.description),
       image: toNullableText(contactContent.value.image),
+    };
+  }
+
+  if (page === "layout") {
+    return {
+      footer_bg_url: toNullableText(layoutContent.value.footer_bg_url),
     };
   }
 

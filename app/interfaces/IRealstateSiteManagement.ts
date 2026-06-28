@@ -104,6 +104,11 @@ export interface RealstateContactContent {
   [key: string]: unknown;
 }
 
+export interface RealstateLayoutContent {
+  footer_bg_url: string | null;
+  [key: string]: unknown;
+}
+
 export type RealstateSitePageContent =
   | Record<string, unknown>
   | RealstateHomeContent
@@ -111,7 +116,8 @@ export type RealstateSitePageContent =
   | RealstateServicesContent
   | RealstatePropertyListContent
   | RealstatePropertyDetailContent
-  | RealstateContactContent;
+  | RealstateContactContent
+  | RealstateLayoutContent;
 
 export interface RealstateSiteTemplateData {
   template_set: RealstateTemplateSet;

@@ -1,6 +1,7 @@
 import type { IAddress } from "~/interfaces/IAddress";
 import type { IContact } from "~/interfaces/IContact";
 import type { IImage } from "~/interfaces/IImageItem";
+import type { IPublishChannel } from "~/interfaces/IPublishChannel";
 
 export interface ICompanyPersonRelation {
   id?: string | null;
@@ -20,4 +21,5 @@ export interface ICompany {
   person_attendant?: ICompanyPersonRelation | null;
   contacts?: IContact[];
   addresses?: IAddress[];
+  publish_channels?: IPublishChannel[];
 }

@@ -5,6 +5,7 @@ export const REALSTATE_SITE_PAGES = [
   "about",
   "services",
   "contact",
+  "layout",
 ] as const;
 
 export const REALSTATE_TEMPLATE_IDS = ["template1", "template2"] as const;
@@ -27,6 +28,7 @@ export const REALSTATE_TEMPLATE_SETS: Record<
     about: "template1",
     services: "template1",
     contact: "template1",
+    layout: "template1",
   },
   template2: {
     home: "template2",
@@ -35,6 +37,7 @@ export const REALSTATE_TEMPLATE_SETS: Record<
     about: "template2",
     services: "template2",
     contact: "template2",
+    layout: "template2",
   },
 } as const;
 
@@ -89,6 +92,11 @@ export const REALSTATE_SITE_PAGE_OPTIONS: {
     id: "contact",
     label: "Contacto",
     description: "Contenido editable para la página de contacto.",
+  },
+  {
+    id: "layout",
+    label: "Layout del sitio",
+    description: "Imágenes de fondo globales: footer y secciones transversales.",
   },
 ];
 

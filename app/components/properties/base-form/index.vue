@@ -118,7 +118,7 @@
               </div>
 
               <div v-show="activeTab === 'publishChannels'">
-                <PropertiesPublishChannels
+                <PublishChannels
                   ref="publishChannelsRef"
                   :data="property?.publish_channels"
                   :lookups="publishChannelsLookups"
@@ -170,7 +170,7 @@ import {
   Contacts,
   PropertiesProperty,
   Areas,
-  PropertiesPublishChannels,
+  PublishChannels,
   Obligations,
   PropertiesOwnerships,
 } from "#components";
@@ -192,7 +192,7 @@ const addressesRef = ref<InstanceType<typeof Addresses> | null>(null);
 const contactsRef = ref<InstanceType<typeof Contacts> | null>(null);
 const areasRef = ref<InstanceType<typeof Areas> | null>(null);
 const publishChannelsRef = ref<InstanceType<
-  typeof PropertiesPublishChannels
+  typeof PublishChannels
 > | null>(null);
 const obligationsRef = ref<InstanceType<typeof Obligations> | null>(null);
 
