@@ -838,34 +838,6 @@
                     classes="col-12"
                     label="Imagen principal"
                   />
-
-                  <CommonInputfieldsTextfield
-                    v-model="contactContent.form_title"
-                    classes="col-md-6"
-                    label="Título del formulario"
-                    :required="false"
-                  />
-
-                  <CommonInputfieldsTextarea
-                    v-model="contactContent.form_description"
-                    classes="col-md-6"
-                    label="Descripción del formulario"
-                    :required="false"
-                  />
-
-                  <CommonInputfieldsTextfield
-                    v-model="contactContent.success_message"
-                    classes="col-md-6"
-                    label="Mensaje de éxito"
-                    :required="false"
-                  />
-
-                  <CommonInputfieldsTextfield
-                    v-model="contactContent.contact_cards_title"
-                    classes="col-md-6"
-                    label="Título de canales de contacto"
-                    :required="false"
-                  />
                 </template>
 
                 <div class="form-btn col-12 mt-3">
@@ -1152,10 +1124,6 @@ function createDefaultContent(
       title: "",
       description: "",
       image: "",
-      form_title: "",
-      form_description: "",
-      success_message: "",
-      contact_cards_title: "",
     };
   }
 
@@ -1445,10 +1413,6 @@ function normalizeContentForForm(
       title: toText(record.title),
       description: toText(record.description),
       image: toText(record.image),
-      form_title: toText(record.form_title),
-      form_description: toText(record.form_description),
-      success_message: toText(record.success_message),
-      contact_cards_title: toText(record.contact_cards_title),
     };
   }
 
@@ -1664,12 +1628,6 @@ function getKnownContentPayload(
       title: toNullableText(contactContent.value.title),
       description: toNullableText(contactContent.value.description),
       image: toNullableText(contactContent.value.image),
-      form_title: toNullableText(contactContent.value.form_title),
-      form_description: toNullableText(contactContent.value.form_description),
-      success_message: toNullableText(contactContent.value.success_message),
-      contact_cards_title: toNullableText(
-        contactContent.value.contact_cards_title,
-      ),
     };
   }
 

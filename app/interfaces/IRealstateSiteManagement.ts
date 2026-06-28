@@ -101,10 +101,6 @@ export interface RealstateContactContent {
   title: string | null;
   description: string | null;
   image: string | null;
-  form_title: string | null;
-  form_description: string | null;
-  success_message: string | null;
-  contact_cards_title: string | null;
   [key: string]: unknown;
 }
 
