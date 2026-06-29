@@ -48,7 +48,7 @@
             :route="route"
             @toggle-menu="toggleMenu"
           />
-          <li>
+<!--          <li>
             <div class="upgrade-box">
               <img alt="" class="img-fluid" src="/image/svg/1.svg" />
               <h6>Need Help</h6>
@@ -69,7 +69,7 @@
                 Buy Now
               </button>
             </div>
-          </li>
+          </li>-->
         </ul>
       </div>
     </div>

@@ -9,33 +9,25 @@
     </div>
     <div class="nav-right col p-0">
       <ul class="header-menu">
-        <li>
-          <div class="d-md-none mobile-search" @click="open = !open">
-            <Icon name="uil:search" />
-          </div>
-          <div class="form-group search-form" :class="open ? 'open' : ''">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Search here..."
-            />
-          </div>
-        </li>
+        <LayoutHeaderGlobalSearch />
         <li>
           <a href="#!" @click="toggleFullScreen()">
             <Icon name="humbleicons:maximize" size="20" />
           </a>
         </li>
+        <!--
         <ClientOnly>
           <LayoutHeaderAttachment />
           <LayoutHeaderNotification />
           <LayoutHeaderMessage />
         </ClientOnly>
+        -->
         <li class="profile-avatar onhover-dropdown">
           <div>
             <img src="/image/avatar/3.jpg" class="img-fluid" alt="" />
           </div>
           <ul class="profile-dropdown onhover-show-div">
+            <!--
             <li>
               <nuxt-link to="/users/profile"
                 ><span>Account </span
@@ -48,9 +40,10 @@
                 ><Icon name="mdi:file-document-outline" size="20"
               /></nuxt-link>
             </li>
+            -->
             <li>
               <nuxt-link @click="submitForm"
-                ><span>Log in</span><Icon name="mdi:login" size="20"
+                ><span>Salir</span><Icon name="mdi:logout" size="20"
               /></nuxt-link>
             </li>
           </ul>
@@ -61,11 +54,9 @@
 </template>
 
 <script setup lang="ts">
-let open = ref<boolean>(false);
-
 const { run } = useApiHandler();
-
 const auth = useAuthStore();
+
 const submitForm = async () => {
   const response = await run(auth.logout(), {
     showSuccess: true,
@@ -84,7 +75,8 @@ function toggleFullScreen() {
     document.exitFullscreen();
   }
 }
-let sidebartoggles = ref<boolean>(false);
+
+const sidebartoggles = ref<boolean>(false);
 function sidebartoggle() {
   sidebartoggles.value = !sidebartoggles.value;
   if (window.screen.width > 991) {
@@ -102,4 +94,11 @@ function sidebartoggle() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.profile-dropdown a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+</style>

@@ -29,6 +29,11 @@
     "welcome":"Bienvenido al panel de administración"
   },
 
+  "header": {
+    "logout": "Salir",
+    "search_placeholder": "Buscar propiedades..."
+  },
+
   "property" : {
     "breadCrumbPage" : "Propiedad",
     "breadCrumbTitle" : "Gestionar Propiedad"

@@ -86,4 +86,10 @@ export class ApiUrls {
 
   static readonly IMAGES = "/images";
   static readonly IMAGE_COVER = "cover";
+
+  // Dashboard
+  static readonly DASHBOARD_GET = "/dashboard";
+
+  // Search
+  static readonly SEARCH_GLOBAL_GET = "/search/global";
 }

@@ -62,6 +62,7 @@ import type { IParamsTable } from "~/interfaces/IParamsTable";
 
 const { run } = useApiHandler();
 const { can } = useAuthorization();
+const route = useRoute();
 
 const data = ref([]);
 
@@ -70,7 +71,7 @@ const paramsTable = ref<IParamsTable>({
   perPage: 15,
   sortBy: "created_at",
   sortType: "desc",
-  search: "",
+  search: (route.query.q as string) ?? "",
 });
 const total = ref(0);
 
