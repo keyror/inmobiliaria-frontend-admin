@@ -101,7 +101,7 @@
       "permission": "plans.view",
       "children": [
         {
-          "link": "/plans",
+          "link": "/plans/all",
           "title": "Listado",
           "icon": "lucide:chevron-right",
           "permission": "plans.view"
