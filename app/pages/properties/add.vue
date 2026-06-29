@@ -7,7 +7,7 @@ definePageMeta({
 });
 
 useHead({
-  title: "Sheltos - Admin Dashboard Page",
+  title: "Crear Propiedad",
 });
 </script>
 <style scoped></style>

@@ -1,15 +1,13 @@
 <template>
-  <UserAdd />
+  <PlansBaseForm />
 </template>
 
 <script setup lang="ts">
 definePageMeta({
-  permission: "users.create",
+  permission: "plans.create",
 });
 
 useHead({
-  title: "Crear Usuario",
+  title: "Crear Plan",
 });
 </script>
-
-<style scoped></style>

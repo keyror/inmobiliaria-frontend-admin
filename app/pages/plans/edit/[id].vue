@@ -1,15 +1,13 @@
 <template>
-  <UserAdd />
+  <PlansBaseForm :is-editing="true" />
 </template>
 
 <script setup lang="ts">
 definePageMeta({
-  permission: "users.create",
+  permission: "plans.edit",
 });
 
 useHead({
-  title: "Crear Usuario",
+  title: "Editar Plan",
 });
 </script>
-
-<style scoped></style>

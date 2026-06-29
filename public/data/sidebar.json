@@ -71,11 +71,6 @@
           "title": "Agregar",
           "icon": "lucide:chevron-right",
           "permission": "people.create"
-        },
-        {
-          "link": "/users/profile",
-          "title": "Perfil",
-          "icon": "lucide:chevron-right"
         }
       ]
     },
@@ -96,6 +91,28 @@
       "collapse": false,
       "active": false,
       "permission": "site-settings.view"
+    },
+    {
+      "icon": "lucide:credit-card",
+      "title": "Planes SaaS",
+      "titlePage": "Gestión de planes",
+      "collapse": true,
+      "active": false,
+      "permission": "plans.view",
+      "children": [
+        {
+          "link": "/plans",
+          "title": "Listado",
+          "icon": "lucide:chevron-right",
+          "permission": "plans.view"
+        },
+        {
+          "link": "/plans/add",
+          "title": "Agregar",
+          "icon": "lucide:chevron-right",
+          "permission": "plans.create"
+        }
+      ]
     },
     {
       "icon": "lucide:list-tree",

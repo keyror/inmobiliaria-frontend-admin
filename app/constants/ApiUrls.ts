@@ -92,4 +92,12 @@ export class ApiUrls {
 
   // Search
   static readonly SEARCH_GLOBAL_GET = "/search/global";
+
+  // Plans URLs
+  static readonly PLANS_GET = "/plans";
+  static readonly PLANS_SHOW_GET = "/plans";
+  static readonly PLANS_SELECT_GET = "/plans/select";
+  static readonly PLANS_CREATE_POST = "/plans";
+  static readonly PLANS_UPDATE_PUT = "/plans";
+  static readonly PLANS_DELETE_DELETE = "/plans";
 }

@@ -8,7 +8,7 @@ definePageMeta({
 });
 
 useHead({
-  title: "Configuración de empresa",
+  title: "Gestion de empresa",
 });
 </script>
 

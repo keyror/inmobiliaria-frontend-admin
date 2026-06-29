@@ -7,7 +7,7 @@
             <div class="card">
               <div class="card-body">
                 <div class="title-3 text-start">
-                  <h2>Log in</h2>
+                  <h2>Ingresar</h2>
                 </div>
                 <form autocomplete="off" @submit.prevent="submitForm">
                   <div class="form-group">
@@ -22,7 +22,7 @@
                         type="email"
                         class="form-control"
                         :class="{ 'is-invalid': errors.email }"
-                        placeholder="Enter Email"
+                        placeholder="Ingrese Email"
                         autocomplete="off"
                       />
                     </div>
@@ -41,7 +41,7 @@
                         id="pwd-input"
                         class="form-control"
                         :class="{ 'is-invalid': errors.password }"
-                        placeholder="Password"
+                        placeholder="Ingrese Password"
                         autocomplete="off"
                       />
                       <div class="input-group-apend">
@@ -60,8 +60,8 @@
                     </div>
                     <small class="text-danger">{{ errors.password }}</small>
                     <div class="important-note">
-                      password should be a minimum of 8 characters and should
-                      contains letters and numbers
+                      La contraseña debe tener un mínimo de 8 caracteres y debe
+                      contener letras y números.
                     </div>
                   </div>
                   <div class="d-flex">
@@ -78,26 +78,26 @@
                       to="/authentication/forgot-password"
                       class="font-rubik text-color-2"
                     >
-                      Forgot password?
+                      Olvido contraseña?
                     </NuxtLink>
                   </div>
                   <div>
                     <button
                       class="btn btn-gradient btn-pill color-2 me-sm-3 me-2"
                     >
-                      Log in
+                      Ingresar
                     </button>
-                    <nuxt-link
+<!--                    <nuxt-link
                       to="/authentication/signup"
                       target="_parent"
                       class="btn btn-dashed btn-pill color-2"
                       >Create Account</nuxt-link
-                    >
+                    >-->
                   </div>
-                  <div class="divider">
+<!--                  <div class="divider">
                     <h6>or</h6>
                   </div>
-                  <CommonSocialicon title="Log in with" />
+                  <CommonSocialicon title="Log in with" />-->
                 </form>
               </div>
             </div>
