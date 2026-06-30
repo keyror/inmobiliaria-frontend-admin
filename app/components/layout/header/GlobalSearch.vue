@@ -255,6 +255,7 @@ const goToNav = (route: string) => {
 const close = () => {
   showDropdown.value = false;
   activeIndex.value = -1;
+  mobileOpen.value = false;
   inputRef.value?.blur();
 };
 
@@ -263,6 +264,15 @@ const onClickOutside = (e: MouseEvent) => {
     close();
   }
 };
+
+watch(mobileOpen, (val) => {
+  if (val) {
+    nextTick(() => {
+      inputRef.value?.focus();
+      showDropdown.value = true;
+    });
+  }
+});
 
 onMounted(() => document.addEventListener("mousedown", onClickOutside));
 onUnmounted(() => {
@@ -288,6 +298,36 @@ onUnmounted(() => {
   max-height: 420px;
   overflow-y: auto;
   border: 1px solid #f0f0f0;
+}
+
+@media (max-width: 767.98px) {
+  .search-form {
+    position: fixed !important;
+    top: 60px !important;
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+    z-index: 9998;
+    padding: 8px !important;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  .search-form .form-control {
+    width: 100%;
+    height: 42px;
+    font-size: 15px;
+  }
+
+  .search-dropdown {
+    position: fixed;
+    top: 118px;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-height: calc(100vh - 138px);
+    border-radius: 8px;
+  }
 }
 
 .search-category {
