@@ -32,6 +32,7 @@
       :error="errors.taxe_types"
     />
 
+<!--
     <CommonInputfieldsSelectfield
       v-model="responsible_for_vat_type_id"
       classes="col-md-6 col-sm-6"
@@ -41,6 +42,7 @@
       star="*"
       :error="errors.responsible_for_vat_type_id"
     />
+-->
 
     <CommonInputfieldsNumberfield
       v-model="vat_withholding"
