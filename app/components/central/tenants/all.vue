@@ -32,7 +32,7 @@
                 </template>
 
                 <template #item-actions="item">
-                  <div
+                  <CommonActionsDropdown
                     v-if="
                       canAny([
                         'tenants.edit',
@@ -42,69 +42,8 @@
                         'tenants.users.view',
                       ])
                     "
-                    class="btn-group"
-                    role="group"
-                    aria-label="Basic example"
-                  >
-                    <button
-                      v-if="
-                        item.status?.name === Constants.ACTIVO &&
-                        can('tenants.deactivate')
-                      "
-                      class="btn btn-dashed color-4"
-                      type="button"
-                      @click="deactivate(item)"
-                    >
-                      <i class="fas fa-ban"></i>
-                    </button>
-                    <button
-                      v-if="
-                        item.status?.name !== Constants.ACTIVO &&
-                        can('tenants.activate')
-                      "
-                      class="btn btn-dashed color-3"
-                      type="button"
-                      @click="activate(item)"
-                    >
-                      <i class="fas fa-check"></i>
-                    </button>
-                    <button
-                      v-if="can('tenants.edit')"
-                      class="btn btn-dashed color-1"
-                      type="button"
-                      @click="edit(item)"
-                    >
-                      <i class="fas fa-pen"></i>
-                    </button>
-
-                    <!-- DOMAIN BUTTON -->
-                    <a
-                      v-if="item.domain"
-                      :href="formatDomain(item.domain)"
-                      class="btn btn-dashed color-2"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <i class="fas fa-external-link-alt"></i>
-                    </a>
-
-                    <button
-                      v-if="can('tenants.users.view')"
-                      class="btn btn-dashed color-5"
-                      type="button"
-                      @click="manageUsers(item)"
-                    >
-                      <i class="fas fa-users"></i>
-                    </button>
-                    <button
-                      v-if="can('tenants.delete')"
-                      class="btn btn-dashed color-4"
-                      type="button"
-                      @click="deleted(item)"
-                    >
-                      <i class="fa fa-trash"></i>
-                    </button>
-                  </div>
+                    :actions="getActions(item)"
+                  />
                 </template>
               </Table>
             </div>
@@ -124,6 +63,7 @@ import { tenantsHeader } from "~/constants/tableHeaders/TenantsHeader";
 import AlertService from "~/services/AlertService";
 
 import type { IParamsTable } from "~/interfaces/IParamsTable";
+import type { IDropdownAction } from "~/interfaces/IDropdownAction";
 
 const { run } = useApiHandler();
 const { can, canAny } = useAuthorization();
@@ -218,6 +158,53 @@ const formatDomain = (domain: string) => {
 const reloadDataTable = () => {
   tenants(paramsTable.value);
 };
+
+const getActions = (item: any): IDropdownAction[] => [
+  {
+    label: "Desactivar",
+    icon: "fas fa-ban",
+    show: item.status?.name === Constants.ACTIVO && can("tenants.deactivate"),
+    variant: "danger",
+    onClick: () => deactivate(item),
+  },
+  {
+    label: "Activar",
+    icon: "fas fa-check",
+    show: item.status?.name !== Constants.ACTIVO && can("tenants.activate"),
+    variant: "success",
+    onClick: () => activate(item),
+  },
+  {
+    label: "Editar",
+    icon: "fas fa-pen",
+    show: can("tenants.edit"),
+    onClick: () => edit(item),
+  },
+  {
+    label: "Ver sitio",
+    icon: "fas fa-external-link-alt",
+    show: !!item.domain,
+    href: formatDomain(item.domain),
+    target: "_blank",
+  },
+  {
+    label: "Gestionar usuarios",
+    icon: "fas fa-users",
+    show: can("tenants.users.view"),
+    onClick: () => manageUsers(item),
+  },
+  {
+    divider: true,
+    show: can("tenants.delete"),
+  },
+  {
+    label: "Eliminar",
+    icon: "fa fa-trash",
+    show: can("tenants.delete"),
+    variant: "danger",
+    onClick: () => deleted(item),
+  },
+];
 
 tenants(paramsTable.value);
 </script>
