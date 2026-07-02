@@ -74,17 +74,19 @@
     />
 
     <!-- Estrato -->
-    <CommonInputfieldsTextfield
-      v-model="social_strata"
-      :error="errors.social_strata"
+    <CommonInputfieldsSelectfield
+      v-if="showStratum"
+      v-model="stratum_id"
+      :data="lookups.strata"
+      :error="errors.stratum_id"
       classes="col-md-3"
       label="Estrato"
-      star="*"
+      labelField="name"
     />
 
     <!-- Año -->
-    <div class="col-md-3">
-      <label>Año de Construcción <span class="font-danger">*</span></label>
+    <div v-if="showYearBuilt" class="col-md-3">
+      <label>Año de Construcción</label>
       <VueDatePicker
         v-model="year_built"
         year-picker
@@ -98,24 +100,18 @@
       </small>
     </div>
 
-    <!-- Habitaciones -->
+    <!-- Habitaciones / Espacios -->
     <CommonInputfieldsTextfield
+      v-if="showRooms"
       v-model="rooms"
       :error="errors.rooms"
       classes="col-md-3"
-      label="Habitaciones"
-    />
-
-    <!-- Dormitorios -->
-    <CommonInputfieldsTextfield
-      v-model="bedrooms"
-      :error="errors.bedrooms"
-      classes="col-md-3"
-      label="Dormitorios"
+      :label="roomsLabel"
     />
 
     <!-- Baños -->
     <CommonInputfieldsTextfield
+      v-if="showBathrooms"
       v-model="bathrooms"
       :error="errors.bathrooms"
       classes="col-md-3"
@@ -124,6 +120,7 @@
 
     <!-- Garaje -->
     <CommonInputfieldsSelectfield
+      v-if="showGarage"
       v-model="garage_type_id"
       :data="lookups.garageTypes"
       :error="errors.garage_type_id"
@@ -134,6 +131,7 @@
 
     <!-- Cupos -->
     <CommonInputfieldsTextfield
+      v-if="showGarage"
       v-model="garage_spots"
       :error="errors.garage_spots"
       classes="col-md-3"
@@ -288,6 +286,7 @@ const props = defineProps<{
     priceTypes: ILookup[];
     features: ILookup[];
     status: ILookup[];
+    strata: ILookup[];
   };
   isEditing?: boolean;
 }>();
@@ -315,11 +314,56 @@ const [property_type_id] = defineField("property_type_id");
 const [social_strata] = defineField("social_strata");
 const [year_built] = defineField("year_built");
 const [rooms] = defineField("rooms");
-const [bedrooms] = defineField("bedrooms");
 const [bathrooms] = defineField("bathrooms");
 const [garage_type_id] = defineField("garage_type_id");
 const [garage_spots] = defineField("garage_spots");
 const [is_featured] = defineField("is_featured");
+const [stratum_id] = defineField("stratum_id");
+
+// Visibilidad dinámica por tipo de propiedad (normativa inmobiliaria colombiana)
+const selectedPropertyTypeAlias = computed(
+  () => props.lookups.propertyTypes?.find((p) => p.id === property_type_id.value)?.alias ?? "",
+);
+
+// Sin tipo seleccionado → todos los campos visibles
+const noTypeSelected = computed(() => !selectedPropertyTypeAlias.value);
+
+// Lotes no tienen construcción → sin características físicas
+const NO_PHYSICAL = ["LOTE"];
+
+// Todos los tipos tienen estrato (Estrato 0 para comerciales/industriales en Colombia)
+const showStratum = computed(() => true);
+
+// Todos los tipos excepto Lote tienen espacios contables
+const showRooms = computed(
+  () => noTypeSelected.value || !NO_PHYSICAL.includes(selectedPropertyTypeAlias.value),
+);
+const showYearBuilt = computed(
+  () => noTypeSelected.value || !NO_PHYSICAL.includes(selectedPropertyTypeAlias.value),
+);
+const showBathrooms = computed(
+  () => noTypeSelected.value || !NO_PHYSICAL.includes(selectedPropertyTypeAlias.value),
+);
+const showGarage = computed(
+  () => noTypeSelected.value || !NO_PHYSICAL.includes(selectedPropertyTypeAlias.value),
+);
+
+// Label del campo rooms según tipo de propiedad
+const COMMERCIAL_TYPES = ["BODEGA", "LOCAL", "OFICINA"];
+const roomsLabel = computed(() =>
+  COMMERCIAL_TYPES.includes(selectedPropertyTypeAlias.value) ? "Espacios" : "Habitaciones",
+);
+
+// Limpiar campos ocultos al cambiar tipo de propiedad
+watch(selectedPropertyTypeAlias, () => {
+  if (!showRooms.value) setFieldValue("rooms", "");
+  if (!showYearBuilt.value) setFieldValue("year_built", "");
+  if (!showBathrooms.value) setFieldValue("bathrooms", "");
+  if (!showGarage.value) {
+    setFieldValue("garage_type_id", "");
+    setFieldValue("garage_spots", "");
+  }
+});
 const [description] = defineField("description");
 const [features] = defineField("features");
 const [url_google_map] = defineField("url_google_map");

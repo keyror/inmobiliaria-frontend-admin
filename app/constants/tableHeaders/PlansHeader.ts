@@ -2,7 +2,9 @@ import type { Header } from "vue3-easy-data-table";
 
 export const plansHeader: Header[] = [
   { text: "Nombre", value: "name", sortable: true },
+  { text: "Tipo", value: "frequency.name", sortable: false },
   { text: "Precio (COP)", value: "price", sortable: true },
+  { text: "Descuento", value: "discount", sortable: false },
   { text: "Usuarios máx.", value: "max_users", sortable: true },
   { text: "Propiedades máx.", value: "max_properties", sortable: true },
   { text: "Imgs/propiedad", value: "max_images_per_property", sortable: true },

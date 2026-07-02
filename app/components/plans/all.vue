@@ -24,6 +24,11 @@
               {{ Number(price).toLocaleString("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }) }}
             </template>
 
+            <template #item-discount="{ discount }">
+              <span v-if="discount">{{ discount }}%</span>
+              <span v-else class="text-muted">—</span>
+            </template>
+
             <template #item-actions="item">
               <div
                 v-if="canAny(['plans.edit', 'plans.delete'])"

@@ -137,6 +137,15 @@
       ]
     },
     {
+      "link": "/audit",
+      "icon": "lucide:shield-check",
+      "title": "Auditoría",
+      "titlePage": "Registro de actividad",
+      "collapse": false,
+      "active": false,
+      "permission": "audit.view"
+    },
+    {
       "icon": "lucide:lock",
       "title": "Autorizaciones",
       "titlePage": "Autorizaciones",

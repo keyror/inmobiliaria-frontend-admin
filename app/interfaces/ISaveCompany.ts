@@ -1,5 +1,6 @@
 import type { IAddress } from "~/interfaces/IAddress";
 import type { ICompany } from "~/interfaces/ICompany";
+import type { ICompanySetting } from "~/interfaces/ICompanySetting";
 import type { IContact } from "~/interfaces/IContact";
 import type { IPublishChannel } from "~/interfaces/IPublishChannel";
 
@@ -8,4 +9,5 @@ export interface ISaveCompany {
   contacts?: IContact[];
   addresses?: IAddress[];
   publish_channels?: IPublishChannel[];
+  company_setting?: Partial<ICompanySetting> | null;
 }

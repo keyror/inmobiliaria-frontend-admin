@@ -83,6 +83,12 @@ export class ApiUrls {
     "/admin/realstate/site-template";
   static readonly REALSTATE_SITE_PAGES_GET = "/admin/realstate/site-pages";
   static readonly REALSTATE_SITE_PAGES_PUT = "/admin/realstate/site-pages";
+  static readonly REALSTATE_SITE_TEMPLATE_RESTORE_POST =
+    "/admin/realstate/site-template/restore";
+  static readonly REALSTATE_SITE_PAGE_RESTORE_POST =
+    "/admin/realstate/site-pages";
+  static readonly REALSTATE_SITE_RESTORE_ALL_POST =
+    "/admin/realstate/site/restore-all";
 
   static readonly IMAGES = "/images";
   static readonly IMAGE_COVER = "cover";
@@ -92,6 +98,9 @@ export class ApiUrls {
 
   // Search
   static readonly SEARCH_GLOBAL_GET = "/search/global";
+
+  // Audit URLs
+  static readonly AUDIT_GET = "/audit";
 
   // Plans URLs
   static readonly PLANS_GET = "/plans";

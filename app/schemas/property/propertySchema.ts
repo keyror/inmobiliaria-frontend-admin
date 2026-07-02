@@ -11,13 +11,12 @@ export const propertySchema = Yup.object({
   offer_type_id: Yup.string().required("Tipo oferta obligatorio"),
   property_type_id: Yup.string().required("Tipo propiedad obligatorio"),
 
-  social_strata: Yup.string().required("Estrato obligatorio"),
+  stratum_id: Yup.string().nullable().notRequired(),
   year_built: Yup.number()
     .typeError("Año inválido")
     .required("Año obligatorio"),
 
   rooms: Yup.string().nullable().notRequired(),
-  bedrooms: Yup.string().nullable().notRequired(),
   bathrooms: Yup.string().nullable().notRequired(),
 
   garage_type_id: Yup.string().nullable().notRequired(),

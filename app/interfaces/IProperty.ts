@@ -11,10 +11,9 @@ export interface IProperty {
   title: string;
   offer_type_id: string;
   property_type_id: string;
-  social_strata: string;
+  stratum_id: string;
   year_built: string;
   rooms: string;
-  bedrooms: string;
   bathrooms: string;
   garage_type_id: string;
   garage_spots: string;

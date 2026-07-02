@@ -37,6 +37,14 @@
           >
             Redes sociales
           </button>
+          <button
+            :class="{ active: activeTab === 'settings' }"
+            class="nav-link"
+            type="button"
+            @click="switchTab('settings')"
+          >
+            Configuración
+          </button>
         </div>
       </nav>
 
@@ -96,6 +104,14 @@
                 />
               </div>
 
+              <div v-show="activeTab === 'settings'">
+                <CompanySettings
+                  ref="settingsRef"
+                  :data="company?.company_setting"
+                  :isEditing="isEditing"
+                />
+              </div>
+
               <div v-if="canSaveCompany" class="form-btn mt-3">
                 <button class="btn btn-pill btn-gradient color-4" @click="save">
                   {{ isEditing ? "Actualizar" : "Crear" }}
@@ -120,23 +136,27 @@
 <script setup lang="ts">
 import Addresses from "~/components/addresses/index.vue";
 import CompanyGeneral from "~/components/company/general/index.vue";
+import CompanySettings from "~/components/company/settings/index.vue";
 import Contacts from "~/components/contacts/index.vue";
 import PublishChannels from "~/components/publish-channels/index.vue";
 import { useApiHandler } from "~/composables/useApiHandler";
 import { Constants } from "~/constants/Constants";
 import AlertService from "~/services/AlertService";
 import CompanyService from "~/services/CompanyService";
+import { useCompanySettingStore } from "~/store/companySettingStore";
 
 import type { ICompany } from "~/interfaces/ICompany";
 import type { ISaveCompany } from "~/interfaces/ISaveCompany";
 
 const { run } = useApiHandler();
 const { can } = useAuthorization();
+const companySettingStore = useCompanySettingStore();
 
 const companyRef = ref<InstanceType<typeof CompanyGeneral> | null>(null);
 const addressesRef = ref<InstanceType<typeof Addresses> | null>(null);
 const contactsRef = ref<InstanceType<typeof Contacts> | null>(null);
 const publishChannelsRef = ref<InstanceType<typeof PublishChannels> | null>(null);
+const settingsRef = ref<InstanceType<typeof CompanySettings> | null>(null);
 
 const activeTab = ref<string>("company");
 const company = ref<ICompany | null>();
@@ -167,12 +187,14 @@ const { distributeErrors } = useFormErrorDistributor(
     addresses: addressesRef,
     contacts: contactsRef,
     publish_channels: publishChannelsRef,
+    company_setting: settingsRef,
   },
   {
     company: "company",
     addresses: "addresses",
     contacts: "contacts",
     publish_channels: "publish_channels",
+    company_setting: "settings",
   },
   switchTab,
 );
@@ -192,6 +214,8 @@ const getCompany = async () => {
   const response = await run(CompanyService.getCurrentCompany());
   if (response) {
     company.value = response.data ?? null;
+    const mode = response.data?.company_setting?.text_case_mode ?? null;
+    companySettingStore.setTextCaseMode(mode as Parameters<typeof companySettingStore.setTextCaseMode>[0]);
   }
 };
 
@@ -203,6 +227,7 @@ const save = async () => {
     { key: "addresses", ref: addressesRef, optional: true },
     { key: "contacts", ref: contactsRef, optional: true },
     { key: "publish_channels", ref: publishChannelsRef, optional: true },
+    { key: "settings", ref: settingsRef, optional: false },
   ];
 
   const data: ISaveCompany = {};
@@ -224,6 +249,7 @@ const save = async () => {
     if (form.key === "addresses") data.addresses = values;
     if (form.key === "contacts") data.contacts = values;
     if (form.key === "publish_channels") data.publish_channels = values;
+    if (form.key === "settings") data.company_setting = values;
   }
 
   const promise = isEditing.value
@@ -248,6 +274,7 @@ const cancel = () => {
   addressesRef.value?.reset();
   contactsRef.value?.reset();
   publishChannelsRef.value?.reset();
+  settingsRef.value?.reset();
 };
 
 const addressesLookups = computed(() => ({

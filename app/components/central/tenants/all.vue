@@ -39,6 +39,7 @@
                         'tenants.delete',
                         'tenants.activate',
                         'tenants.deactivate',
+
                       ])
                     "
                     class="btn-group"

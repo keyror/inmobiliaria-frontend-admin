@@ -15,6 +15,7 @@
       :required="required"
       :readonly="readonly"
       :disabled="disabled"
+      :inputmode="onlyNumbers ? 'numeric' : undefined"
       autocomplete="one-time-code"
       :name="name"
     />
@@ -36,15 +37,19 @@ const props = defineProps({
   modelValue: [String, Number, null],
   star: String,
   clean: { type: Boolean, default: false },
+  onlyNumbers: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
   readonly: { type: Boolean, default: false },
   name: String,
   error: String,
+  applyCase: { type: Boolean, default: true },
+  type: { type: String, default: "text" },
 });
 
 const emit = defineEmits(["update:modelValue"]);
 
 const inputRef = ref<HTMLInputElement | null>(null);
+const { transform } = useTextCase();
 
 const localValue = computed({
   get: () => props.modelValue,
@@ -53,6 +58,20 @@ const localValue = computed({
 
     if (props.clean && newVal) {
       newVal = newVal.replace(/\s+/g, "");
+    }
+
+    if (props.onlyNumbers && newVal) {
+      newVal = newVal.replace(/\D/g, "");
+    }
+
+    if (
+      props.applyCase &&
+      !props.onlyNumbers &&
+      props.type !== "email" &&
+      props.type !== "password" &&
+      newVal
+    ) {
+      newVal = transform(newVal);
     }
 
     emit("update:modelValue", newVal);

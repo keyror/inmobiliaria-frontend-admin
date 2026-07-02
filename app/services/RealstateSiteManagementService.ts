@@ -52,6 +52,27 @@ class RealstateSiteManagementService {
       },
     );
   }
+
+  async restoreTemplate(): Promise<RealstateSiteTemplateResponse> {
+    return useApi<RealstateSiteTemplateResponse>(
+      ApiUrls.REALSTATE_SITE_TEMPLATE_RESTORE_POST,
+      { method: "POST" },
+    );
+  }
+
+  async restorePage(page: RealstateSitePageKey): Promise<RealstateSitePageResponse> {
+    return useApi<RealstateSitePageResponse>(
+      `${ApiUrls.REALSTATE_SITE_PAGE_RESTORE_POST}/${page}/restore`,
+      { method: "POST" },
+    );
+  }
+
+  async restoreAll(): Promise<{ status: boolean; message: string[] }> {
+    return useApi<{ status: boolean; message: string[] }>(
+      ApiUrls.REALSTATE_SITE_RESTORE_ALL_POST,
+      { method: "POST" },
+    );
+  }
 }
 
 export default new RealstateSiteManagementService();

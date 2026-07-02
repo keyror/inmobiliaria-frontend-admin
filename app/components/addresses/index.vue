@@ -234,6 +234,7 @@ defineExpose({
                 classes="col-md-2 col-sm-4"
                 label="Número"
                 star="*"
+                :only-numbers="true"
                 :error="getFieldError(index, 'via_number')"
                 @update:model-value="buildAddress(index)"
               />
@@ -263,6 +264,7 @@ defineExpose({
                 classes="col-md-2 col-sm-4"
                 label="# Cruce"
                 star="*"
+                :only-numbers="true"
                 :error="getFieldError(index, 'number2')"
                 @update:model-value="buildAddress(index)"
               />
@@ -292,6 +294,7 @@ defineExpose({
                 classes="col-md-2 col-sm-4"
                 label="# Placa"
                 star="*"
+                :only-numbers="true"
                 :error="getFieldError(index, 'number3')"
                 @update:model-value="buildAddress(index)"
               />

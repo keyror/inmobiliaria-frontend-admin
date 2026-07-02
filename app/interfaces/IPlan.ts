@@ -3,6 +3,9 @@ export interface IPlan {
   name: string;
   description: string | null;
   price: string | number;
+  frequency_type_id: string | null;
+  discount: number | null;
+  frequency?: { id: string; name: string; alias: string } | null;
   max_users: number;
   max_properties: number;
   max_images_per_property: number;
@@ -16,7 +19,11 @@ export interface IPlanSelectOption {
   name: string;
   description: string | null;
   price: string | number;
+  frequency_type_id: string | null;
+  discount: number | null;
+  frequency?: { id: string; name: string; alias: string } | null;
   max_users: number;
   max_properties: number;
   max_images_per_property: number;
 }
+

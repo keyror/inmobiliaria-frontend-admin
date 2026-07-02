@@ -61,6 +61,7 @@
             classes="col-md-4"
             label="Monto"
             star="*"
+            :format="true"
             :error="getFieldError(index, 'amount')"
           />
 
@@ -69,6 +70,7 @@
             classes="col-md-4"
             label="Total"
             star="*"
+            :format="true"
             :error="getFieldError(index, 'total')"
           />
 

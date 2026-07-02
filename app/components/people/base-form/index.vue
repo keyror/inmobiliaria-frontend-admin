@@ -253,7 +253,6 @@ const save = async () => {
       return;
     }
 
-    // recolectar data
     if (form.key === "persons") data.person = values as IPerson;
     if (form.key === "fiscalProfiles")
       data.fiscal_profile = values as IFiscalProfile;

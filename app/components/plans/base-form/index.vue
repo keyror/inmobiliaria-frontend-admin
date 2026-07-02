@@ -21,10 +21,32 @@
                   star="*"
                 />
 
+                <CommonInputfieldsSelectfield
+                  label="Tipo de plan"
+                  v-model="frequency_type_id"
+                  :data="frequencyOptions"
+                  labelField="name"
+                  :error="errors.frequency_type_id"
+                  classes="col-md-3"
+                />
+
+                <CommonInputfieldsSelectfield
+                  v-if="isAnnual"
+                  label="Descuento anual (%)"
+                  v-model="discount"
+                  :data="discountOptions"
+                  labelField="label"
+                  :error="errors.discount"
+                  classes="col-md-3"
+                />
+
+                <div v-else class="col-md-3" />
+
                 <CommonInputfieldsNumberfield
-                  label="Precio mensual (COP)"
+                  label="Precio (COP)"
                   v-model="price"
                   :error="errors.price"
+                  :format="true"
                   classes="col-md-6"
                   star="*"
                 />
@@ -77,7 +99,7 @@
                   <button
                     type="button"
                     class="btn btn-pill btn-dashed color-4"
-                    @click="navigateTo('/plans')"
+                    @click="resetForm()"
                   >
                     Cancelar
                   </button>
@@ -93,6 +115,8 @@
 
 <script setup lang="ts">
 import PlanService from "~/services/PlanService";
+import { Constants } from "~/constants/Constants";
+import { usePlanForms } from "~/composables/forms/usePlanForm";
 import type { IPlan } from "~/interfaces/IPlan";
 
 const props = defineProps<{
@@ -103,26 +127,47 @@ const { run } = useApiHandler();
 const route = useRoute();
 const idPlan = route.params.id as string;
 
-const errors = ref<Record<string, string>>({});
-const name = ref("");
-const description = ref<string | null>(null);
-const price = ref<number>(0);
-const max_users = ref<number>(3);
-const max_properties = ref<number>(30);
-const max_images_per_property = ref<number>(10);
-const is_active = ref(true);
+const { usePlanCreateForm, usePlanUpdateForm } = usePlanForms();
+const form = props.isEditing ? usePlanUpdateForm() : usePlanCreateForm();
+const { handleSubmit, errors, defineField, resetForm, setErrors } = form;
 
-const sendForm = async () => {
-  errors.value = {};
+const [name] = defineField("name");
+const [description] = defineField("description");
+const [price] = defineField("price");
+const [frequency_type_id] = defineField("frequency_type_id");
+const [discount] = defineField("discount");
+const [max_users] = defineField("max_users");
+const [max_properties] = defineField("max_properties");
+const [max_images_per_property] = defineField("max_images_per_property");
+const [is_active] = defineField("is_active");
 
+const { lookups } = useLookups([Constants.FREQUENCY]);
+
+const frequencyOptions = computed(() =>
+  (lookups.value[Constants.FREQUENCY] ?? []).filter(
+    (f: any) => f.alias === "MENSUAL" || f.alias === "ANUAL",
+  ),
+);
+
+const discountOptions = computed(() =>
+  Array.from({ length: 101 }, (_, i) => ({ id: i, label: `${i}%` })),
+);
+
+const isAnnual = computed(() => {
+  const selected = frequencyOptions.value.find(
+    (f: any) => f.id === frequency_type_id.value,
+  );
+  return selected?.alias === "ANUAL";
+});
+
+watch(isAnnual, (annual) => {
+  if (!annual) discount.value = null;
+});
+
+const sendForm = handleSubmit(async (values) => {
   const payload = {
-    name: name.value,
-    description: description.value,
-    price: price.value,
-    max_users: max_users.value,
-    max_properties: max_properties.value,
-    max_images_per_property: max_images_per_property.value,
-    is_active: is_active.value,
+    ...values,
+    discount: isAnnual.value ? values.discount : null,
   };
 
   const promise = props.isEditing
@@ -130,19 +175,17 @@ const sendForm = async () => {
     : PlanService.createPlan(payload);
 
   const response = await run(promise, {
-    setErrors: (errs) => {
-      errors.value = errs;
-    },
+    setErrors,
     showSuccess: true,
     successMessage: props.isEditing
       ? "Plan actualizado correctamente"
       : "Plan creado correctamente",
   });
 
-  if (response && !props.isEditing) {
-    navigateTo("/plans");
+  if (response) {
+    props.isEditing ? await loadPlan() : resetForm();
   }
-};
+});
 
 const loadPlan = async () => {
   if (!props.isEditing) return;
@@ -150,13 +193,19 @@ const loadPlan = async () => {
   const response = await run(PlanService.getPlan(idPlan));
   if (response) {
     const data = response.data as IPlan;
-    name.value = data.name;
-    description.value = data.description;
-    price.value = Number(data.price);
-    max_users.value = data.max_users;
-    max_properties.value = data.max_properties;
-    max_images_per_property.value = data.max_images_per_property;
-    is_active.value = data.is_active;
+    resetForm({
+      values: {
+        name: data.name,
+        description: data.description,
+        price: Number(data.price),
+        frequency_type_id: data.frequency_type_id ?? null,
+        discount: data.discount ?? null,
+        max_users: data.max_users,
+        max_properties: data.max_properties,
+        max_images_per_property: data.max_images_per_property,
+        is_active: data.is_active,
+      },
+    });
   }
 };
 

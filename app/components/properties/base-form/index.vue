@@ -268,8 +268,8 @@ const save = async () => {
     { key: "addresses", ref: addressesRef, optional: false },
     { key: "contacts", ref: contactsRef, optional: false },
     { key: "areas", ref: areasRef, optional: false },
-    { key: "publishChannels", ref: publishChannelsRef, optional: false },
-    { key: "obligations", ref: obligationsRef, optional: false },
+    { key: "publishChannels", ref: publishChannelsRef, optional: true },
+    { key: "obligations", ref: obligationsRef, optional: true },
   ];
 
   const data: ISaveProperty = {};
@@ -335,6 +335,7 @@ const propertyLookups = computed(() => ({
   priceTypes: lookups.value[Constants.PRICE_TYPE],
   features: lookups.value[Constants.FEATURE],
   status: lookups.value[Constants.STATUS],
+  strata: lookups.value[Constants.STRATUM],
   frequency: lookups.value[Constants.FREQUENCY],
   obligationTypes: lookups.value[Constants.OBLIGATION_TYPE],
   opSiNo: lookups.value[Constants.OP_SI_NO],

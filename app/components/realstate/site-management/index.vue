@@ -94,10 +94,31 @@
                 v-if="canEditSiteSettings"
                 class="btn btn-pill btn-gradient color-4"
                 type="button"
-                :disabled="isSavingTemplate"
+                :disabled="isSavingTemplate || isRestoringTemplate"
                 @click="saveTemplate"
               >
                 Guardar template y colores
+              </button>
+
+              <button
+                v-if="canEditSiteSettings"
+                class="btn btn-pill btn-dashed color-4"
+                type="button"
+                :disabled="isSavingTemplate || isRestoringTemplate || !templateSnapshot"
+                @click="cancelTemplate"
+              >
+                Cancelar
+              </button>
+
+              <button
+                v-if="canEditSiteSettings"
+                class="btn btn-pill btn-dashed color-2"
+                type="button"
+                :disabled="isSavingTemplate || isRestoringTemplate || !hasTemplateBackup"
+                @click="doRestoreTemplate"
+              >
+                <i class="fa fa-undo me-1"></i>
+                Restaurar anterior
               </button>
             </div>
           </div>
@@ -861,9 +882,30 @@
                     v-if="canEditSiteSettings"
                     class="btn btn-pill btn-gradient color-4"
                     type="submit"
-                    :disabled="isSavingPage"
+                    :disabled="isSavingPage || isRestoringPage"
                   >
                     Guardar página
+                  </button>
+
+                  <button
+                    v-if="canEditSiteSettings"
+                    class="btn btn-pill btn-dashed color-4"
+                    type="button"
+                    :disabled="isSavingPage || isRestoringPage || !pagesSnapshot"
+                    @click="cancelPage"
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    v-if="canEditSiteSettings"
+                    class="btn btn-pill btn-dashed color-2"
+                    type="button"
+                    :disabled="isSavingPage || isRestoringPage || !hasActivePageBackup"
+                    @click="doRestorePage"
+                  >
+                    <i class="fa fa-undo me-1"></i>
+                    Restaurar anterior
                   </button>
                 </div>
               </form>
@@ -964,7 +1006,18 @@ const canEditSiteSettings = computed(() => can("site-settings.edit"));
 const isLoading = ref(false);
 const isSavingTemplate = ref(false);
 const isSavingPage = ref(false);
+const isRestoringTemplate = ref(false);
+const isRestoringPage = ref(false);
 const activePage = ref<RealstateSitePageKey>("home");
+
+const templateSnapshot = ref<RealstateSiteTemplatePayload | null>(null);
+const pagesSnapshot = ref<RealstateSitePages | null>(null);
+const hasTemplateBackup = ref(false);
+const pagesWithBackup = ref<string[]>([]);
+
+const hasActivePageBackup = computed(() =>
+  pagesWithBackup.value.includes(activePage.value),
+);
 
 const templateForm = ref<RealstateSiteTemplatePayload>({
   template_set: DEFAULT_TEMPLATE_SET,
@@ -1691,7 +1744,11 @@ async function getPagePayload(
 
 async function loadTemplate() {
   const response = await run(RealstateSiteManagementService.getTemplate());
-  if (response?.data) applyTemplateData(response.data);
+  if (response?.data) {
+    applyTemplateData(response.data);
+    templateSnapshot.value = JSON.parse(JSON.stringify(templateForm.value));
+    hasTemplateBackup.value = response.data.has_backup ?? false;
+  }
 }
 
 async function loadPages() {
@@ -1707,6 +1764,9 @@ async function loadPages() {
     response.data.pages,
     response.data.template_set,
   );
+  pagesSnapshot.value = JSON.parse(JSON.stringify(pagesForm.value));
+  hasTemplateBackup.value = response.data.has_template_backup ?? hasTemplateBackup.value;
+  pagesWithBackup.value = response.data.pages_with_backup ?? [];
 }
 
 async function loadAll() {
@@ -1717,6 +1777,86 @@ async function loadAll() {
     await loadPages();
   } finally {
     isLoading.value = false;
+  }
+}
+
+function cancelTemplate() {
+  if (!templateSnapshot.value) return;
+  templateForm.value = JSON.parse(JSON.stringify(templateSnapshot.value));
+  templateErrors.value = {};
+}
+
+function cancelPage() {
+  if (!pagesSnapshot.value) return;
+  const page = activePage.value;
+  pagesForm.value = {
+    ...pagesForm.value,
+    [page]: JSON.parse(JSON.stringify(pagesSnapshot.value[page])),
+  };
+  setPageErrors(page, {});
+}
+
+async function doRestoreTemplate() {
+  if (!canEditSiteSettings.value) return;
+
+  isRestoringTemplate.value = true;
+
+  try {
+    const response = await run(
+      RealstateSiteManagementService.restoreTemplate(),
+      {
+        showSuccess: true,
+        successMessage: "Plantilla restaurada a la versión anterior",
+        setErrors: (errors) => {
+          templateErrors.value = errors;
+        },
+      },
+    );
+
+    if (response?.data) {
+      applyTemplateData(response.data);
+      templateSnapshot.value = JSON.parse(JSON.stringify(templateForm.value));
+      hasTemplateBackup.value = response.data.has_backup ?? false;
+      await loadPages();
+    }
+  } finally {
+    isRestoringTemplate.value = false;
+  }
+}
+
+async function doRestorePage() {
+  if (!canEditSiteSettings.value) return;
+
+  const page = activePage.value;
+  isRestoringPage.value = true;
+
+  try {
+    const response = await run(
+      RealstateSiteManagementService.restorePage(page),
+      {
+        showSuccess: true,
+        successMessage: "Página restaurada a la versión anterior",
+        setErrors: (errors) => setPageErrors(page, errors),
+      },
+    );
+
+    if (response?.data?.config) {
+      const normalized = normalizePage(
+        page,
+        response.data.config,
+        templateForm.value.template_set,
+      );
+      pagesForm.value = { ...pagesForm.value, [page]: normalized };
+      if (pagesSnapshot.value) {
+        pagesSnapshot.value = {
+          ...pagesSnapshot.value,
+          [page]: JSON.parse(JSON.stringify(normalized)),
+        };
+      }
+      pagesWithBackup.value = pagesWithBackup.value.filter((p) => p !== page);
+    }
+  } finally {
+    isRestoringPage.value = false;
   }
 }
 
@@ -1748,6 +1888,8 @@ async function saveTemplate() {
 
     if (response?.data) {
       applyTemplateData(response.data);
+      templateSnapshot.value = JSON.parse(JSON.stringify(templateForm.value));
+      hasTemplateBackup.value = response.data.has_backup ?? true;
       await loadPages();
     }
   } finally {
@@ -1774,14 +1916,23 @@ async function savePage(page: RealstateSitePageKey) {
     );
 
     if (response?.data?.config) {
-      pagesForm.value = {
-        ...pagesForm.value,
-        [page]: normalizePage(
-          page,
-          response.data.config,
-          templateForm.value.template_set,
-        ),
-      };
+      const normalized = normalizePage(
+        page,
+        response.data.config,
+        templateForm.value.template_set,
+      );
+      pagesForm.value = { ...pagesForm.value, [page]: normalized };
+      if (pagesSnapshot.value) {
+        pagesSnapshot.value = {
+          ...pagesSnapshot.value,
+          [page]: JSON.parse(JSON.stringify(normalized)),
+        };
+      }
+      if (response.data.has_backup) {
+        if (!pagesWithBackup.value.includes(page)) {
+          pagesWithBackup.value = [...pagesWithBackup.value, page];
+        }
+      }
     }
   } finally {
     isSavingPage.value = false;
