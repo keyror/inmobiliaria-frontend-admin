@@ -109,78 +109,78 @@
     <!-- Modal detalle -->
     <CommonModal v-model:show="showDetail" title="Detalle de auditoría" size="lg">
       <template v-if="selectedLog">
-        <div class="row g-3">
-          <div class="col-md-6">
+
+        <!-- Cabecera del registro principal -->
+        <div class="row g-2 mb-3">
+          <div class="col-6">
             <small class="text-muted d-block">Módulo</small>
             <strong>{{ selectedLog.module_label }}</strong>
           </div>
-          <div class="col-md-3">
+          <div class="col-3">
             <small class="text-muted d-block">Acción</small>
             <span class="label label-light label-flat" :class="eventClass(selectedLog.event)">
               {{ eventLabel(selectedLog.event) }}
             </span>
           </div>
-          <div class="col-md-3">
-            <small class="text-muted d-block">Tipo de registro</small>
-            <strong>{{ selectedLog.subject_type ?? '—' }}</strong>
-          </div>
-          <div class="col-md-6">
-            <small class="text-muted d-block">Usuario</small>
-            <strong>{{ selectedLog.causer_email ?? '—' }}</strong>
-          </div>
-          <div class="col-md-6">
+          <div class="col-3">
             <small class="text-muted d-block">Fecha</small>
             <strong>{{ selectedLog.created_at }}</strong>
           </div>
-
-          <template v-if="selectedLog.properties?.old && Object.keys(selectedLog.properties.old).length">
-            <div class="col-12">
-              <hr class="my-1" />
-              <p class="mb-2 fw-semibold">Cambios realizados</p>
-              <div class="table-responsive">
-                <table class="table table-sm table-bordered mb-0">
-                  <thead>
-                    <tr>
-                      <th>Campo</th>
-                      <th class="text-danger">Antes</th>
-                      <th class="text-success">Después</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(oldVal, key) in selectedLog.properties.old" :key="String(key)">
-                      <td>{{ key }}</td>
-                      <td class="text-danger font-monospace small">{{ formatValue(oldVal) }}</td>
-                      <td class="text-success font-monospace small">{{ formatValue(selectedLog.properties?.attributes?.[key]) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </template>
-
-          <template v-else-if="selectedLog.properties?.attributes && Object.keys(selectedLog.properties.attributes).length">
-            <div class="col-12">
-              <hr class="my-1" />
-              <p class="mb-2 fw-semibold">Valores registrados</p>
-              <div class="table-responsive">
-                <table class="table table-sm table-bordered mb-0">
-                  <thead>
-                    <tr>
-                      <th>Campo</th>
-                      <th>Valor</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(val, key) in selectedLog.properties.attributes" :key="String(key)">
-                      <td>{{ key }}</td>
-                      <td class="font-monospace small">{{ formatValue(val) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </template>
+          <div class="col-12">
+            <small class="text-muted d-block">Usuario</small>
+            <strong class="audit-email">{{ selectedLog.causer_email ?? '—' }}</strong>
+          </div>
         </div>
+
+        <!-- Tabs por sub-módulo (si hay batch) -->
+        <template v-if="batchTabs.length > 1">
+          <hr class="my-2 audit-modal-separator" />
+          <nav class="admin-theme-tabs mb-3">
+            <div class="nav nav-tabs" role="tablist">
+              <button
+                v-for="tab in batchTabs"
+                :key="tab.key"
+                class="nav-link audit-tab-btn"
+                :class="{ active: activeTab === tab.key }"
+                type="button"
+                @click="activeTab = tab.key"
+              >
+                {{ tab.label }}
+                <span class="audit-tab-count">{{ tab.logs.length }}</span>
+              </button>
+            </div>
+          </nav>
+
+          <div v-if="batchLoading" class="text-center py-3">
+            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+          </div>
+
+          <template v-else>
+            <div v-for="tab in batchTabs" :key="tab.key">
+              <div v-if="activeTab === tab.key">
+                <div
+                  v-for="(log, i) in tab.logs"
+                  :key="log.id"
+                  class="mb-3"
+                  :class="{ 'border-top pt-3': i > 0 }"
+                >
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="label label-light label-flat" :class="eventClass(log.event)">
+                      {{ eventLabel(log.event) }}
+                    </span>
+                  </div>
+                  <AuditChangesTable :log="log" />
+                </div>
+              </div>
+            </div>
+          </template>
+        </template>
+
+        <!-- Vista simple sin batch -->
+        <template v-else>
+          <AuditChangesTable :log="selectedLog" />
+        </template>
+
       </template>
     </CommonModal>
   </div>
@@ -238,6 +238,9 @@ const activeFilters = ref<Record<string, string>>({});
 
 const showDetail = ref(false);
 const selectedLog = ref<IAuditLog | null>(null);
+const batchLogs = ref<IAuditLog[]>([]);
+const batchLoading = ref(false);
+const activeTab = ref("");
 
 const loadLogs = async (params: IParamsTable = lastParams.value) => {
   lastParams.value = params;
@@ -267,9 +270,55 @@ const clearFilters = () => {
   loadLogs({ ...lastParams.value, page: 1 });
 };
 
-const openDetail = (item: any) => {
+const SUBJECT_LABELS: Record<string, string> = {
+  Property: "Propiedad",
+  PropertyFeature: "Características",
+  PropertyPerson: "Propietarios",
+  PropertyObligation: "Obligaciones",
+  PropertyArea: "Áreas",
+  PropertyPrice: "Precios",
+  PublishChannel: "Canales de publicación",
+  Address: "Direcciones",
+  Contact: "Contactos",
+  AccountBank: "Cuentas bancarias",
+  Person: "Persona",
+  Company: "Empresa",
+  User: "Usuario",
+};
+
+const batchTabs = computed(() => {
+  const source = batchLogs.value.length ? batchLogs.value : (selectedLog.value ? [selectedLog.value] : []);
+  const grouped = new Map<string, IAuditLog[]>();
+
+  for (const log of source) {
+    const key = log.subject_type ?? "General";
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key)!.push(log);
+  }
+
+  return Array.from(grouped.entries()).map(([key, logs]) => ({
+    key,
+    label: SUBJECT_LABELS[key] ?? key,
+    logs,
+  }));
+});
+
+const openDetail = async (item: any) => {
   selectedLog.value = item as IAuditLog;
+  batchLogs.value = [];
   showDetail.value = true;
+
+  if (item.batch_uuid) {
+    batchLoading.value = true;
+    const response = await run(AuditService.getBatch(item.batch_uuid));
+    if (response) {
+      batchLogs.value = response.data as IAuditLog[];
+    }
+    batchLoading.value = false;
+  }
+
+  await nextTick();
+  activeTab.value = batchTabs.value[0]?.key ?? selectedLog.value?.subject_type ?? "";
 };
 
 const eventClass = (event: string | null) => ({
@@ -289,13 +338,55 @@ const eventLabel = (event: string | null) => {
   return event ? (map[event] ?? event) : "—";
 };
 
-const formatValue = (val: unknown): string => {
-  if (val === null || val === undefined) return "—";
-  if (typeof val === "object") return JSON.stringify(val);
-  return String(val);
-};
-
 loadLogs();
 </script>
 
-<style scoped></style>
+<style scoped>
+.audit-email {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+</style>
+
+<style>
+body.dark-layout .audit-modal-separator {
+  border-color: #383434;
+}
+
+body.dark-layout .audit-log-item {
+  border-color: #383434 !important;
+}
+
+/* badge de notificación en tabs de auditoría */
+.audit-tab-btn {
+  padding-right: 34px !important;
+}
+
+.audit-tab-count {
+  position: absolute;
+  top: 5px;
+  right: 7px;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border-radius: 9px;
+  font-size: 0.65em;
+  font-weight: 700;
+  line-height: 1;
+  background: linear-gradient(135deg, #ff4757, #ff6b81);
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(255, 71, 87, 0.5);
+}
+
+.audit-tab-btn.active .audit-tab-count {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-layout .audit-tab-count {
+  box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+}
+</style>

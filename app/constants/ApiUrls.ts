@@ -101,6 +101,7 @@ export class ApiUrls {
 
   // Audit URLs
   static readonly AUDIT_GET = "/audit";
+  static readonly AUDIT_BATCH_GET = "/audit/batch";
 
   // Tenant Users URLs (central manages users of a tenant)
   static readonly TENANT_USERS_BASE = "/tenants";

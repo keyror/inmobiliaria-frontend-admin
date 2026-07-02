@@ -1,5 +1,6 @@
 export interface IAuditLog {
   id: number;
+  batch_uuid: string | null;
   log_name: string;
   module_label: string;
   description: string;
