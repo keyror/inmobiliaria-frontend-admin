@@ -39,7 +39,7 @@
                         'tenants.delete',
                         'tenants.activate',
                         'tenants.deactivate',
-
+                        'tenants.users.view',
                       ])
                     "
                     class="btn-group"
@@ -88,6 +88,14 @@
                       <i class="fas fa-external-link-alt"></i>
                     </a>
 
+                    <button
+                      v-if="can('tenants.users.view')"
+                      class="btn btn-dashed color-5"
+                      type="button"
+                      @click="manageUsers(item)"
+                    >
+                      <i class="fas fa-users"></i>
+                    </button>
                     <button
                       v-if="can('tenants.delete')"
                       class="btn btn-dashed color-4"
@@ -192,6 +200,12 @@ const edit = (item: any) => {
   if (!can("tenants.edit")) return;
 
   navigateTo(`/central/tenants/edit/${item.id}`);
+};
+
+const manageUsers = (item: any) => {
+  if (!can("tenants.users.view")) return;
+
+  navigateTo(`/central/tenants/${item.id}/users/all`);
 };
 
 const formatDomain = (domain: string) => {
