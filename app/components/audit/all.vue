@@ -153,7 +153,7 @@
         </div>
 
         <!-- Tabs por sub-módulo (si hay batch) -->
-        <template v-if="batchTabs.length > 1">
+        <template v-if="batchLogs.length > 0 || batchLoading">
           <hr class="my-2 audit-modal-separator" />
           <nav class="admin-theme-tabs mb-3">
             <div class="nav nav-tabs" role="tablist">
