@@ -1,5 +1,6 @@
 import { useApi } from "~/composables/useApi";
 import { ApiUrls } from "~/constants/ApiUrls";
+
 import type { IParamsTable } from "~/interfaces/IParamsTable";
 
 class PlanService {

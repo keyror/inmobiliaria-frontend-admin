@@ -96,7 +96,8 @@ export const REALSTATE_SITE_PAGE_OPTIONS: {
   {
     id: "layout",
     label: "Layout del sitio",
-    description: "Imágenes de fondo globales: footer y secciones transversales.",
+    description:
+      "Imágenes de fondo globales: footer y secciones transversales.",
   },
 ];
 

@@ -34,7 +34,10 @@
           class="search-state"
         >
           <Icon name="material-symbols:search-off" />
-          <span>Sin resultados para "<strong>{{ query }}</strong>"</span>
+          <span
+            >Sin resultados para "<strong>{{ query }}</strong
+            >"</span
+          >
         </div>
 
         <!-- Indicación inicial -->
@@ -63,7 +66,10 @@
               <div class="search-item__body">
                 <span class="search-item__label">{{ item.title }}</span>
               </div>
-              <Icon name="material-symbols:chevron-right" class="search-item__arrow" />
+              <Icon
+                name="material-symbols:chevron-right"
+                class="search-item__arrow"
+              />
             </button>
           </template>
 
@@ -86,10 +92,14 @@
               <div class="search-item__body">
                 <span class="search-item__label">{{ item.label }}</span>
                 <span class="search-item__sub">
-                  <code class="me-1">{{ item.code }}</code>{{ item.subtitle }}
+                  <code class="me-1">{{ item.code }}</code
+                  >{{ item.subtitle }}
                 </span>
               </div>
-              <Icon name="material-symbols:chevron-right" class="search-item__arrow" />
+              <Icon
+                name="material-symbols:chevron-right"
+                class="search-item__arrow"
+              />
             </button>
           </template>
 
@@ -110,9 +120,14 @@
               </div>
               <div class="search-item__body">
                 <span class="search-item__label">{{ item.label }}</span>
-                <span v-if="item.subtitle" class="search-item__sub">{{ item.subtitle }}</span>
+                <span v-if="item.subtitle" class="search-item__sub">{{
+                  item.subtitle
+                }}</span>
               </div>
-              <Icon name="material-symbols:chevron-right" class="search-item__arrow" />
+              <Icon
+                name="material-symbols:chevron-right"
+                class="search-item__arrow"
+              />
             </button>
           </template>
 
@@ -133,9 +148,14 @@
               </div>
               <div class="search-item__body">
                 <span class="search-item__label">{{ item.label }}</span>
-                <span v-if="item.subtitle" class="search-item__sub">{{ item.subtitle }}</span>
+                <span v-if="item.subtitle" class="search-item__sub">{{
+                  item.subtitle
+                }}</span>
               </div>
-              <Icon name="material-symbols:chevron-right" class="search-item__arrow" />
+              <Icon
+                name="material-symbols:chevron-right"
+                class="search-item__arrow"
+              />
             </button>
           </template>
         </template>
@@ -146,6 +166,7 @@
 
 <script setup lang="ts">
 import SearchService from "~/services/SearchService";
+
 import type { ISearchResults } from "~/interfaces/ISearch";
 
 const { run } = useApiHandler();
@@ -168,21 +189,24 @@ const results = ref<ISearchResults>({
 const hasQuery = computed(() => query.value.trim().length >= 3);
 
 // Módulos filtrados por query y permisos (síncrono)
-const navItems = computed(() =>
-  hasQuery.value ? searchNav(query.value) : []
-);
+const navItems = computed(() => (hasQuery.value ? searchNav(query.value) : []));
 
 // Offsets para el índice global de navegación por teclado
 const navOffset = computed(() => 0);
 const propOffset = computed(() => navItems.value.length);
-const peopleOffset = computed(() => propOffset.value + results.value.properties.length);
-const companyOffset = computed(() => peopleOffset.value + results.value.people.length);
+const peopleOffset = computed(
+  () => propOffset.value + results.value.properties.length,
+);
+const companyOffset = computed(
+  () => peopleOffset.value + results.value.people.length,
+);
 
-const totalItems = computed(() =>
-  navItems.value.length +
-  results.value.properties.length +
-  results.value.people.length +
-  results.value.companies.length
+const totalItems = computed(
+  () =>
+    navItems.value.length +
+    results.value.properties.length +
+    results.value.people.length +
+    results.value.companies.length,
 );
 
 // Lista plana para keyboard nav
@@ -433,7 +457,9 @@ onUnmounted(() => {
 
 .search-fade-enter-active,
 .search-fade-leave-active {
-  transition: opacity 0.15s, transform 0.15s;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
 }
 
 .search-fade-enter-from,

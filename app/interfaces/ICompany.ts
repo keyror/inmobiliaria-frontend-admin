@@ -1,8 +1,8 @@
 import type { IAddress } from "~/interfaces/IAddress";
+import type { ICompanySetting } from "~/interfaces/ICompanySetting";
 import type { IContact } from "~/interfaces/IContact";
 import type { IImage } from "~/interfaces/IImageItem";
 import type { IPublishChannel } from "~/interfaces/IPublishChannel";
-import type { ICompanySetting } from "~/interfaces/ICompanySetting";
 
 export interface ICompanyPersonRelation {
   id?: string | null;

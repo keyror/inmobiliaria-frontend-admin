@@ -21,7 +21,13 @@
             </template>
 
             <template #item-price="{ price }">
-              {{ Number(price).toLocaleString("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }) }}
+              {{
+                Number(price).toLocaleString("es-CO", {
+                  style: "currency",
+                  currency: "COP",
+                  minimumFractionDigits: 0,
+                })
+              }}
             </template>
 
             <template #item-discount="{ discount }">
@@ -61,9 +67,10 @@
 </template>
 
 <script setup lang="ts">
-import PlanService from "~/services/PlanService";
-import AlertService from "~/services/AlertService";
 import { plansHeader } from "~/constants/tableHeaders/PlansHeader";
+import AlertService from "~/services/AlertService";
+import PlanService from "~/services/PlanService";
+
 import type { IParamsTable } from "~/interfaces/IParamsTable";
 
 const { run } = useApiHandler();

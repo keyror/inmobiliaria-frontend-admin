@@ -173,7 +173,7 @@
           <span class="fw-semibold"
             >{{ getPriceTypeName(price.price_type_id) }}:</span
           >
-          {{ price.price ? formatCOP(price.price) : 'Sin valor' }}
+          {{ price.price ? formatCOP(price.price) : "Sin valor" }}
         </span>
       </div>
       <div v-else class="alert alert-info mb-0">
@@ -182,7 +182,9 @@
           type="button"
           class="btn btn-sm btn-link p-0 ms-2"
           @click="showPricesModal = true"
-        >Configurar ahora</button>
+        >
+          Configurar ahora
+        </button>
       </div>
     </div>
 
@@ -193,10 +195,7 @@
       @close="onPricesModalClose"
     >
       <form class="admin-form" @submit.prevent>
-        <PropertiesPrices
-          ref="pricesRef"
-          :price-types="lookups.priceTypes"
-        />
+        <PropertiesPrices ref="pricesRef" :price-types="lookups.priceTypes" />
       </form>
       <template #actions>
         <button
@@ -322,7 +321,9 @@ const [stratum_id] = defineField("stratum_id");
 
 // Visibilidad dinámica por tipo de propiedad (normativa inmobiliaria colombiana)
 const selectedPropertyTypeAlias = computed(
-  () => props.lookups.propertyTypes?.find((p) => p.id === property_type_id.value)?.alias ?? "",
+  () =>
+    props.lookups.propertyTypes?.find((p) => p.id === property_type_id.value)
+      ?.alias ?? "",
 );
 
 // Sin tipo seleccionado → todos los campos visibles
@@ -336,22 +337,32 @@ const showStratum = computed(() => true);
 
 // Todos los tipos excepto Lote tienen espacios contables
 const showRooms = computed(
-  () => noTypeSelected.value || !NO_PHYSICAL.includes(selectedPropertyTypeAlias.value),
+  () =>
+    noTypeSelected.value ||
+    !NO_PHYSICAL.includes(selectedPropertyTypeAlias.value),
 );
 const showYearBuilt = computed(
-  () => noTypeSelected.value || !NO_PHYSICAL.includes(selectedPropertyTypeAlias.value),
+  () =>
+    noTypeSelected.value ||
+    !NO_PHYSICAL.includes(selectedPropertyTypeAlias.value),
 );
 const showBathrooms = computed(
-  () => noTypeSelected.value || !NO_PHYSICAL.includes(selectedPropertyTypeAlias.value),
+  () =>
+    noTypeSelected.value ||
+    !NO_PHYSICAL.includes(selectedPropertyTypeAlias.value),
 );
 const showGarage = computed(
-  () => noTypeSelected.value || !NO_PHYSICAL.includes(selectedPropertyTypeAlias.value),
+  () =>
+    noTypeSelected.value ||
+    !NO_PHYSICAL.includes(selectedPropertyTypeAlias.value),
 );
 
 // Label del campo rooms según tipo de propiedad
 const COMMERCIAL_TYPES = ["BODEGA", "LOCAL", "OFICINA"];
 const roomsLabel = computed(() =>
-  COMMERCIAL_TYPES.includes(selectedPropertyTypeAlias.value) ? "Espacios" : "Habitaciones",
+  COMMERCIAL_TYPES.includes(selectedPropertyTypeAlias.value)
+    ? "Espacios"
+    : "Habitaciones",
 );
 
 // Limpiar campos ocultos al cambiar tipo de propiedad
@@ -375,7 +386,8 @@ const isResettingForm = ref(false);
 const showPricesModal = ref(false);
 
 const selectedOfferType = computed(
-  () => props.lookups.offerType?.find((o) => o.id === offer_type_id.value) ?? null,
+  () =>
+    props.lookups.offerType?.find((o) => o.id === offer_type_id.value) ?? null,
 );
 
 const allowedPriceAliases = computed((): string[] => {
@@ -393,9 +405,18 @@ const filteredPriceTypes = computed(() =>
 const prePopulatePrices = (): IPropertyPrice[] =>
   allowedPriceAliases.value
     .map((alias) => {
-      const priceType = props.lookups.priceTypes.find((pt) => pt.alias === alias);
+      const priceType = props.lookups.priceTypes.find(
+        (pt) => pt.alias === alias,
+      );
       if (!priceType) return null;
-      return { id: null, price_type_id: priceType.id, price_min: "", price_max: "", price: null, currency: "COP" };
+      return {
+        id: null,
+        price_type_id: priceType.id,
+        price_min: "",
+        price_max: "",
+        price: null,
+        currency: "COP",
+      };
     })
     .filter((p): p is IPropertyPrice => p !== null);
 
@@ -408,7 +429,11 @@ const formatCOP = (value: string | number | null | undefined): string => {
   return copFormatter.format(Number(value));
 };
 
-type PricesComponentRef = { validatePrices: () => boolean; resetValidation: () => void; cleanEmptyCards: () => void };
+interface PricesComponentRef {
+  validatePrices: () => boolean;
+  resetValidation: () => void;
+  cleanEmptyCards: () => void;
+}
 const pricesRef = ref<PricesComponentRef | null>(null);
 
 const isNewOfferTypeSelection = ref(false);

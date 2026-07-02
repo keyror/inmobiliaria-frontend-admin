@@ -1,4 +1,5 @@
 export interface IPropertyObligation {
+  id?: string | null;
   obligation_type_id: string;
   amount: string | number;
   total: string | number;

@@ -3,9 +3,7 @@
     <section class="forbidden-panel">
       <div class="forbidden-code">403</div>
       <h1>Acceso restringido</h1>
-      <p>
-        Tu usuario no tiene permisos para consultar este recurso.
-      </p>
+      <p>Tu usuario no tiene permisos para consultar este recurso.</p>
       <NuxtLink class="btn btn-pill btn-gradient color-4" to="/">
         Volver a inicio
       </NuxtLink>

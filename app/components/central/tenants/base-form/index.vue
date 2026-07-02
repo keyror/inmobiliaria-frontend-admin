@@ -38,7 +38,7 @@
 
                 <CommonInputfieldsSelectfield
                   label="Plan"
-                  :data="(plans as any)"
+                  :data="plans as any"
                   v-model="plan_id"
                   :error="errors.plan_id"
                   star="*"
@@ -74,12 +74,27 @@
                 <div v-if="selectedPlan" class="col-md-12 mt-2">
                   <div class="card bg-light border-0">
                     <div class="card-body py-2 px-3">
-                      <small class="text-muted d-block mb-1">Límites del plan seleccionado</small>
+                      <small class="text-muted d-block mb-1"
+                        >Límites del plan seleccionado</small
+                      >
                       <div class="d-flex gap-4 flex-wrap">
-                        <span><strong>Usuarios:</strong> {{ selectedPlan.max_users }}</span>
-                        <span><strong>Propiedades:</strong> {{ selectedPlan.max_properties }}</span>
-                        <span><strong>Imgs/propiedad:</strong> {{ selectedPlan.max_images_per_property }}</span>
-                        <span><strong>Precio:</strong> ${{ Number(selectedPlan.price).toLocaleString('es-CO') }}/mes</span>
+                        <span
+                          ><strong>Usuarios:</strong>
+                          {{ selectedPlan.max_users }}</span
+                        >
+                        <span
+                          ><strong>Propiedades:</strong>
+                          {{ selectedPlan.max_properties }}</span
+                        >
+                        <span
+                          ><strong>Imgs/propiedad:</strong>
+                          {{ selectedPlan.max_images_per_property }}</span
+                        >
+                        <span
+                          ><strong>Precio:</strong> ${{
+                            Number(selectedPlan.price).toLocaleString("es-CO")
+                          }}/mes</span
+                        >
                       </div>
                     </div>
                   </div>
@@ -115,8 +130,9 @@ import "@vuepic/vue-datepicker/dist/main.css";
 import { useTenantForm } from "~/composables/forms/useTenantForm";
 import { useApiHandler } from "~/composables/useApiHandler";
 import { Constants } from "~/constants/Constants";
-import TenantService from "~/services/TenantService";
 import PlanService from "~/services/PlanService";
+import TenantService from "~/services/TenantService";
+
 import type { IPlanSelectOption } from "~/interfaces/IPlan";
 
 const props = defineProps<{
@@ -139,8 +155,8 @@ const loadPlans = async () => {
   }
 };
 
-const selectedPlan = computed(() =>
-  plans.value.find((p) => p.id === plan_id.value) ?? null
+const selectedPlan = computed(
+  () => plans.value.find((p) => p.id === plan_id.value) ?? null,
 );
 
 const {

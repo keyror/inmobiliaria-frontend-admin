@@ -62,8 +62,8 @@ import { Constants } from "~/constants/Constants";
 import { tenantsHeader } from "~/constants/tableHeaders/TenantsHeader";
 import AlertService from "~/services/AlertService";
 
-import type { IParamsTable } from "~/interfaces/IParamsTable";
 import type { IDropdownAction } from "~/interfaces/IDropdownAction";
+import type { IParamsTable } from "~/interfaces/IParamsTable";
 
 const { run } = useApiHandler();
 const { can, canAny } = useAuthorization();

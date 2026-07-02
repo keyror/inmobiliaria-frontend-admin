@@ -4,7 +4,11 @@
     <div class="container-fluid">
       <div class="row mb-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-          <button class="btn btn-pill btn-dashed color-4" type="button" @click="navigateTo('/central/tenants/all')">
+          <button
+            class="btn btn-pill btn-dashed color-4"
+            type="button"
+            @click="navigateTo('/central/tenants/all')"
+          >
             <i class="fa fa-arrow-left me-1"></i> Volver a tenants
           </button>
           <button
@@ -21,7 +25,9 @@
       <div class="row agent-section property-section user-lists">
         <div class="col-lg-12">
           <div class="property-grid-3 agent-grids ratio2_3">
-            <div class="property-2 row column-sm property-label property-grid list-view">
+            <div
+              class="property-2 row column-sm property-label property-grid list-view"
+            >
               <Table
                 :headers="usersHeader"
                 :items="usersData"
@@ -53,7 +59,9 @@
 
                 <template #item-actions="item">
                   <div
-                    v-if="canAny(['tenants.users.edit', 'tenants.users.delete'])"
+                    v-if="
+                      canAny(['tenants.users.edit', 'tenants.users.delete'])
+                    "
                     class="btn-group"
                     role="group"
                   >
@@ -85,10 +93,10 @@
 </template>
 
 <script setup lang="ts">
-import TenantUserService from "~/services/TenantUserService";
-import AlertService from "~/services/AlertService";
-import { usersHeader } from "~/constants/tableHeaders/UsersHeader";
 import { Constants } from "~/constants/Constants";
+import { usersHeader } from "~/constants/tableHeaders/UsersHeader";
+import AlertService from "~/services/AlertService";
+import TenantUserService from "~/services/TenantUserService";
 
 import type { IParamsTable } from "~/interfaces/IParamsTable";
 

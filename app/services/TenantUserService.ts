@@ -17,15 +17,27 @@ class TenantUserService {
   }
 
   async createUser(tenantId: string, payload: any): Promise<any> {
-    return useApi(`${this.base(tenantId)}/users`, { method: "POST", body: payload });
+    return useApi(`${this.base(tenantId)}/users`, {
+      method: "POST",
+      body: payload,
+    });
   }
 
-  async updateUser(tenantId: string, userId: string, payload: any): Promise<any> {
-    return useApi(`${this.base(tenantId)}/users/${userId}`, { method: "PUT", body: payload });
+  async updateUser(
+    tenantId: string,
+    userId: string,
+    payload: any,
+  ): Promise<any> {
+    return useApi(`${this.base(tenantId)}/users/${userId}`, {
+      method: "PUT",
+      body: payload,
+    });
   }
 
   async deleteUser(tenantId: string, userId: string): Promise<any> {
-    return useApi(`${this.base(tenantId)}/users/${userId}`, { method: "DELETE" });
+    return useApi(`${this.base(tenantId)}/users/${userId}`, {
+      method: "DELETE",
+    });
   }
 
   async getRoles(tenantId: string): Promise<any> {

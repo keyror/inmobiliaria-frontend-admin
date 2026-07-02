@@ -178,6 +178,7 @@ watch(
       resetForm({
         values: {
           obligations: val.map((i) => ({
+            id: i.id ?? null,
             obligation_type_id: i.obligation_type_id ?? "",
             amount: i.amount ?? "",
             total: i.total ?? "",

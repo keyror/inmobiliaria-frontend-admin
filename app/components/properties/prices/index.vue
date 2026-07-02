@@ -132,7 +132,11 @@ const addPrice = () => {
 };
 
 type RequiredPriceField = "price_min" | "price_max" | "price";
-const REQUIRED_FIELDS: RequiredPriceField[] = ["price_min", "price_max", "price"];
+const REQUIRED_FIELDS: RequiredPriceField[] = [
+  "price_min",
+  "price_max",
+  "price",
+];
 
 const isEmpty = (value: unknown): boolean =>
   value === null || value === undefined || value === "";
@@ -151,7 +155,9 @@ const validatePrices = (): boolean => {
 
 const cleanEmptyCards = (): void => {
   for (let i = fields.value.length - 1; i >= 0; i--) {
-    const allEmpty = REQUIRED_FIELDS.every((key) => isEmpty(fields.value[i]?.value[key]));
+    const allEmpty = REQUIRED_FIELDS.every((key) =>
+      isEmpty(fields.value[i]?.value[key]),
+    );
     if (allEmpty) remove(i);
   }
 };

@@ -189,9 +189,9 @@ const ownershipsRef = ref<InstanceType<typeof PropertiesOwnerships> | null>(
 const addressesRef = ref<InstanceType<typeof Addresses> | null>(null);
 const contactsRef = ref<InstanceType<typeof Contacts> | null>(null);
 const areasRef = ref<InstanceType<typeof Areas> | null>(null);
-const publishChannelsRef = ref<InstanceType<
-  typeof PublishChannels
-> | null>(null);
+const publishChannelsRef = ref<InstanceType<typeof PublishChannels> | null>(
+  null,
+);
 const obligationsRef = ref<InstanceType<typeof Obligations> | null>(null);
 
 const activeTab = ref<string>("property");

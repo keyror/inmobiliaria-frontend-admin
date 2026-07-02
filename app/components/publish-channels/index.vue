@@ -203,6 +203,7 @@ watch(
       resetForm({
         values: {
           publish_channels: newData.map((c) => ({
+            id: c.id ?? null,
             channel_id: c.channel_id ?? "",
             external_link: c.external_link ?? "",
             status_id: c.status_id ?? "",

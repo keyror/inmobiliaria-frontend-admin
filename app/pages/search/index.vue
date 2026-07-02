@@ -2,10 +2,11 @@
   <div class="page-body">
     <CommonBreadcrumb title="Resultados de búsqueda" page="Búsqueda" />
     <div class="container-fluid">
-
       <div v-if="!query" class="text-center py-5 text-muted">
-        <Icon name="material-symbols:search" style="font-size:48px;" />
-        <p class="mt-2">Escribe algo en el buscador del encabezado para ver resultados.</p>
+        <Icon name="material-symbols:search" style="font-size: 48px" />
+        <p class="mt-2">
+          Escribe algo en el buscador del encabezado para ver resultados.
+        </p>
       </div>
 
       <template v-else>
@@ -19,10 +20,14 @@
           <!-- Propiedades -->
           <div class="col-xl-6">
             <div class="card">
-              <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+              <div
+                class="card-header pb-0 d-flex justify-content-between align-items-center"
+              >
                 <h6 class="mb-0">
                   Propiedades
-                  <span class="badge badge-light-primary ms-1">{{ propertiesTotal }}</span>
+                  <span class="badge badge-light-primary ms-1">{{
+                    propertiesTotal
+                  }}</span>
                 </h6>
                 <nuxt-link
                   v-if="propertiesTotal > 0"
@@ -33,15 +38,28 @@
                 </nuxt-link>
               </div>
               <div class="card-body p-0">
-                <div v-if="loadingProperties" class="text-center py-4 text-muted">
-                  <Icon name="material-symbols:progress-activity" class="spin" /> Buscando...
+                <div
+                  v-if="loadingProperties"
+                  class="text-center py-4 text-muted"
+                >
+                  <Icon
+                    name="material-symbols:progress-activity"
+                    class="spin"
+                  />
+                  Buscando...
                 </div>
-                <div v-else-if="!properties.length" class="text-center py-4 text-muted">
+                <div
+                  v-else-if="!properties.length"
+                  class="text-center py-4 text-muted"
+                >
                   Sin resultados
                 </div>
                 <ul v-else class="search-result-list">
                   <li v-for="p in properties" :key="p.id">
-                    <nuxt-link :to="`/properties/edit/${p.id}`" class="search-result-item">
+                    <nuxt-link
+                      :to="`/properties/edit/${p.id}`"
+                      class="search-result-item"
+                    >
                       <div class="search-result-icon">
                         <Icon name="material-symbols:home-outline" />
                       </div>
@@ -49,7 +67,10 @@
                         <span class="f-w-600">{{ p.code }}</span>
                         <span class="text-muted ms-2 f-12">{{ p.title }}</span>
                       </div>
-                      <Icon name="material-symbols:chevron-right" class="text-muted" />
+                      <Icon
+                        name="material-symbols:chevron-right"
+                        class="text-muted"
+                      />
                     </nuxt-link>
                   </li>
                 </ul>
@@ -60,10 +81,14 @@
           <!-- Personas -->
           <div class="col-xl-6">
             <div class="card">
-              <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+              <div
+                class="card-header pb-0 d-flex justify-content-between align-items-center"
+              >
                 <h6 class="mb-0">
                   Personas / Clientes
-                  <span class="badge badge-light-primary ms-1">{{ peopleTotal }}</span>
+                  <span class="badge badge-light-primary ms-1">{{
+                    peopleTotal
+                  }}</span>
                 </h6>
                 <nuxt-link
                   v-if="peopleTotal > 0"
@@ -75,22 +100,41 @@
               </div>
               <div class="card-body p-0">
                 <div v-if="loadingPeople" class="text-center py-4 text-muted">
-                  <Icon name="material-symbols:progress-activity" class="spin" /> Buscando...
+                  <Icon
+                    name="material-symbols:progress-activity"
+                    class="spin"
+                  />
+                  Buscando...
                 </div>
-                <div v-else-if="!people.length" class="text-center py-4 text-muted">
+                <div
+                  v-else-if="!people.length"
+                  class="text-center py-4 text-muted"
+                >
                   Sin resultados
                 </div>
                 <ul v-else class="search-result-list">
                   <li v-for="person in people" :key="person.id">
-                    <nuxt-link :to="`/people/edit/${person.id}`" class="search-result-item">
+                    <nuxt-link
+                      :to="`/people/edit/${person.id}`"
+                      class="search-result-item"
+                    >
                       <div class="search-result-icon">
                         <Icon name="material-symbols:person-outline" />
                       </div>
                       <div class="search-result-body">
-                        <span class="f-w-600">{{ person.full_name ?? person.name }}</span>
-                        <span v-if="person.email" class="text-muted ms-2 f-12">{{ person.email }}</span>
+                        <span class="f-w-600">{{
+                          person.full_name ?? person.name
+                        }}</span>
+                        <span
+                          v-if="person.email"
+                          class="text-muted ms-2 f-12"
+                          >{{ person.email }}</span
+                        >
                       </div>
-                      <Icon name="material-symbols:chevron-right" class="text-muted" />
+                      <Icon
+                        name="material-symbols:chevron-right"
+                        class="text-muted"
+                      />
                     </nuxt-link>
                   </li>
                 </ul>
@@ -99,14 +143,13 @@
           </div>
         </div>
       </template>
-
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import PropertyService from "~/services/PropertyService";
 import PersonService from "~/services/PersonService";
+import PropertyService from "~/services/PropertyService";
 
 useHead({ title: "Búsqueda" });
 
@@ -201,6 +244,8 @@ watch(query, (q) => doSearch(q), { immediate: true });
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

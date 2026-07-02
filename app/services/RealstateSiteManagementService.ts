@@ -60,7 +60,9 @@ class RealstateSiteManagementService {
     );
   }
 
-  async restorePage(page: RealstateSitePageKey): Promise<RealstateSitePageResponse> {
+  async restorePage(
+    page: RealstateSitePageKey,
+  ): Promise<RealstateSitePageResponse> {
     return useApi<RealstateSitePageResponse>(
       `${ApiUrls.REALSTATE_SITE_PAGE_RESTORE_POST}/${page}/restore`,
       { method: "POST" },

@@ -26,4 +26,3 @@ export interface IPlanSelectOption {
   max_properties: number;
   max_images_per_property: number;
 }
-

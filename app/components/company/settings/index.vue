@@ -14,8 +14,8 @@
         <i class="fa fa-info-circle"></i>
         <span>
           Esta configuración transforma automáticamente el texto ingresado en
-          los formularios (nombres, títulos, descripciones). No aplica a
-          correos electrónicos, contraseñas.
+          los formularios (nombres, títulos, descripciones). No aplica a correos
+          electrónicos, contraseñas.
         </span>
       </div>
     </div>
@@ -39,11 +39,61 @@ const props = withDefaults(defineProps<Props>(), {
 const NONE_SENTINEL = "none";
 
 const TEXT_CASE_MODE_OPTIONS: ILookup[] = [
-  { id: NONE_SENTINEL,  category: "", name: "Sin transformación",        alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "upper",        category: "", name: "MAYÚSCULAS",                alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "lower",        category: "", name: "minúsculas",                alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "capitalize",   category: "", name: "Primera Letra Mayúscula",   alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "sentence",     category: "", name: "Primera letra mayúscula",   alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
+  {
+    id: NONE_SENTINEL,
+    category: "",
+    name: "Sin transformación",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "upper",
+    category: "",
+    name: "MAYÚSCULAS",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "lower",
+    category: "",
+    name: "minúsculas",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "capitalize",
+    category: "",
+    name: "Primera Letra Mayúscula",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "sentence",
+    category: "",
+    name: "Primera letra mayúscula",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
 ];
 
 const textCaseMode = ref<string>(NONE_SENTINEL);
@@ -58,7 +108,8 @@ watch(
 
 function getValues(): ICompanySetting {
   return {
-    text_case_mode: textCaseMode.value === NONE_SENTINEL ? null : textCaseMode.value,
+    text_case_mode:
+      textCaseMode.value === NONE_SENTINEL ? null : textCaseMode.value,
   };
 }
 

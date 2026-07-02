@@ -162,9 +162,7 @@ const canSavePerson = computed(() =>
   props.isEditing ? can("people.edit") : can("people.create"),
 );
 const canManageFiscalProfile = computed(() =>
-  props.isEditing
-    ? can("fiscal-profiles.edit")
-    : can("fiscal-profiles.create"),
+  props.isEditing ? can("fiscal-profiles.edit") : can("fiscal-profiles.create"),
 );
 
 const route = useRoute();

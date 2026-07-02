@@ -51,10 +51,7 @@ const model = computed({
   set: (value: string) => emit("update:modelValue", value),
 });
 
-const selectedIds = computed(() => [
-  props.modelValue,
-  ...props.excludeIds,
-]);
+const selectedIds = computed(() => [props.modelValue, ...props.excludeIds]);
 
 const { persons, setInitialPeople, searchPeople } = usePersonSelect(
   run,

@@ -2,13 +2,16 @@
   <div class="page-body">
     <CommonBreadcrumb title="Auditoría" page="Registro de actividad" />
     <div class="container-fluid">
-
       <!-- Filtros -->
       <div class="row mb-3">
         <div class="col-lg-12">
           <div class="card">
             <div class="card-body admin-form">
-              <form class="row gx-3" autocomplete="off" @submit.prevent="applyFilters">
+              <form
+                class="row gx-3"
+                autocomplete="off"
+                @submit.prevent="applyFilters"
+              >
                 <CommonInputfieldsSelectfield
                   v-model="filters.log_name"
                   :data="MODULE_OPTIONS"
@@ -55,10 +58,17 @@
                   />
                 </div>
                 <div class="col-12 d-flex gap-2 mt-2">
-                  <button class="btn btn-pill btn-dashed color-1" type="submit">
+                  <button
+                    class="btn btn-pill btn-gradient color-4"
+                    type="submit"
+                  >
                     <i class="fa fa-search me-1"></i> Buscar
                   </button>
-                  <button class="btn btn-pill btn-dashed color-4" type="button" @click="clearFilters">
+                  <button
+                    class="btn btn-dashed color-4"
+                    type="button"
+                    @click="clearFilters"
+                  >
                     <i class="fa fa-times me-1"></i> Limpiar
                   </button>
                 </div>
@@ -72,7 +82,9 @@
       <div class="row">
         <div class="col-lg-12">
           <div class="property-grid-3 agent-grids ratio2_3">
-            <div class="property-2 row column-sm property-label property-grid list-view">
+            <div
+              class="property-2 row column-sm property-label property-grid list-view"
+            >
               <Table
                 :headers="auditHeader"
                 :items="logsData"
@@ -107,9 +119,12 @@
     </div>
 
     <!-- Modal detalle -->
-    <CommonModal v-model:show="showDetail" title="Detalle de auditoría" size="lg">
+    <CommonModal
+      v-model:show="showDetail"
+      title="Detalle de auditoría"
+      size="lg"
+    >
       <template v-if="selectedLog">
-
         <!-- Cabecera del registro principal -->
         <div class="row g-2 mb-3">
           <div class="col-6">
@@ -118,7 +133,10 @@
           </div>
           <div class="col-3">
             <small class="text-muted d-block">Acción</small>
-            <span class="label label-light label-flat" :class="eventClass(selectedLog.event)">
+            <span
+              class="label label-light label-flat"
+              :class="eventClass(selectedLog.event)"
+            >
               {{ eventLabel(selectedLog.event) }}
             </span>
           </div>
@@ -128,7 +146,9 @@
           </div>
           <div class="col-12">
             <small class="text-muted d-block">Usuario</small>
-            <strong class="audit-email">{{ selectedLog.causer_email ?? '—' }}</strong>
+            <strong class="audit-email">{{
+              selectedLog.causer_email ?? "—"
+            }}</strong>
           </div>
         </div>
 
@@ -152,7 +172,10 @@
           </nav>
 
           <div v-if="batchLoading" class="text-center py-3">
-            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            <div
+              class="spinner-border spinner-border-sm text-primary"
+              role="status"
+            ></div>
           </div>
 
           <template v-else>
@@ -165,7 +188,10 @@
                   :class="{ 'border-top pt-3': i > 0 }"
                 >
                   <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="label label-light label-flat" :class="eventClass(log.event)">
+                    <span
+                      class="label label-light label-flat"
+                      :class="eventClass(log.event)"
+                    >
                       {{ eventLabel(log.event) }}
                     </span>
                   </div>
@@ -180,7 +206,6 @@
         <template v-else>
           <AuditChangesTable :log="selectedLog" />
         </template>
-
       </template>
     </CommonModal>
   </div>
@@ -188,8 +213,10 @@
 
 <script setup lang="ts">
 import VueDatePicker from "@vuepic/vue-datepicker";
-import AuditService from "~/services/AuditService";
+
 import { auditHeader } from "~/constants/tableHeaders/AuditHeader";
+import AuditService from "~/services/AuditService";
+
 import type { IAuditLog } from "~/interfaces/IAuditLog";
 import type { ILookup } from "~/interfaces/ILookup";
 import type { IParamsTable } from "~/interfaces/IParamsTable";
@@ -197,22 +224,152 @@ import type { IParamsTable } from "~/interfaces/IParamsTable";
 const NONE = "none";
 
 const MODULE_OPTIONS: ILookup[] = [
-  { id: NONE,            category: "", name: "Todos los módulos",        alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "people",        category: "", name: "Personas",                 alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "companies",     category: "", name: "Empresa",                  alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "users",         category: "", name: "Usuarios",                 alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "properties",    category: "", name: "Propiedades",              alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "plans",         category: "", name: "Planes",                   alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "roles",         category: "", name: "Roles",                    alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "site-settings", category: "", name: "Configuración del sitio",  alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "lookups",       category: "", name: "Lookups",                  alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
+  {
+    id: NONE,
+    category: "",
+    name: "Todos los módulos",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "people",
+    category: "",
+    name: "Personas",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "companies",
+    category: "",
+    name: "Empresa",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "users",
+    category: "",
+    name: "Usuarios",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "properties",
+    category: "",
+    name: "Propiedades",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "plans",
+    category: "",
+    name: "Planes",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "roles",
+    category: "",
+    name: "Roles",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "site-settings",
+    category: "",
+    name: "Configuración del sitio",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "lookups",
+    category: "",
+    name: "Lookups",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
 ];
 
 const EVENT_OPTIONS: ILookup[] = [
-  { id: NONE,      category: "", name: "Todas las acciones", alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "created", category: "", name: "Creado",             alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "updated", category: "", name: "Actualizado",        alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
-  { id: "deleted", category: "", name: "Eliminado",          alias: null, value: null, code: null, icon: null, is_active: true, lang: "es" },
+  {
+    id: NONE,
+    category: "",
+    name: "Todas las acciones",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "created",
+    category: "",
+    name: "Creado",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "updated",
+    category: "",
+    name: "Actualizado",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "deleted",
+    category: "",
+    name: "Eliminado",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
 ];
 
 const { run } = useApiHandler();
@@ -255,9 +412,12 @@ const loadLogs = async (params: IParamsTable = lastParams.value) => {
 
 const applyFilters = () => {
   const applied: Record<string, string> = {};
-  if (filters.value.log_name && filters.value.log_name !== NONE) applied.log_name = filters.value.log_name;
-  if (filters.value.event && filters.value.event !== NONE) applied.event = filters.value.event;
-  if (filters.value.causer_email) applied.causer_email = filters.value.causer_email;
+  if (filters.value.log_name && filters.value.log_name !== NONE)
+    applied.log_name = filters.value.log_name;
+  if (filters.value.event && filters.value.event !== NONE)
+    applied.event = filters.value.event;
+  if (filters.value.causer_email)
+    applied.causer_email = filters.value.causer_email;
   if (filters.value.date_from) applied.date_from = filters.value.date_from;
   if (filters.value.date_to) applied.date_to = filters.value.date_to;
   activeFilters.value = applied;
@@ -265,7 +425,13 @@ const applyFilters = () => {
 };
 
 const clearFilters = () => {
-  filters.value = { log_name: NONE, event: NONE, causer_email: "", date_from: null, date_to: null };
+  filters.value = {
+    log_name: NONE,
+    event: NONE,
+    causer_email: "",
+    date_from: null,
+    date_to: null,
+  };
   activeFilters.value = {};
   loadLogs({ ...lastParams.value, page: 1 });
 };
@@ -287,7 +453,11 @@ const SUBJECT_LABELS: Record<string, string> = {
 };
 
 const batchTabs = computed(() => {
-  const source = batchLogs.value.length ? batchLogs.value : (selectedLog.value ? [selectedLog.value] : []);
+  const source = batchLogs.value.length
+    ? batchLogs.value
+    : selectedLog.value
+      ? [selectedLog.value]
+      : [];
   const grouped = new Map<string, IAuditLog[]>();
 
   for (const log of source) {
@@ -318,7 +488,8 @@ const openDetail = async (item: any) => {
   }
 
   await nextTick();
-  activeTab.value = batchTabs.value[0]?.key ?? selectedLog.value?.subject_type ?? "";
+  activeTab.value =
+    batchTabs.value[0]?.key ?? selectedLog.value?.subject_type ?? "";
 };
 
 const eventClass = (event: string | null) => ({

@@ -10,10 +10,17 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(oldVal, key) in props.log.properties?.old" :key="String(key)">
+          <tr
+            v-for="(oldVal, key) in props.log.properties?.old"
+            :key="String(key)"
+          >
             <td>{{ labelField(String(key)) }}</td>
-            <td class="text-danger font-monospace small">{{ formatValue(oldVal) }}</td>
-            <td class="text-success font-monospace small">{{ formatValue(props.log.properties?.attributes?.[key]) }}</td>
+            <td class="text-danger font-monospace small">
+              {{ formatValue(oldVal) }}
+            </td>
+            <td class="text-success font-monospace small">
+              {{ formatValue(props.log.properties?.attributes?.[key]) }}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -30,7 +37,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(val, key) in props.log.properties?.attributes" :key="String(key)">
+          <tr
+            v-for="(val, key) in props.log.properties?.attributes"
+            :key="String(key)"
+          >
             <td>{{ labelField(String(key)) }}</td>
             <td class="font-monospace small">{{ formatValue(val) }}</td>
           </tr>
@@ -45,8 +55,9 @@
 </template>
 
 <script setup lang="ts">
-import type { IAuditLog } from "~/interfaces/IAuditLog";
 import { labelField } from "~/constants/AuditFieldLabels";
+
+import type { IAuditLog } from "~/interfaces/IAuditLog";
 
 interface Props {
   log: IAuditLog;

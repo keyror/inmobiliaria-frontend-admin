@@ -1,4 +1,5 @@
 export interface IPublishChannel {
+  id?: string | null;
   channel_id: string | null;
   external_link: string | null;
   status_id: string | null; // viene de lookup Si/No

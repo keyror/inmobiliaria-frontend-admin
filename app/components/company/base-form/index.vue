@@ -155,7 +155,9 @@ const companySettingStore = useCompanySettingStore();
 const companyRef = ref<InstanceType<typeof CompanyGeneral> | null>(null);
 const addressesRef = ref<InstanceType<typeof Addresses> | null>(null);
 const contactsRef = ref<InstanceType<typeof Contacts> | null>(null);
-const publishChannelsRef = ref<InstanceType<typeof PublishChannels> | null>(null);
+const publishChannelsRef = ref<InstanceType<typeof PublishChannels> | null>(
+  null,
+);
 const settingsRef = ref<InstanceType<typeof CompanySettings> | null>(null);
 
 const activeTab = ref<string>("company");
@@ -215,7 +217,9 @@ const getCompany = async () => {
   if (response) {
     company.value = response.data ?? null;
     const mode = response.data?.company_setting?.text_case_mode ?? null;
-    companySettingStore.setTextCaseMode(mode as Parameters<typeof companySettingStore.setTextCaseMode>[0]);
+    companySettingStore.setTextCaseMode(
+      mode as Parameters<typeof companySettingStore.setTextCaseMode>[0],
+    );
   }
 };
 

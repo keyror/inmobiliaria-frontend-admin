@@ -104,7 +104,9 @@
                 v-if="canEditSiteSettings"
                 class="btn btn-pill btn-dashed color-4"
                 type="button"
-                :disabled="isSavingTemplate || isRestoringTemplate || !templateSnapshot"
+                :disabled="
+                  isSavingTemplate || isRestoringTemplate || !templateSnapshot
+                "
                 @click="cancelTemplate"
               >
                 Cancelar
@@ -114,7 +116,9 @@
                 v-if="canEditSiteSettings"
                 class="btn btn-pill btn-dashed color-2"
                 type="button"
-                :disabled="isSavingTemplate || isRestoringTemplate || !hasTemplateBackup"
+                :disabled="
+                  isSavingTemplate || isRestoringTemplate || !hasTemplateBackup
+                "
                 @click="doRestoreTemplate"
               >
                 <i class="fa fa-undo me-1"></i>
@@ -891,7 +895,9 @@
                     v-if="canEditSiteSettings"
                     class="btn btn-pill btn-dashed color-4"
                     type="button"
-                    :disabled="isSavingPage || isRestoringPage || !pagesSnapshot"
+                    :disabled="
+                      isSavingPage || isRestoringPage || !pagesSnapshot
+                    "
                     @click="cancelPage"
                   >
                     Cancelar
@@ -901,7 +907,9 @@
                     v-if="canEditSiteSettings"
                     class="btn btn-pill btn-dashed color-2"
                     type="button"
-                    :disabled="isSavingPage || isRestoringPage || !hasActivePageBackup"
+                    :disabled="
+                      isSavingPage || isRestoringPage || !hasActivePageBackup
+                    "
                     @click="doRestorePage"
                   >
                     <i class="fa fa-undo me-1"></i>
@@ -1765,7 +1773,8 @@ async function loadPages() {
     response.data.template_set,
   );
   pagesSnapshot.value = JSON.parse(JSON.stringify(pagesForm.value));
-  hasTemplateBackup.value = response.data.has_template_backup ?? hasTemplateBackup.value;
+  hasTemplateBackup.value =
+    response.data.has_template_backup ?? hasTemplateBackup.value;
   pagesWithBackup.value = response.data.pages_with_backup ?? [];
 }
 

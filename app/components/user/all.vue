@@ -94,16 +94,16 @@ const usersData = ref([]);
 
 const exportUsers: IExportOptions | undefined = can("users.export")
   ? {
-  name: "usuarios",
-  pdf: {
-    url: ApiUrls.USERS_EXPORT_TO_PDF_GET,
-    extension: Constants.PDF,
-  },
-  excel: {
-    url: ApiUrls.USERS_EXPORT_TO_EXCEL_GET,
-    extension: Constants.EXCEL,
-  },
-}
+      name: "usuarios",
+      pdf: {
+        url: ApiUrls.USERS_EXPORT_TO_PDF_GET,
+        extension: Constants.PDF,
+      },
+      excel: {
+        url: ApiUrls.USERS_EXPORT_TO_EXCEL_GET,
+        extension: Constants.EXCEL,
+      },
+    }
   : undefined;
 
 const paramsTable = ref<IParamsTable>({

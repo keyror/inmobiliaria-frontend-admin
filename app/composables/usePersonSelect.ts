@@ -1,7 +1,9 @@
 import type { MaybeRef } from "vue";
+
+import PersonService from "~/services/PersonService";
+
 import type { IParamsTable } from "~/interfaces/IParamsTable";
 import type { IPersonOption } from "~/interfaces/IPersonOption";
-import PersonService from "~/services/PersonService";
 
 type ApiRun = <T>(promise: Promise<T>) => Promise<T | null>;
 

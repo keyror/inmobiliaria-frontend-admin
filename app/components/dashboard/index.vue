@@ -146,9 +146,10 @@
 </template>
 
 <script setup lang="ts">
+import { propertiesHeader } from "~/constants/tableHeaders/PropertiesHeader";
 import DashboardService from "~/services/DashboardService";
 import PropertyService from "~/services/PropertyService";
-import { propertiesHeader } from "~/constants/tableHeaders/PropertiesHeader";
+
 import type { IDashboard, IDashboardStats } from "~/interfaces/IDashboard";
 import type { IParamsTable } from "~/interfaces/IParamsTable";
 

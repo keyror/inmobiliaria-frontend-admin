@@ -87,14 +87,14 @@
                     >
                       Ingresar
                     </button>
-<!--                    <nuxt-link
+                    <!--                    <nuxt-link
                       to="/authentication/signup"
                       target="_parent"
                       class="btn btn-dashed btn-pill color-2"
                       >Create Account</nuxt-link
                     >-->
                   </div>
-<!--                  <div class="divider">
+                  <!--                  <div class="divider">
                     <h6>or</h6>
                   </div>
                   <CommonSocialicon title="Log in with" />-->

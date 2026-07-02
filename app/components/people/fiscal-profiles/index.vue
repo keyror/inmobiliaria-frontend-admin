@@ -32,7 +32,7 @@
       :error="errors.taxe_types"
     />
 
-<!--
+    <!--
     <CommonInputfieldsSelectfield
       v-model="responsible_for_vat_type_id"
       classes="col-md-6 col-sm-6"

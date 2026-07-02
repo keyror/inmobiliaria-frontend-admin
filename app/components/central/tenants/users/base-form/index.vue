@@ -8,8 +8,12 @@
       <div class="row mb-4">
         <div class="col-md-12">
           <div class="card">
-            <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-              <h5>{{ props.isEditing ? "Editar Usuario" : "Crear Usuario" }}</h5>
+            <div
+              class="card-header pb-0 d-flex justify-content-between align-items-center"
+            >
+              <h5>
+                {{ props.isEditing ? "Editar Usuario" : "Crear Usuario" }}
+              </h5>
               <button
                 class="btn btn-pill btn-dashed color-4"
                 type="button"
@@ -19,7 +23,12 @@
               </button>
             </div>
             <div class="card-body admin-form">
-              <form autocomplete="off" class="row gx-3" @submit.prevent="sendForm" novalidate>
+              <form
+                autocomplete="off"
+                class="row gx-3"
+                @submit.prevent="sendForm"
+                novalidate
+              >
                 <CommonInputfieldsTextfield
                   autocomplete="off"
                   v-model="email"
@@ -72,7 +81,10 @@
                 />
 
                 <div class="form-btn mt-3">
-                  <button class="btn btn-pill btn-gradient color-4" type="submit">
+                  <button
+                    class="btn btn-pill btn-gradient color-4"
+                    type="submit"
+                  >
                     {{ props.isEditing ? "Actualizar" : "Crear" }}
                   </button>
                   <button
@@ -140,7 +152,9 @@ const sendForm = handleSubmit(async (values) => {
 const getUser = async () => {
   if (!props.isEditing) return;
 
-  const response = await run(TenantUserService.getUser(tenantId, userId), { setErrors });
+  const response = await run(TenantUserService.getUser(tenantId, userId), {
+    setErrors,
+  });
   if (response) {
     const data = response.data;
     resetForm({
