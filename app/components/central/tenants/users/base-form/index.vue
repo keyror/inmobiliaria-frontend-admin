@@ -57,7 +57,7 @@
                   :error="errors.status_type_id"
                   classes="col-md-6 col-sm-6"
                   label="Estado"
-                  :data="lookups[Constants.STATUS]"
+                  :data="statusData"
                   star="*"
                 />
                 <CommonInputfieldsSelectfield
@@ -95,7 +95,6 @@
 <script lang="ts" setup>
 import { useUserForms } from "~/composables/forms/useUserForm";
 import TenantUserService from "~/services/TenantUserService";
-import { Constants } from "~/constants/Constants";
 
 interface Props {
   isEditing?: boolean;
@@ -103,7 +102,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), { isEditing: false });
 
 const { run } = useApiHandler();
-const { lookups } = useLookups([Constants.STATUS]);
 const { useUserCreateForm, useUserUpdateForm } = useUserForms();
 
 const form = props.isEditing ? useUserUpdateForm() : useUserCreateForm();
@@ -119,6 +117,7 @@ const route = useRoute();
 const tenantId = route.params.tenantId as string;
 const userId = route.params.id as string;
 const rolesData = ref<any[]>([]);
+const statusData = ref<any[]>([]);
 
 const sendForm = handleSubmit(async (values) => {
   const promise = props.isEditing
@@ -163,6 +162,14 @@ const getRoles = async () => {
   }
 };
 
+const getStatuses = async () => {
+  const response = await run(TenantUserService.getStatuses(tenantId));
+  if (response) {
+    statusData.value = response.data;
+  }
+};
+
+getStatuses();
 getRoles();
 getUser();
 </script>
