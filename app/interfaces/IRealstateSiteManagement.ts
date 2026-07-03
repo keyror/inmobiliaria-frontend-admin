@@ -48,6 +48,7 @@ export interface RealstateHomeContent {
   background_image_url: string | null;
   hero_slides: RealstateHomeSlide[];
   featured_sections: RealstateFeaturedSection[];
+  brands: string[];
   [key: string]: unknown;
 }
 
@@ -105,7 +106,9 @@ export interface RealstateContactContent {
 }
 
 export interface RealstateLayoutContent {
+  footer_logo_url: string | null;
   footer_bg_url: string | null;
+  favicon_url: string | null;
   [key: string]: unknown;
 }
 

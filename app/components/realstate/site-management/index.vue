@@ -436,6 +436,23 @@
                       </div>
                     </div>
                   </div>
+                  <div class="col-12">
+                    <div class="repeatable-section card border">
+                      <h6 class="mb-2">Marcas y aliados</h6>
+                      <small class="text-muted d-block mb-3">
+                        Logos de marcas, aliados o certificaciones que se
+                        muestran en la página de inicio antes del footer.
+                      </small>
+                      <RealstateSiteManagementImagePicker
+                        v-model="homeContent.brands"
+                        classes="col-12"
+                        hint="Sube logos en PNG transparente o similar. Se muestran en un slider con efecto gris."
+                        item-classes="col-6 col-sm-4 col-md-3 col-lg-2"
+                        label="Logos de marcas"
+                        :max-images="20"
+                      />
+                    </div>
+                  </div>
                 </template>
 
                 <template v-else-if="activePage === 'propertyList'">
@@ -874,6 +891,20 @@
 
                 <template v-else-if="activePage === 'layout'">
                   <RealstateSiteManagementImagePicker
+                    v-model="layoutContent.footer_logo_url"
+                    classes="col-12"
+                    label="Logo del footer"
+                    hint="Logo que aparece en el footer del sitio público. Si no se sube uno, se usará el logo principal de la empresa. Recomendado: PNG transparente, proporciones similares al logo del header."
+                  />
+
+                  <RealstateSiteManagementImagePicker
+                    v-model="layoutContent.favicon_url"
+                    classes="col-12"
+                    label="Favicon del sitio"
+                    hint="Ícono que aparece en la pestaña del navegador. Recomendado: imagen cuadrada de mínimo 64×64 px en PNG. Si no se sube uno, se usará el logo de la empresa."
+                  />
+
+                  <RealstateSiteManagementImagePicker
                     v-model="layoutContent.footer_bg_url"
                     classes="col-12"
                     label="Imagen de fondo del footer"
@@ -1159,6 +1190,7 @@ function createDefaultContent(
       featured_sections_bg_url: "",
       hero_slides: [],
       featured_sections: [],
+      brands: [],
     };
   }
 
@@ -1211,7 +1243,9 @@ function createDefaultContent(
 
   if (page === "layout") {
     return {
+      footer_logo_url: "",
       footer_bg_url: "",
+      favicon_url: "",
     };
   }
 
@@ -1442,6 +1476,7 @@ function normalizeContentForForm(
       featured_sections_bg_url: toText(record.featured_sections_bg_url),
       hero_slides: normalizeHomeSlides(record.hero_slides ?? record.slides),
       featured_sections: normalizeFeaturedSections(record.featured_sections),
+      brands: normalizeEditableImages(record.brands).map((img) => img.url),
     };
   }
 
@@ -1508,7 +1543,9 @@ function normalizeContentForForm(
   if (page === "layout") {
     return {
       ...record,
+      footer_logo_url: toText(record.footer_logo_url),
       footer_bg_url: toText(record.footer_bg_url),
+      favicon_url: toText(record.favicon_url),
     };
   }
 
@@ -1660,6 +1697,7 @@ function getKnownContentPayload(
       featured_sections: normalizeFeaturedSections(
         homeContent.value.featured_sections,
       ),
+      brands: normalizeEditableImages(homeContent.value.brands),
     };
   }
 
@@ -1732,7 +1770,9 @@ function getKnownContentPayload(
 
   if (page === "layout") {
     return {
+      footer_logo_url: toNullableText(layoutContent.value.footer_logo_url),
       footer_bg_url: toNullableText(layoutContent.value.footer_bg_url),
+      favicon_url: toNullableText(layoutContent.value.favicon_url),
     };
   }
 

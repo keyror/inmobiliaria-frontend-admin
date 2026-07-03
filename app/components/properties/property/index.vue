@@ -255,6 +255,7 @@
       ref="galleryRef"
       :data="values.images ?? []"
       item-classes="col-sm-12 col-md-4 col-lg-2"
+      :watermark="true"
       @updateImages="handleImages"
     />
   </form>

@@ -10,6 +10,7 @@ export interface PublicCompany {
   tradename: string | null;
   nit: string | null;
   logo: PublicCompanyLogo | null;
+  favicon_url: string | null;
 }
 
 export interface PublicCompanyLogo {

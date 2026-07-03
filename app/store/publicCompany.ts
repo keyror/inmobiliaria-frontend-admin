@@ -17,6 +17,9 @@ export const usePublicCompanyStore = defineStore("public-company", () => {
   const error = ref("");
 
   const logoUrl = computed(() => company.value?.logo?.url || "");
+  const faviconUrl = computed(
+    () => company.value?.favicon_url || company.value?.logo?.url || "",
+  );
   const displayName = computed(
     () =>
       company.value?.name ||
@@ -102,6 +105,7 @@ export const usePublicCompanyStore = defineStore("public-company", () => {
     loaded,
     error,
     logoUrl,
+    faviconUrl,
     displayName,
     applySiteTheme,
     fetchCompany,

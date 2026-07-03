@@ -15,6 +15,10 @@ export default defineNuxtConfig({
         target: "http://localhost:8000/api",
         changeOrigin: true,
       },
+      "/storage": {
+        target: "http://localhost:8000/storage",
+        changeOrigin: true,
+      },
     },
   },
   app: {
@@ -22,7 +26,6 @@ export default defineNuxtConfig({
     buildAssetsDir: "/_nuxt/",
     head: {
       link: [
-        { rel: "icon", type: "image/png", href: "/favicon.png" },
         {
           rel: "stylesheet",
           href: "https://fonts.googleapis.com/css?family=Montserrat:400,400i,500,500i,600,600i,700,700i,800,800i",

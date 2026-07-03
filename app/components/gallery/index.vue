@@ -133,7 +133,9 @@ import { computed, ref, watch } from "vue";
 import draggable from "vuedraggable";
 
 import { useApiHandler } from "~/composables/useApiHandler";
+import { useWatermark } from "~/composables/useWatermark";
 import GalleryService from "~/services/GalleryService";
+import { usePublicCompanyStore } from "~/store/publicCompany";
 
 import type { IImage, IImagePayload, ImageItem } from "~/interfaces/IImageItem";
 
@@ -144,6 +146,8 @@ interface DragEndEvent {
 
 const { run } = useApiHandler();
 const { can } = useAuthorization();
+const { applyWatermark } = useWatermark();
+const publicCompanyStore = usePublicCompanyStore();
 
 const emit = defineEmits<{
   (e: "updateImages", value: IImagePayload[]): void;
@@ -157,6 +161,7 @@ const props = withDefaults(
     addItemClasses?: string;
     dimensions?: string;
     showCover?: boolean;
+    watermark?: boolean;
   }>(),
   {
     data: () => [],
@@ -165,6 +170,7 @@ const props = withDefaults(
     addItemClasses: "",
     dimensions: "",
     showCover: true,
+    watermark: false,
   },
 );
 
@@ -223,7 +229,13 @@ const onFileChange = async (event: Event) => {
     if (!file.type.startsWith("image/")) continue;
 
     const optimized = await optimizeImage(file);
-    const localUrl = URL.createObjectURL(optimized);
+
+    const final =
+      props.watermark && publicCompanyStore.logoUrl
+        ? await applyWatermark(optimized, publicCompanyStore.logoUrl)
+        : optimized;
+
+    const localUrl = URL.createObjectURL(final);
 
     const tempId = `temp_${Date.now()}_${Math.random()}`;
 
@@ -238,7 +250,7 @@ const onFileChange = async (event: Event) => {
     images.value.push(tempImage);
 
     const formData = new FormData();
-    formData.append("image", optimized);
+    formData.append("image", final);
 
     const response = await run(GalleryService.uploadSingle(formData), {
       showSuccess: true,

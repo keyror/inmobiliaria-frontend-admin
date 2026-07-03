@@ -5,9 +5,23 @@
 | Store | Archivo | Propósito |
 |---|---|---|
 | `authStore` | `store/authStore.ts` | Token, usuario, roles, permisos, login/logout |
-| `publicCompany` | `store/publicCompany.ts` | Datos de la empresa pública |
+| `publicCompany` | `store/publicCompany.ts` | Datos de la empresa pública y favicon |
 | `loading` | `store/loading.ts` | Estado global de carga |
 | `costomizer` | `store/costomizer.ts` | Configuración del tema/UI |
+
+## Store `publicCompany` — getters clave
+
+```ts
+const store = usePublicCompanyStore();
+
+store.logoUrl      // URL del logo de la empresa (string vacío si no tiene)
+store.faviconUrl   // URL del favicon: usa favicon_url del sitio público, con fallback al logo
+store.displayName  // Nombre para mostrar (name → tradename → company_name)
+```
+
+`faviconUrl` proviene del campo `favicon_url` en `pages.layout.content` del sitio público.
+El campo llega en la respuesta de `/api/public/company` (ya incluido en el cache de empresa).
+Se usa en `app.vue` para setear el `<link rel="icon">` del panel de administración.
 
 ## Patrón de store (composition API)
 
