@@ -108,7 +108,9 @@
                 <CompanySettings
                   ref="settingsRef"
                   :data="company?.company_setting"
+                  :contacts="company?.contacts ?? []"
                   :isEditing="isEditing"
+                  @go-to-contacts="switchTab('contacts')"
                 />
               </div>
 

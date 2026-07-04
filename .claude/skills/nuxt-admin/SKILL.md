@@ -35,6 +35,45 @@ Use this skill when implementing features in `frontend/` (admin panel).
 - Components: auto-imported by Nuxt — no import needed in templates
 - Interfaces: `IXxx.ts` in `app/interfaces/`, imported as `import type { IXxx } from '~/interfaces/IXxx'`
 
+## Botones — clases del tema admin
+
+Nunca usar clases Bootstrap crudas (`btn-primary`, `btn-outline-*`, `btn-secondary`). El admin tiene su propio sistema de botones:
+
+| Uso | Clases |
+|---|---|
+| Acción primaria (guardar, crear, actualizar, navegar a otra sección) | `btn btn-pill btn-gradient color-4` |
+| Acción secundaria (cancelar, volver) | `btn btn-pill btn-dashed color-4` |
+| Agregar fila inline (dentro de una lista) | `btn btn-dashed color-4` |
+| Peligro / eliminar | `btn btn-dashed color-1` |
+| Advertencia | `btn btn-dashed color-2` |
+
+```vue
+<!-- ✅ Correcto -->
+<button class="btn btn-pill btn-gradient color-4">Guardar</button>
+<button class="btn btn-pill btn-dashed color-4">Cancelar</button>
+<button class="btn btn-dashed color-4">+ Agregar fila</button>
+<button class="btn btn-dashed color-1">Eliminar</button>
+
+<!-- ❌ Incorrecto — Bootstrap crudo -->
+<button class="btn btn-primary">Guardar</button>
+<button class="btn btn-outline-secondary btn-sm">Cancelar</button>
+```
+
+---
+
+## Clase `admin-form` — regla obligatoria
+
+Todo componente que contenga campos de formulario **debe** tener `admin-form` en su elemento raíz, independientemente de si el componente padre ya la tiene. Sin esta clase los inputs muestran estilos Bootstrap crudos en lugar del tema del admin.
+
+```vue
+<!-- ✅ Siempre así -->
+<form class="admin-form row gx-3">
+  <CommonInputfieldsTextfield ... />
+</form>
+```
+
+---
+
 ## Componentes comunes reutilizables (`components/common/inputfields/`)
 
 **Antes de crear cualquier campo de formulario, verificar si ya existe en esta carpeta.**

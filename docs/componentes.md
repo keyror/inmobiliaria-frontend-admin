@@ -38,6 +38,26 @@ const emit = defineEmits<{
 4. Usar `props.` explícitamente (no destructuring reactivo sin `toRefs`)
 5. Lógica compleja va en composable, no en el componente
 
+## Clase `admin-form` (obligatoria en formularios)
+
+Todo componente que contenga campos de formulario **debe** usar `admin-form` en su elemento raíz. Sin esta clase los inputs y selects muestran estilos Bootstrap crudos en lugar del tema del admin.
+
+```vue
+<template>
+  <!-- ✅ Correcto — form con admin-form -->
+  <form class="admin-form row gx-3">
+    <CommonInputfieldsTextfield ... />
+  </form>
+
+  <!-- ❌ Incorrecto — div sin admin-form -->
+  <div class="row g-3">
+    <CommonInputfieldsTextfield ... />
+  </div>
+</template>
+```
+
+> `admin-form` en el componente padre (`card-body`) **no siempre cascadea** correctamente a componentes hijos — cada componente de formulario debe declararlo en su propio elemento raíz.
+
 ## Componentes de formulario
 
 ```vue

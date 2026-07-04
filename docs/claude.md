@@ -12,6 +12,7 @@
 
 | Tarea | Leer primero |
 |---|---|
+| Entender módulos, páginas existentes, qué hace cada sección | [dominio.md](./dominio.md) |
 | Crear componente | [arquitectura.md](./arquitectura.md) + [componentes.md](./componentes.md) |
 | Crear store Pinia | [stores-pinia.md](./stores-pinia.md) |
 | Consumir API del backend | [consumo-api.md](./consumo-api.md) |
