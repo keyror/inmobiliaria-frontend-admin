@@ -447,10 +447,15 @@ const SUBJECT_LABELS: Record<string, string> = {
   Address: "Direcciones",
   Contact: "Contactos",
   AccountBank: "Cuentas bancarias",
+  FiscalProfile: "Perfil Fiscal",
+  EconomicActivity: "Actividad económica",
+  TaxeType: "Responsabilidad fiscal",
   Person: "Persona",
   Company: "Empresa",
   User: "Usuario",
 };
+
+const FISCAL_PROFILE_CHILDREN = new Set(["EconomicActivity", "TaxeType"]);
 
 const batchTabs = computed(() => {
   const source = batchLogs.value.length
@@ -461,7 +466,9 @@ const batchTabs = computed(() => {
   const grouped = new Map<string, IAuditLog[]>();
 
   for (const log of source) {
-    const key = log.subject_type ?? "General";
+    const key = FISCAL_PROFILE_CHILDREN.has(log.subject_type ?? "")
+      ? "FiscalProfile"
+      : (log.subject_type ?? "General");
     if (!grouped.has(key)) grouped.set(key, []);
     grouped.get(key)!.push(log);
   }

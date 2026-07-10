@@ -114,6 +114,20 @@ export const AUDIT_FIELD_LABELS: Record<string, string> = {
   legal_representative_id: "Representante legal",
   person_attendant_id: "Persona de contacto",
 
+  // ── Perfil fiscal (FiscalProfile) ─────────────────────────────────────
+  tax_regime: "Régimen tributario",
+  responsible_for_vat_type_id: "Responsable de IVA",
+  vat_withholding: "Retención de IVA (%)",
+  income_tax_withholding: "Retención de renta (%)",
+  ica_withholding: "Retención de ICA (%)",
+  rental_fee: "Honorarios de arrendamiento (%)",
+
+  // ── Actividad económica (EconomicActivity) ─────────────────────────────
+  economic_activity_type_id: "Actividad económica",
+
+  // ── Responsabilidad fiscal (TaxeType) ──────────────────────────────────
+  taxe_type_id: "Responsabilidad fiscal",
+
   // ── Cuenta bancaria (AccountBank) ──────────────────────────────────────
   account_type_id: "Tipo de cuenta",
   bank_id: "Banco",

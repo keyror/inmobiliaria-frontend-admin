@@ -11,7 +11,7 @@ export const fiscalProfileSchema = yup.object({
     .min(1, "Seleccione al menos una responsabilidad fiscal")
     .required(),
 
-  responsible_for_vat_type_id: yup.string().required("Campo obligatorio"),
+  responsible_for_vat_type_id: yup.string().notRequired(),
 
   vat_withholding: yup.string().nullable().notRequired(),
 
