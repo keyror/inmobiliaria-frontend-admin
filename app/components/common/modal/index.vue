@@ -143,7 +143,9 @@ onBeforeUnmount(() => {
 }
 
 .common-modal-content {
-  overflow: hidden;
+  /* overflow: hidden eliminado — clipa el popup de VueDatePicker.
+     El border-radius del propio elemento sí recorta su fondo.
+     Header y footer tienen overflow:hidden + border-radius propio para las esquinas. */
   color: #1c2d3a;
   background: #ffffff;
   border: 1px solid rgba(88, 97, 103, 0.12);
@@ -156,6 +158,8 @@ onBeforeUnmount(() => {
   gap: 16px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), #f7f7fe);
   border-bottom: 1px solid rgba(88, 97, 103, 0.1);
+  border-radius: 18px 18px 0 0;
+  overflow: hidden;
 }
 
 .common-modal-title {
@@ -191,6 +195,8 @@ onBeforeUnmount(() => {
 .common-modal-footer {
   background: rgba(247, 247, 254, 0.72);
   border-top: 1px solid rgba(88, 97, 103, 0.1);
+  border-radius: 0 0 18px 18px;
+  overflow: hidden;
 }
 
 :global(body.dark-layout .common-modal-backdrop) {
@@ -267,6 +273,7 @@ onBeforeUnmount(() => {
 :global(body.dark-layout .common-modal-footer) {
   background: rgba(27, 27, 27, 0.76);
   border-top-color: #383434;
+  border-radius: 0 0 18px 18px;
 }
 
 :global(body.dark-layout .common-modal-close),

@@ -31,6 +31,34 @@
       ]
     },
     {
+      "icon": "lucide:file-signature",
+      "title": "Contratos",
+      "titlePage": "Administrar contratos",
+      "collapse": true,
+      "active": false,
+      "permission": "rents.view",
+      "children": [
+        {
+          "link": "/rents/all",
+          "title": "Listado",
+          "icon": "lucide:chevron-right",
+          "permission": "rents.view"
+        },
+        {
+          "link": "/rents/add",
+          "title": "Agregar",
+          "icon": "lucide:chevron-right",
+          "permission": "rents.create"
+        },
+        {
+          "link": "/contract-templates",
+          "title": "Plantillas",
+          "icon": "lucide:chevron-right",
+          "permission": "documents.view"
+        }
+      ]
+    },
+    {
       "icon": "lucide:grid-2x2",
       "title": "Administrar Tenants",
       "titlePage": "Listado tenants",

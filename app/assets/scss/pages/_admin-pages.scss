@@ -187,6 +187,11 @@ table {
             color: rgba(34, 54, 69, 0.4);
             text-transform: capitalize;
         }
+
+        &:focus {
+            box-shadow: none;
+            border-color: $border-color;
+        }
     }
 
     .dropdown-item {
@@ -1878,6 +1883,11 @@ body {
             .form-control {
                 &::placeholder {
                     color: rgba($white, 0.6);
+                }
+
+                &:focus {
+                    box-shadow: none;
+                    border-color: $dark-border-color;
                 }
             }
 

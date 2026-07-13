@@ -63,6 +63,19 @@ export class ApiUrls {
   static readonly LOOKUPS_ADMIN_DELETE_DELETE = "/lookups";
   static readonly LOOKUPS_ADMIN_CATEGORIES_GET = "/lookups/categories";
 
+  // Rents URLs
+  static readonly RENTS_GET = "/rents";
+  static readonly RENTS_SHOW_GET = "/rents";
+  static readonly RENTS_CREATE_POST = "/rents";
+  static readonly RENTS_UPDATE_PUT = "/rents";
+  static readonly RENTS_DELETE_DELETE = "/rents";
+  static readonly RENTS_DOCUMENTS_GET = "/rents";
+  static readonly RENTS_DOCUMENTS_CREATE_POST = "/rents";
+  static readonly RENTS_DOCUMENTS_UPDATE_PUT = "/rents";
+  static readonly RENTS_DOCUMENTS_DELETE_DELETE = "/rents";
+  static readonly RENTS_DOCUMENTS_GENERATE_POST = "/rents";
+  static readonly RENTS_DOCUMENTS_DOWNLOAD_GET = "/rents";
+
   // Properties URLs
   static readonly PROPERTIES_GET = "/properties";
   static readonly PROPERTIES_SHOW_GET = "/properties";
@@ -105,6 +118,33 @@ export class ApiUrls {
 
   // Tenant Users URLs (central manages users of a tenant)
   static readonly TENANT_USERS_BASE = "/tenants";
+
+  // Template Sections (editable document template sections)
+  static readonly TEMPLATE_SECTIONS_GET = "/contract-clauses";
+  static readonly TEMPLATE_SECTIONS_META_GET = "/contract-clauses/meta";
+  static readonly TEMPLATE_SECTIONS_POST = "/contract-clauses";
+  static readonly TEMPLATE_SECTIONS_PUT = "/contract-clauses";
+  static readonly TEMPLATE_SECTIONS_DELETE = "/contract-clauses";
+  static readonly TEMPLATE_SECTIONS_REORDER_POST = "/contract-clauses/reorder";
+  static readonly TEMPLATE_SECTIONS_RESET_POST = "/contract-clauses/reset";
+  static readonly TEMPLATE_SECTIONS_PREVIEW_GET = "/contract-clauses/preview";
+
+  /** @deprecated Use TEMPLATE_SECTIONS_* */
+  static readonly CONTRACT_CLAUSES_GET = "/contract-clauses";
+  /** @deprecated Use TEMPLATE_SECTIONS_* */
+  static readonly CONTRACT_CLAUSES_META_GET = "/contract-clauses/meta";
+  /** @deprecated Use TEMPLATE_SECTIONS_* */
+  static readonly CONTRACT_CLAUSES_POST = "/contract-clauses";
+  /** @deprecated Use TEMPLATE_SECTIONS_* */
+  static readonly CONTRACT_CLAUSES_PUT = "/contract-clauses";
+  /** @deprecated Use TEMPLATE_SECTIONS_* */
+  static readonly CONTRACT_CLAUSES_DELETE = "/contract-clauses";
+  /** @deprecated Use TEMPLATE_SECTIONS_* */
+  static readonly CONTRACT_CLAUSES_REORDER_POST = "/contract-clauses/reorder";
+  /** @deprecated Use TEMPLATE_SECTIONS_* */
+  static readonly CONTRACT_CLAUSES_RESET_POST = "/contract-clauses/reset";
+  /** @deprecated Use TEMPLATE_SECTIONS_* */
+  static readonly CONTRACT_CLAUSES_PREVIEW_GET = "/contract-clauses/preview";
 
   // Plans URLs
   static readonly PLANS_GET = "/plans";

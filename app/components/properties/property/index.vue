@@ -209,11 +209,12 @@
     </CommonModal>
 
     <!-- Descripción -->
-    <CommonInputfieldsTextarea
+    <CommonInputfieldsRichtext
       v-model="description"
       :error="errors.description"
       classes="col-md-12"
       label="Descripción"
+      placeholder="Describe la propiedad: ubicación, características, acabados..."
     />
 
     <!-- Features -->

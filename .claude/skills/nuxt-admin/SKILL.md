@@ -74,6 +74,72 @@ Todo componente que contenga campos de formulario **debe** tener `admin-form` en
 
 ---
 
+## Dark Mode — regla obligatoria
+
+Todo componente nuevo **debe** soportar dark mode desde el inicio. El proyecto usa la clase `body.dark-layout` como único mecanismo — sin media queries, sin `[data-theme]`, sin CSS custom properties para colores.
+
+### Reglas
+
+1. **Nunca hardcodear** `white`, `#fff`, `#ffffff` ni `#000` en `background` o `color` sin su override dark.
+2. **Siempre usar `<CommonModal>`** para modals — ya tiene dark mode completo integrado (Teleport + Transition + overrides). No construir modals a mano.
+3. Para CSS propio, agregar `:global(body.dark-layout .tu-clase)` en el mismo `<style scoped>`.
+4. Para elementos teleportados (fuera del DOM del componente), usar `<style>` sin `scoped`.
+
+### Paleta de colores — valores a reutilizar
+
+| Rol | Light | Dark |
+|---|---|---|
+| Superficie/card | `#ffffff` | `#232323` |
+| Superficie anidada | `#f7f7fe` | `#1b1b1b` |
+| Superficie hover | `#fafafa` | `#282727` |
+| Borde | `rgba(88,97,103,0.12)` | `#383434` |
+| Texto primario | `#1c2d3a` | `rgba(255,255,255,0.82)` |
+| Texto secundario | `rgba(28,45,58,0.78)` | `rgba(255,255,255,0.76)` |
+| Texto muted | `rgba(28,45,58,0.58)` | `rgba(255,255,255,0.58)` |
+| Encabezado/título | `#586167` | `rgba(255,255,255,0.92)` |
+| Placeholder | `rgba(28,45,58,0.38)` | `rgba(255,255,255,0.48)` |
+
+### Patrón — tabla con CSS propio
+
+```css
+/* <style scoped> */
+:global(body.dark-layout) .mi-tabla {
+  --bs-table-color: rgba(255, 255, 255, 0.82);
+  --bs-table-bg: #232323;
+  --bs-table-border-color: #383434;
+  --bs-table-hover-bg: #282727;
+}
+:global(body.dark-layout) .mi-tabla thead tr {
+  background-color: #1b1b1b;
+  border-bottom-color: #383434;
+}
+:global(body.dark-layout) .mi-tabla th {
+  color: rgba(255, 255, 255, 0.92);
+}
+```
+
+### Uso de CommonModal
+
+```vue
+<CommonModal
+  v-model:show="showModal"
+  title="Título del Modal"
+  size="lg"
+  @close="closeModal"
+>
+  <!-- contenido en slot default -->
+  <form class="admin-form row gx-3">
+    <CommonInputfieldsTextfield ... />
+  </form>
+
+  <template #actions>
+    <button class="btn btn-pill btn-gradient color-4" @click="save">Guardar</button>
+  </template>
+</CommonModal>
+```
+
+---
+
 ## Componentes comunes reutilizables (`components/common/inputfields/`)
 
 **Antes de crear cualquier campo de formulario, verificar si ya existe en esta carpeta.**
@@ -87,6 +153,7 @@ Todo componente que contenga campos de formulario **debe** tener `admin-form` en
 | `CommonInputfieldsCheckbox` | `checkbox.vue` | Checkbox |
 | `CommonInputfieldsStatusfield` | `statusfield.vue` | Campo de estado |
 | `CommonInputfieldsPersonselect` | `personselect.vue` | Selector de persona |
+| `CommonInputfieldsRichtext` | `richtext.vue` | Editor de texto enriquecido (negrita, cursiva, listas, párrafos) |
 
 Props comunes a todos: `v-model`, `label`, `name`, `classes` (col-md-X), `error`, `disabled`, `star` (para asterisco requerido).
 
@@ -126,6 +193,38 @@ const result = await run(XxxService.create(payload), {
 });
 // result is null on error, response data on success
 ```
+
+## Tipos de datos — alineación front ↔ back — regla obligatoria
+
+Cada campo del formulario debe usar el tipo correcto en el Yup schema y el componente de input adecuado para que el backend no rechace por tipo incorrecto.
+
+| Tipo en DB | Regla Laravel | Yup schema | Input component |
+|---|---|---|---|
+| `decimal / numeric` | `numeric\|min:0` | `Yup.number()` | `CommonInputfieldsNumberfield` |
+| `integer` | `integer\|min:X` | `Yup.number().integer()` | `CommonInputfieldsNumberfield` |
+| `boolean / tinyint(1)` | `boolean` | `Yup.boolean()` | `CommonInputfieldsCheckbox` |
+| `varchar / text` | `string\|max:X` | `Yup.string()` | `CommonInputfieldsTextfield` / `Textarea` |
+| `date` | `date` | `Yup.string()` (VueDatePicker emite string) | `VueDatePicker model-type="yyyy-MM-dd"` |
+| `char(36)` FK nullable | `nullable\|uuid\|exists:table,id` | `Yup.string().nullable()` | `CommonInputfieldsSelectfield` |
+| `json` | `array` | `Yup.array()` | array dinámico en el form |
+
+### Reglas críticas
+
+1. **No mezclar tipos**: un campo `decimal` en la DB debe usar `Yup.number()` en el schema — nunca `Yup.string()`. De lo contrario, Laravel lo rechaza con "debe ser numérico".
+2. **El backend tiene `ConvertEmptyStringsToNull` global** — los `""` enviados desde el front se convierten a `null` automáticamente. Por eso no hace falta enviar explícitamente `null` para campos opcionales vacíos.
+3. **Campos no presentes en el template**: si un campo está en el schema/composable pero NO tiene input en el template, eliminarlo del `initialValues` del composable para que no se envíe como `""` (lo que podría corromper columnas `date` o FK antes del middleware).
+4. **`Yup.number().integer()`** para campos `int` en DB — evita que el front envíe `1.5` cuando el back espera un entero.
+
+### Resumen del flujo
+
+```
+SelectField vacío  →  ""  →  ConvertEmptyStringsToNull  →  null  →  nullable|uuid pasa ✓
+NumberField vacío  →  null  →  null  →  sometimes|nullable|numeric pasa ✓
+Checkbox          →  true/false  →  boolean ✓
+VueDatePicker     →  "2025-01-15"  →  date ✓
+```
+
+---
 
 ## Verificación post-cambio (OBLIGATORIA)
 

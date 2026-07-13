@@ -23,6 +23,13 @@ export class Constants {
   static readonly INACTIVO: string = "INACTIVO";
   static readonly PLAN: string = "plan";
 
+  // Categorías de desplegables de contrato
+  static readonly CONTRACT_TYPE: string = "contract_type";
+  static readonly INCREMENT_TYPE: string = "increment_type";
+  static readonly DOCUMENT_CATEGORY: string = "document_category";
+  static readonly DOCUMENT_STATUS: string = "document_status";
+  static readonly DOCUMENT_TEMPLATE_TYPE: string = "document_template_type";
+
   // Categorías de desplegables de propiedad
   static readonly GARAGE_TYPE: string = "garage_type";
   static readonly PROPERTY_TYPE: string = "property_type";

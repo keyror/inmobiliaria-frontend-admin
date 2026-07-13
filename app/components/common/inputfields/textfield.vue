@@ -90,4 +90,8 @@ defineExpose({
   border-color: #dc3545 !important;
   background-image: none !important;
 }
+
+input:focus {
+  box-shadow: none !important;
+}
 </style>
