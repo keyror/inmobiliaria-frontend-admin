@@ -65,7 +65,7 @@
       "titlePage": "Informes",
       "collapse": false,
       "active": false,
-      "permission": "rents.view"
+      "permission": "reports.view"
     },
     {
       "icon": "lucide:grid-2x2",
