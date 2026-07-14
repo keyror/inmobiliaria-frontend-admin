@@ -22,7 +22,15 @@
             type="button"
             @click="switchTab('tenants')"
           >
-            Arrendatarios
+            Arrendatario
+          </button>
+          <button
+            :class="{ active: activeTab === 'codebtors' }"
+            class="nav-link"
+            type="button"
+            @click="switchTab('codebtors')"
+          >
+            Codeudor
           </button>
           <button
             v-if="props.isEditing"
@@ -49,10 +57,11 @@
                 />
               </div>
 
-              <div v-show="activeTab === 'tenants'">
+              <div v-show="activeTab === 'tenants' || activeTab === 'codebtors'">
                 <RentsTenants
                   ref="tenantsRef"
                   :data="rent?.rent_tenant_codebtors"
+                  :view="activeTab === 'codebtors' ? 'codebtor' : 'tenant'"
                   :isEditing="props.isEditing"
                 />
               </div>
@@ -122,6 +131,8 @@ const { lookups } = useLookups([
   Constants.DOCUMENT_STATUS,
   Constants.DOCUMENT_TEMPLATE_TYPE,
   Constants.BANKS,
+  Constants.TAXE_TYPE,
+  Constants.CITY,
 ]);
 
 const allProperties = ref<any[]>([]);
@@ -198,6 +209,8 @@ const rentLookups = computed(() => ({
   contractTypes: lookups.value[Constants.CONTRACT_TYPE] ?? [],
   incrementTypes: lookups.value[Constants.INCREMENT_TYPE] ?? [],
   banks: lookups.value[Constants.BANKS] ?? [],
+  taxeTypes: lookups.value[Constants.TAXE_TYPE] ?? [],
+  cities: lookups.value[Constants.CITY] ?? [],
 }));
 
 const documentsLookups = computed(() => ({

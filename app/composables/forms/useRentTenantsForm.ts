@@ -7,19 +7,25 @@ const rentTenantsSchema = Yup.object({
     .of(
       Yup.object({
         tenant_id: Yup.string().required("Arrendatario obligatorio"),
-        codebtor_id: Yup.string().nullable().notRequired(),
-        percentage: Yup.number().nullable().notRequired(),
       }),
     )
     .min(1, "Debe haber al menos un arrendatario")
     .required(),
+  rent_codebtors: Yup.array()
+    .of(
+      Yup.object({
+        codebtor_id: Yup.string().nullable().notRequired(),
+      }),
+    )
+    .notRequired(),
 });
 
 export const useRentTenantsForm = () => {
   return useForm({
     validationSchema: toTypedSchema(rentTenantsSchema),
     initialValues: {
-      rent_tenants: [{ tenant_id: "", codebtor_id: null, percentage: null }],
+      rent_tenants: [{ tenant_id: "" }],
+      rent_codebtors: [{ codebtor_id: null }] as any[],
     },
   });
 };

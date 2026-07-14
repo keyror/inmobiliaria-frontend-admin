@@ -67,16 +67,22 @@
         format="yyyy-MM-dd"
         model-type="yyyy-MM-dd"
         :enable-time-picker="false"
+        :min-date="start_date || undefined"
       />
+      <small v-if="errors.end_date" class="text-danger">{{ errors.end_date }}</small>
     </div>
 
-    <!-- Duración -->
-    <CommonInputfieldsNumberfield
-      v-model="duration"
-      :error="errors.duration"
-      classes="col-md-3"
-      label="Duración (meses)"
-    />
+    <!-- Duración (auto-calculada) -->
+    <div class="col-md-3">
+      <label class="form-label">Duración</label>
+      <input
+        type="text"
+        class="form-control"
+        :value="durationDisplay"
+        readonly
+        placeholder="Se calcula con las fechas"
+      />
+    </div>
 
     <!-- Canon -->
     <CommonInputfieldsNumberfield
@@ -85,15 +91,21 @@
       classes="col-md-3"
       label="Canon mensual"
       star="*"
+      :format="true"
     />
 
-    <!-- IVA -->
-    <CommonInputfieldsNumberfield
-      v-model="iva"
-      :error="errors.iva"
-      classes="col-md-3"
-      label="IVA (%)"
-    />
+    <!-- IVA — checkbox + valor readonly -->
+    <div class="col-md-3 d-flex align-items-end">
+      <CommonInputfieldsCheckbox
+        v-model="applyIva"
+        name="apply_iva"
+        label="Aplica IVA"
+      />
+    </div>
+    <div v-if="applyIva" class="col-md-3">
+      <label class="form-label">IVA (%)</label>
+      <input type="text" class="form-control" :value="ivaRate" readonly />
+    </div>
 
     <!-- Destino -->
     <CommonInputfieldsTextfield
@@ -167,11 +179,16 @@
     />
 
     <!-- Ciudad firma -->
-    <CommonInputfieldsTextfield
+    <CommonInputfieldsSelectfield
       v-model="signed_city"
+      :data="props.lookups.cities ?? []"
       :error="errors.signed_city"
       classes="col-md-4"
       label="Ciudad de firma"
+      labelField="name"
+      valueField="name"
+      searchable
+      allowCustom
     />
 
     <!-- Fecha firma -->
@@ -248,6 +265,8 @@ const props = defineProps<{
     contractTypes?: ILookup[];
     incrementTypes?: ILookup[];
     banks?: ILookup[];
+    taxeTypes?: any[];
+    cities?: ILookup[];
   };
   isEditing?: boolean;
 }>();
@@ -262,9 +281,46 @@ const statusOptions = [
 const propertiesAsLookup = computed(() =>
   (props.lookups.properties ?? []).map((p: any) => ({
     ...p,
-    name: p.title ?? p.name ?? "",
+    name: p.code ? `${p.code} — ${p.title ?? p.name ?? ""}` : (p.title ?? p.name ?? ""),
   })),
 );
+
+// ── IVA ──────────────────────────────────────────────────────────────────────
+
+const applyIva = ref(false);
+
+const ivaRate = computed(() => {
+  const entry = (props.lookups.taxeTypes ?? []).find(
+    (t: any) => t.code === "48" || t.name === "Impuesto sobre las ventas - IVA",
+  );
+  return Number(entry?.value ?? 19);
+});
+
+// ── Duration auto-calc ────────────────────────────────────────────────────────
+
+const calculatedMonths = computed((): number | null => {
+  const s = start_date.value as string | null | undefined;
+  const e = end_date.value as string | null | undefined;
+  if (!s || !e || e <= s) return null;
+  const [sy, sm] = s.split("-").map(Number);
+  const [ey, em] = e.split("-").map(Number);
+  return (ey - sy) * 12 + (em - sm);
+});
+
+const durationDisplay = computed((): string => {
+  const months = calculatedMonths.value;
+  if (!months || months <= 0) return "";
+  const years = Math.floor(months / 12);
+  const rem = months % 12;
+  const parts: string[] = [];
+  if (years === 1) parts.push("1 año");
+  else if (years > 1) parts.push(`${years} años`);
+  if (rem === 1) parts.push("1 mes");
+  else if (rem > 1) parts.push(`${rem} meses`);
+  return parts.join(" ");
+});
+
+// ── Form ──────────────────────────────────────────────────────────────────────
 
 const form = useRentForm(props.data);
 const { defineField, validate, values, resetForm, errors, setErrors } = form;
@@ -293,6 +349,16 @@ const [signed_at] = defineField("signed_at");
 const [internal_notes] = defineField("internal_notes");
 const [additional_clauses] = defineField("additional_clauses");
 
+// Sync duration form field with auto-calc
+watch(calculatedMonths, (val) => {
+  duration.value = val;
+});
+
+// Sync iva form field with checkbox
+watch(applyIva, (val) => {
+  iva.value = val ? ivaRate.value : null;
+});
+
 const addClause = () => {
   additional_clauses.value = [...((additional_clauses.value as string[]) ?? []), ""];
 };
@@ -314,6 +380,7 @@ watch(
   (newData) => {
     if (newData) {
       resetForm({ values: { ...newData } });
+      applyIva.value = newData.iva != null && newData.iva !== 0;
     }
   },
   { immediate: true },
@@ -329,6 +396,7 @@ defineExpose({
   },
   reset() {
     resetForm();
+    applyIva.value = false;
   },
   setBackendErrors(backendErrors: Record<string, string>) {
     setErrors(backendErrors);

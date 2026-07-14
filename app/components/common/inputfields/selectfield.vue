@@ -54,7 +54,7 @@
             {{ getLabel(item) }}
           </span>
           <i
-            v-if="isSelected(item.id)"
+            v-if="isSelected(item)"
             class="fas fa-check text-success ms-2 flex-shrink-0"
           ></i>
         </a>
@@ -90,11 +90,11 @@
       class="mt-1 d-flex flex-wrap gap-1"
     >
       <span
-        v-for="id in selectedIds"
-        :key="id"
+        v-for="val in selectedIds"
+        :key="val"
         class="label label-light label-flat color-3 d-flex align-items-center gap-2"
       >
-        {{ getLabel(data.find((it) => it.id === id)) }}
+        {{ getLabel(data.find((it) => itemValue(it) === val)) }}
       </span>
     </div>
 
@@ -129,6 +129,10 @@ const props = defineProps({
     type: String as PropType<"name" | "alias" | "code" | "value">,
     default: "name",
   },
+  valueField: {
+    type: String as PropType<"id" | "name" | "alias" | "code" | "value">,
+    default: "id",
+  },
   concat: { type: Boolean, default: false },
   concatField: { type: String, default: "alias" },
   searchable: { type: Boolean, default: false },
@@ -145,16 +149,19 @@ const emit = defineEmits(["update:modelValue"]);
 
 const search = ref("");
 
-// normaliza el modelo a IDs
+const itemValue = (item: ILookup): string =>
+  (item[props.valueField as keyof ILookup] ?? item.id) as string;
+
+// normaliza el modelo a valores (id por defecto, o valueField si se indica)
 const normalizedValue = computed({
   get() {
     const mv = props.modelValue;
     if (Array.isArray(mv)) {
       return mv.length && typeof mv[0] === "object" && "id" in mv[0]
-        ? (mv as ILookup[]).map((item) => item.id)
+        ? (mv as ILookup[]).map((it) => itemValue(it))
         : mv;
     }
-    return mv && typeof mv === "object" && "id" in mv ? mv.id : mv;
+    return mv && typeof mv === "object" && "id" in mv ? itemValue(mv as ILookup) : mv;
   },
   set(value) {
     emit("update:modelValue", value);
@@ -169,12 +176,12 @@ const displayLabel = computed(() => {
   if (props.multiple) {
     if (!selectedIds.value.length) return props.show;
     const labels = props.data
-      .filter((item) => selectedIds.value.includes(item.id))
+      .filter((item) => selectedIds.value.includes(itemValue(item)))
       .map(getLabel);
     return labels.join(", ");
   }
 
-  const found = props.data.find((item) => item.id === normalizedValue.value);
+  const found = props.data.find((item) => itemValue(item) === normalizedValue.value);
   if (found) return getLabel(found);
 
   if (props.allowCustom && typeof normalizedValue.value === "string") {
@@ -199,9 +206,9 @@ const customValueAlreadyExists = computed(() => {
   if (!term) return false;
 
   return props.data.some((item) => {
-    const itemId = String(item.id).toLowerCase();
+    const v = String(itemValue(item)).toLowerCase();
     const itemLabel = getLabel(item).toLowerCase();
-    return itemId === term || itemLabel === term;
+    return v === term || itemLabel === term;
   });
 });
 
@@ -221,21 +228,24 @@ function getLabel(item: ILookup | undefined) {
     : base;
 }
 
-const isSelected = (id: string) =>
-  props.multiple
-    ? selectedIds.value.includes(id)
-    : normalizedValue.value === id;
+const isSelected = (item: ILookup) => {
+  const v = itemValue(item);
+  return props.multiple
+    ? selectedIds.value.includes(v)
+    : normalizedValue.value === v;
+};
 
 function select(item: ILookup) {
   if (props.disabled) return;
 
+  const v = itemValue(item);
   if (props.multiple) {
     const values = [...selectedIds.value];
-    const index = values.indexOf(item.id);
-    index === -1 ? values.push(item.id) : values.splice(index, 1);
+    const index = values.indexOf(v);
+    index === -1 ? values.push(v) : values.splice(index, 1);
     normalizedValue.value = values;
   } else {
-    normalizedValue.value = item.id;
+    normalizedValue.value = v;
   }
 }
 
