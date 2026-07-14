@@ -5,26 +5,57 @@
       <span v-if="star" class="font-danger">{{ star }}</span>
     </label>
 
-    <div class="richtext-wrapper" :class="{ 'is-invalid': error, 'richtext-disabled': disabled }">
+    <div
+      class="richtext-wrapper"
+      :class="{ 'is-invalid': error, 'richtext-disabled': disabled }"
+    >
       <!-- Toolbar -->
       <div class="richtext-toolbar">
-        <button type="button" :class="{ active: editor?.isActive('bold') }" title="Negrita" @click="editor?.chain().focus().toggleBold().run()">
+        <button
+          type="button"
+          :class="{ active: editor?.isActive('bold') }"
+          title="Negrita"
+          @click="editor?.chain().focus().toggleBold().run()"
+        >
           <b>B</b>
         </button>
-        <button type="button" :class="{ active: editor?.isActive('italic') }" title="Cursiva" @click="editor?.chain().focus().toggleItalic().run()">
+        <button
+          type="button"
+          :class="{ active: editor?.isActive('italic') }"
+          title="Cursiva"
+          @click="editor?.chain().focus().toggleItalic().run()"
+        >
           <i>I</i>
         </button>
-        <button type="button" :class="{ active: editor?.isActive('bulletList') }" title="Lista con viñetas" @click="editor?.chain().focus().toggleBulletList().run()">
+        <button
+          type="button"
+          :class="{ active: editor?.isActive('bulletList') }"
+          title="Lista con viñetas"
+          @click="editor?.chain().focus().toggleBulletList().run()"
+        >
           ≡•
         </button>
-        <button type="button" :class="{ active: editor?.isActive('orderedList') }" title="Lista numerada" @click="editor?.chain().focus().toggleOrderedList().run()">
+        <button
+          type="button"
+          :class="{ active: editor?.isActive('orderedList') }"
+          title="Lista numerada"
+          @click="editor?.chain().focus().toggleOrderedList().run()"
+        >
           ≡1
         </button>
         <div class="richtext-toolbar-sep"></div>
-        <button type="button" title="Deshacer" @click="editor?.chain().focus().undo().run()">
+        <button
+          type="button"
+          title="Deshacer"
+          @click="editor?.chain().focus().undo().run()"
+        >
           ↩
         </button>
-        <button type="button" title="Rehacer" @click="editor?.chain().focus().redo().run()">
+        <button
+          type="button"
+          title="Rehacer"
+          @click="editor?.chain().focus().redo().run()"
+        >
           ↪
         </button>
       </div>
@@ -38,9 +69,9 @@
 </template>
 
 <script setup lang="ts">
-import { useEditor, EditorContent } from "@tiptap/vue-3";
-import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
+import StarterKit from "@tiptap/starter-kit";
+import { useEditor, EditorContent } from "@tiptap/vue-3";
 
 const props = defineProps({
   classes: String,
@@ -126,7 +157,9 @@ onBeforeUnmount(() => editor.value?.destroy());
   line-height: 1.4;
   cursor: pointer;
   color: #495057;
-  transition: background 0.12s, border-color 0.12s;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
   min-width: 28px;
 }
 .richtext-toolbar button:hover {
@@ -213,7 +246,9 @@ onBeforeUnmount(() => editor.value?.destroy());
 :global(body.dark-layout) .richtext-content :deep(.ProseMirror) {
   color: rgba(255, 255, 255, 0.82);
 }
-:global(body.dark-layout) .richtext-content :deep(.ProseMirror .is-editor-empty:first-child::before) {
+:global(body.dark-layout)
+  .richtext-content
+  :deep(.ProseMirror .is-editor-empty:first-child::before) {
   color: rgba(255, 255, 255, 0.38);
 }
 :global(body.dark-layout) .richtext-wrapper.richtext-disabled {
