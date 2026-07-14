@@ -1221,29 +1221,20 @@ watch(
   border-color: #7a6000;
   color: rgba(255, 255, 255, 0.85);
 }
+</style>
 
-:global(body.dark-layout) .rents-docs-table {
-  border-color: #383434;
+<style>
+body.dark-layout .rents-docs-table th,
+body.dark-layout .rents-docs-table td {
+  color: rgba(255, 255, 255, 0.82) !important;
+  background-color: #232323 !important;
+  border-color: #383434 !important;
 }
-
-:global(body.dark-layout) .rents-docs-table thead tr {
-  background-color: #1b1b1b;
-  border-bottom-color: #383434;
+body.dark-layout .rents-docs-table thead th {
+  color: rgba(255, 255, 255, 0.92) !important;
+  background-color: #1b1b1b !important;
 }
-
-:global(body.dark-layout) .rents-docs-table th,
-:global(body.dark-layout) .rents-docs-table td {
-  color: rgba(255, 255, 255, 0.82);
-  background-color: #232323;
-  border-color: #383434;
-}
-
-:global(body.dark-layout) .rents-docs-table thead th {
-  color: rgba(255, 255, 255, 0.92);
-  background-color: #1b1b1b;
-}
-
-:global(body.dark-layout) .rents-docs-table tbody tr:hover td {
-  background-color: #282727;
+body.dark-layout .rents-docs-table tbody tr:hover td {
+  background-color: #282727 !important;
 }
 </style>

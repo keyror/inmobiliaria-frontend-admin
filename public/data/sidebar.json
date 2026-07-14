@@ -59,6 +59,15 @@
       ]
     },
     {
+      "link": "/reports",
+      "icon": "lucide:file-spreadsheet",
+      "title": "Informes",
+      "titlePage": "Informes",
+      "collapse": false,
+      "active": false,
+      "permission": "rents.view"
+    },
+    {
       "icon": "lucide:grid-2x2",
       "title": "Administrar Tenants",
       "titlePage": "Listado tenants",

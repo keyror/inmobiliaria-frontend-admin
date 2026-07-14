@@ -1,5 +1,5 @@
 <template>
-  <div class="form-group" :class="[classes, { 'was-validated': error }]">
+  <div class="sf-wrap" :class="[classes, { 'was-validated': error }]">
     <label>
       {{ label }}
       <span class="font-danger" v-if="star">{{ star }}</span>
@@ -264,6 +264,11 @@ function clearAll() {
 </script>
 
 <style scoped>
+/* Sin margin-bottom por defecto: el espaciado lo controla el padre (row gy-3, gap, etc.) */
+.sf-wrap {
+  margin-bottom: 0;
+}
+
 .dropdown.is-invalid {
   border: 1px solid #dc3545 !important;
 }

@@ -153,4 +153,11 @@ export class ApiUrls {
   static readonly PLANS_CREATE_POST = "/plans";
   static readonly PLANS_UPDATE_PUT = "/plans";
   static readonly PLANS_DELETE_DELETE = "/plans";
+
+  // Reports URLs
+  static readonly REPORTS_GET = "/reports";
+  static readonly REPORTS_POST = "/reports";
+  static readonly REPORTS_PUT = "/reports";
+  static readonly REPORTS_DELETE = "/reports";
+  static readonly REPORTS_VARIABLES_GET = "/reports/variables";
 }
