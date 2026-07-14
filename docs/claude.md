@@ -20,6 +20,7 @@
 | Crear página/ruta | [arquitectura.md](./arquitectura.md) |
 | Galería con imágenes / marca de agua | Ver sección [Componente Gallery](#componente-gallery) abajo |
 | Store de empresa / favicon / logo | Ver sección [Store publicCompany](#store-publiccompany) abajo |
+| Constructor de plantillas de contrato (SectionBlock, drag&drop, toggle activo) | Ver sección [Módulo contract-templates](#módulo-contract-templates) abajo |
 
 ---
 
@@ -158,3 +159,58 @@ nitro: {
 **Regla crítica**: el target debe incluir el mismo prefijo que la key (`/api` → `.../api`, `/storage` → `.../storage`). Nitro elimina el prefijo del path antes de concatenar con el target — si el target no lo repone, la URL queda incompleta.
 
 En producción (Docker), Traefik enruta todo en el mismo dominio: no hay cross-origin, no se necesita proxy.
+
+---
+
+## Módulo contract-templates
+
+`pages/contract-templates/index.vue` — editor de plantillas de contrato con drag&drop.
+
+### Estructura de componentes
+
+```
+pages/contract-templates/index.vue       # página principal, selector de template
+components/contract-templates/
+  SectionBlock.vue                        # bloque individual (compact/edit view)
+  editors/
+    ClauseEditor.vue                      # editor Tiptap para clause/observation
+    ConfigEditor.vue                      # checkboxes de campos para party/property/contract_info
+    SignatureEditor.vue                   # configurador de firmantes
+```
+
+### Regla — `admin-form` en el root del componente
+
+`SectionBlock.vue` y `ConfigEditor.vue` tienen `admin-form` en su **elemento raíz** (el `<div>` más externo), no en un form interno. Sin esta clase, los `CommonInputfields*` dentro del componente muestran estilos Bootstrap crudos en lugar del tema admin.
+
+```vue
+<!-- ✅ correcto — admin-form en la raíz -->
+<template>
+  <div class="section-block admin-form" ...>
+    <CommonInputfieldsTextfield ... />
+  </div>
+</template>
+```
+
+### Toggle activo/inactivo — gotcha de CSS
+
+El checkbox de toggle activo en `SectionBlock.vue` usa `CommonInputfieldsCheckbox` con `label=""`. Para ocultarle el label sin ocultar el input (que vive dentro de `<label>`), se targetan clases internas con `:deep()`:
+
+```css
+/* ✅ oculta solo el texto, no el input */
+.sb-toggle :deep(.common-checkbox-text)  { display: none; }
+.sb-toggle :deep(.common-checkbox-label) { padding: 0.2rem; min-height: unset; }
+
+/* ❌ oculta también el input que está dentro del label */
+.sb-toggle :deep(label) { display: none; }
+```
+
+### Seeder de secciones (tenant)
+
+`TemplateSectionsSeeder` + `DocumentTemplatesSeeder` se llaman desde `TenantDatabaseSeeder`. Para tenants existentes creados antes de agregar el seeder, ejecutar:
+
+```bash
+php artisan tenants:seed               # todos los tenants
+php artisan tenants:seed --tenants=ID  # tenant específico
+```
+
+Ambos seeders usan `firstOrCreate` — son idempotentes y seguros de re-ejecutar.
