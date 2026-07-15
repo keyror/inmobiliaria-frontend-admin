@@ -4,7 +4,8 @@ import LoadingService from "~/services/LoadingService";
 import type { FetchContext } from "ofetch";
 
 let requestCount = 0;
-let isLoggingOut = false;
+let isRefreshing = false;
+let refreshPromise: Promise<void> | null = null;
 
 function startLoading() {
   requestCount++;
@@ -56,6 +57,7 @@ function cleanPayload(payload: any): any {
 type ApiOpts<T> = Parameters<typeof $fetch<T>>[1] & {
   cleanPayload?: boolean;
   silent?: boolean;
+  skipRefresh?: boolean;
 };
 
 export function useApi<T>(
@@ -67,92 +69,107 @@ export function useApi<T>(
   const silent = opts?.silent ?? false;
   const shouldCleanPayload = opts?.cleanPayload ?? true;
 
-  // Extraer opciones internas para que no lleguen a $fetch
   const {
     cleanPayload: _cleanPayload,
     silent: _silent,
+    skipRefresh: _skipRefresh,
     ...restOpts
   } = opts ?? {};
 
-  const fetchOpts: Record<string, any> = {
-    ...restOpts,
-    baseURL: config.public.apiBase,
+  const execute = (): Promise<T> => {
+    const fetchOpts: Record<string, any> = {
+      ...restOpts,
+      baseURL: config.public.apiBase,
 
-    headers: {
-      ...(auth.token ? { Authorization: `Bearer ${auth.token}` } : {}),
-      ...restOpts?.headers,
-    },
+      headers: {
+        ...(auth.token ? { Authorization: `Bearer ${auth.token}` } : {}),
+        ...restOpts?.headers,
+      },
 
-    // REQUEST START
-    async onRequest() {
-      if (!silent) startLoading();
-    },
+      async onRequest() {
+        if (!silent) startLoading();
+      },
 
-    // ERROR ANTES DE SALIR
-    async onRequestError() {
-      if (!silent) stopLoading();
-    },
+      async onRequestError() {
+        if (!silent) stopLoading();
+      },
 
-    // RESPUESTA OK
-    async onResponse({ response }: FetchContext) {
-      if (!silent) stopLoading();
+      // Solo valida status:false en respuestas 2xx del backend
+      async onResponse({ response }: FetchContext) {
+        if (!silent) stopLoading();
 
-      if (!response?._data) return;
-      if (response._data instanceof Blob) return;
+        if (!response?.ok || !response._data) return;
+        if (response._data instanceof Blob) return;
 
-      // ERROR CONTROLADO BACKEND
-      if (!response._data.status) {
-        const mensaje = Array.isArray(response._data.message)
-          ? response._data.message.join("<br>")
-          : response._data.message;
+        if (!response._data.status) {
+          const mensaje = Array.isArray(response._data.message)
+            ? response._data.message.join("<br>")
+            : response._data.message;
+
+          throw new ApiError(
+            mensaje,
+            response._data.errors ?? undefined,
+            response.status,
+            response._data.required_permissions ?? undefined,
+          );
+        }
+      },
+
+      async onResponseError({ response }: FetchContext) {
+        if (!silent) stopLoading();
+
+        // 401 lo maneja el interceptor externo (refresh → retry)
+        if (response?.status === 401) return;
+
+        const mensaje = response?._data?.message
+          ? Array.isArray(response._data.message)
+            ? response._data.message.join("<br>")
+            : response._data.message
+          : "Error inesperado";
 
         throw new ApiError(
           mensaje,
-          response._data.errors ?? undefined,
-          response.status,
-          response._data.required_permissions ?? undefined,
+          response?._data?.errors ?? undefined,
+          response?.status,
+          response?._data?.required_permissions ?? undefined,
         );
-      }
-    },
+      },
+    };
 
-    async onResponseError({ response }: FetchContext) {
-      if (!silent) stopLoading();
+    if (restOpts?.body instanceof FormData) {
+      fetchOpts.body = restOpts.body;
+    } else if (restOpts?.body) {
+      fetchOpts.body = shouldCleanPayload
+        ? cleanPayload(restOpts.body)
+        : restOpts.body;
+    }
 
-      const mensaje = response?._data?.message
-        ? Array.isArray(response._data.message)
-          ? response._data.message.join("<br>")
-          : response._data.message
-        : "Error inesperado";
-
-      // 401 → LOGOUT CONTROLADO
-      if (response?.status === 401 && !isLoggingOut) {
-        isLoggingOut = true;
-
-        try {
-          auth.clearAuth();
-        } finally {
-          navigateTo("/authentication/login");
-          isLoggingOut = false;
-        }
-      }
-
-      throw new ApiError(
-        mensaje,
-        response?._data?.errors ?? undefined,
-        response?.status,
-        response?._data?.required_permissions ?? undefined,
-      );
-    },
+    return $fetch<T>(request, fetchOpts);
   };
 
-  // LIMPIAR BODY
-  if (restOpts?.body instanceof FormData) {
-    fetchOpts.body = restOpts.body;
-  } else if (restOpts?.body) {
-    fetchOpts.body = shouldCleanPayload
-      ? cleanPayload(restOpts.body)
-      : restOpts.body;
-  }
+  return execute().catch(async (err: any) => {
+    const status = err?.response?.status ?? err?.statusCode ?? err?.status;
 
-  return $fetch<T>(request, fetchOpts);
+    if (status !== 401 || opts?.skipRefresh) throw err;
+
+    // Solo un refresh simultáneo; los demás esperan la misma promesa
+    if (!isRefreshing) {
+      isRefreshing = true;
+      refreshPromise = auth.refreshToken().finally(() => {
+        isRefreshing = false;
+        refreshPromise = null;
+      });
+    }
+
+    try {
+      await refreshPromise;
+    } catch {
+      auth.clearAuth();
+      await navigateTo("/authentication/login");
+      throw err;
+    }
+
+    // Reintenta con el nuevo token (auth.token ya fue actualizado por refreshToken)
+    return execute();
+  });
 }
