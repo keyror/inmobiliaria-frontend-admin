@@ -3,6 +3,10 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  permission: "dashboard.view",
+});
+
 useHead({
   title: "Dashboard",
 });

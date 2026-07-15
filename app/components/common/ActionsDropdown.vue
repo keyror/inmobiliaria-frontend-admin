@@ -2,41 +2,42 @@
   <div ref="triggerRef">
     <button
       type="button"
-      class="btn btn-dashed color-2 btn-sm"
+      class="btn btn-dashed color-4 btn-sm"
+      title="Más opciones"
       @click.stop="toggle"
     >
-      <i class="fas fa-ellipsis-v"></i>
+      <Icon name="lucide:more-horizontal" style="width:13px;height:13px" />
     </button>
 
     <Teleport to="body">
       <div
         v-if="isOpen"
-        class="dropdown-menu show shadow-sm actions-dropdown-menu"
+        class="adm-menu"
         :style="menuStyle"
         @click.stop
       >
         <template v-for="(action, i) in visibleActions" :key="i">
-          <hr v-if="action.divider" class="dropdown-divider" />
+          <hr v-if="action.divider" class="adm-divider" />
           <a
             v-else-if="action.href"
             :href="action.href"
             :target="action.target ?? '_self'"
             rel="noopener noreferrer"
-            class="dropdown-item d-flex align-items-center gap-2"
-            :class="action.variant ? `text-${action.variant}` : ''"
+            class="adm-item"
+            :class="action.variant ? `adm-item--${action.variant}` : ''"
             @click="isOpen = false"
           >
-            <i v-if="action.icon" :class="action.icon"></i>
+            <i v-if="action.icon" :class="action.icon" class="adm-icon"></i>
             {{ action.label }}
           </a>
           <button
             v-else
             type="button"
-            class="dropdown-item d-flex align-items-center gap-2"
-            :class="action.variant ? `text-${action.variant}` : ''"
+            class="adm-item"
+            :class="action.variant ? `adm-item--${action.variant}` : ''"
             @click="handleAction(action)"
           >
-            <i v-if="action.icon" :class="action.icon"></i>
+            <i v-if="action.icon" :class="action.icon" class="adm-icon"></i>
             {{ action.label }}
           </button>
         </template>
@@ -70,8 +71,6 @@ const updatePosition = () => {
     top: `${rect.bottom + 4}px`,
     right: `${window.innerWidth - rect.right}px`,
     zIndex: "9999",
-    display: "flex",
-    flexDirection: "column",
   };
 };
 
@@ -91,7 +90,6 @@ const handleAction = (action: IDropdownAction) => {
 
 onMounted(() => {
   document.addEventListener("click", close);
-  // Cerrar si la tabla hace scroll (captura en fase de captura)
   window.addEventListener("scroll", close, true);
 });
 
@@ -101,24 +99,67 @@ onUnmounted(() => {
 });
 </script>
 
-<!-- sin scoped: necesita apuntar a body.dark-layout y al menu teleportado -->
+<!-- sin scoped: el menú se teleporta a body -->
 <style>
-body.dark-layout .actions-dropdown-menu {
-  background-color: #232323;
+.adm-menu {
+  background: #fff;
+  border: 1px solid rgba(88, 97, 103, 0.15);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  min-width: 160px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.adm-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  font-size: 0.84rem;
+  color: #1c2d3a;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+  transition: background 0.1s;
+  white-space: nowrap;
+}
+
+.adm-item:hover { background: rgba(88, 97, 103, 0.07); color: #1c2d3a; }
+
+.adm-item--danger { color: #b83a2d; }
+.adm-item--danger:hover { background: rgba(184, 58, 45, 0.07); color: #b83a2d; }
+
+.adm-item--success { color: #1a7a4a; }
+.adm-item--success:hover { background: rgba(26, 122, 74, 0.07); color: #1a7a4a; }
+
+.adm-icon { width: 13px; text-align: center; flex-shrink: 0; opacity: 0.75; }
+
+.adm-divider {
+  margin: 4px 0;
+  border: none;
+  border-top: 1px solid rgba(88, 97, 103, 0.12);
+}
+
+/* Dark mode */
+body.dark-layout .adm-menu {
+  background: #232323;
   border-color: #383434;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
-body.dark-layout .actions-dropdown-menu .dropdown-item {
-  color: rgba(255, 255, 255, 0.8);
-}
+body.dark-layout .adm-item { color: rgba(255, 255, 255, 0.88); }
+body.dark-layout .adm-item:hover { background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.88); }
 
-body.dark-layout .actions-dropdown-menu .dropdown-item:hover,
-body.dark-layout .actions-dropdown-menu .dropdown-item:focus {
-  background-color: #1a1919;
-  color: rgba(255, 255, 255, 0.95);
-}
+body.dark-layout .adm-item--danger { color: #e06050; }
+body.dark-layout .adm-item--danger:hover { background: rgba(224, 96, 80, 0.08); color: #e06050; }
 
-body.dark-layout .actions-dropdown-menu .dropdown-divider {
-  border-color: #383434;
-}
+body.dark-layout .adm-item--success { color: #4caf7d; }
+body.dark-layout .adm-item--success:hover { background: rgba(76, 175, 125, 0.08); color: #4caf7d; }
+
+body.dark-layout .adm-divider { border-top-color: #383434; }
 </style>
