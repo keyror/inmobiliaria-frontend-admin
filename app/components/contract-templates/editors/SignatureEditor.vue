@@ -12,10 +12,10 @@ const emit = defineEmits<{
 }>()
 
 const ROLE_OPTIONS: ILookup[] = [
-  { id: 'arrendador', name: 'Arrendador (Propietario)', category: '', alias: null, value: null, code: null, icon: null, is_active: true, lang: 'es' },
+  { id: 'arrendador', name: 'Arrendador (Inmobiliaria)', category: '', alias: null, value: null, code: null, icon: null, is_active: true, lang: 'es' },
   { id: 'arrendatario', name: 'Arrendatario / Inquilino', category: '', alias: null, value: null, code: null, icon: null, is_active: true, lang: 'es' },
   { id: 'codeudor', name: 'Codeudor', category: '', alias: null, value: null, code: null, icon: null, is_active: true, lang: 'es' },
-  { id: 'inmobiliaria', name: 'Inmobiliaria', category: '', alias: null, value: null, code: null, icon: null, is_active: true, lang: 'es' },
+  { id: 'propietario', name: 'Propietario del inmueble', category: '', alias: null, value: null, code: null, icon: null, is_active: true, lang: 'es' },
   { id: 'custom', name: 'Personalizado', category: '', alias: null, value: null, code: null, icon: null, is_active: true, lang: 'es' },
 ]
 

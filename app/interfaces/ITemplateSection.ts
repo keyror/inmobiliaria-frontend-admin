@@ -52,7 +52,7 @@ export interface ContractInfoConfig {
 }
 
 export interface SignatoryConfig {
-  role: 'arrendador' | 'arrendatario' | 'codeudor' | 'inmobiliaria' | 'custom'
+  role: 'arrendador' | 'arrendatario' | 'codeudor' | 'propietario' | 'custom'
   label: string
   side: 'left' | 'right'
 }
