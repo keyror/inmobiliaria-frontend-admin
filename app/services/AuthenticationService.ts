@@ -6,6 +6,7 @@ class AuthenticationService {
     return useApi(ApiUrls.AUTH_LOGIN_POST, {
       method: "POST",
       body: data,
+      skipRefresh: true,
     });
   }
 

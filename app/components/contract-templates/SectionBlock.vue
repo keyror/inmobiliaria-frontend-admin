@@ -40,10 +40,11 @@ watch(
 )
 
 function save() {
+  const sendsConfig = usesConfig.value || usesSignatureEditor.value || isSeparator.value
   emit('save', {
     heading: editHeading.value,
     content_json: usesTextEditor.value ? editContentJson.value : undefined,
-    section_config: usesConfig.value ? editSectionConfig.value : undefined,
+    section_config: sendsConfig ? editSectionConfig.value : undefined,
   })
 }
 

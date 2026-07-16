@@ -118,8 +118,9 @@ export function useApi<T>(
       async onResponseError({ response }: FetchContext) {
         if (!silent) stopLoading();
 
-        // 401 lo maneja el interceptor externo (refresh → retry)
-        if (response?.status === 401) return;
+        // 401 sin skipRefresh → lo maneja el interceptor externo (refresh → retry)
+        // 401 con skipRefresh (ej: login) → cae al bloque normal para extraer el mensaje
+        if (response?.status === 401 && !opts?.skipRefresh) return;
 
         const mensaje = response?._data?.message
           ? Array.isArray(response._data.message)
