@@ -33,6 +33,14 @@
             Codeudor
           </button>
           <button
+            :class="{ active: activeTab === 'obligations' }"
+            class="nav-link"
+            type="button"
+            @click="switchTab('obligations')"
+          >
+            Obligaciones
+          </button>
+          <button
             v-if="props.isEditing"
             :class="{ active: activeTab === 'documents' }"
             class="nav-link"
@@ -57,11 +65,22 @@
                 />
               </div>
 
-              <div v-show="activeTab === 'tenants' || activeTab === 'codebtors'">
+              <div
+                v-show="activeTab === 'tenants' || activeTab === 'codebtors'"
+              >
                 <RentsTenants
                   ref="tenantsRef"
                   :data="rent?.rent_tenant_codebtors"
                   :view="activeTab === 'codebtors' ? 'codebtor' : 'tenant'"
+                  :isEditing="props.isEditing"
+                />
+              </div>
+
+              <div v-show="activeTab === 'obligations'">
+                <Obligations
+                  ref="obligationsRef"
+                  :data="rent?.rent_obligations"
+                  :lookups="obligationsLookups"
                   :isEditing="props.isEditing"
                 />
               </div>
@@ -102,8 +121,15 @@ import "@vuepic/vue-datepicker/dist/main.css";
 import { useApiHandler } from "~/composables/useApiHandler";
 import { Constants } from "~/constants/Constants";
 import AlertService from "~/services/AlertService";
-import RentService from "~/services/RentService";
 import PropertyService from "~/services/PropertyService";
+import RentService from "~/services/RentService";
+
+import {
+  Obligations,
+  RentsRent,
+  RentsTenants,
+  RentsDocuments,
+} from "#components";
 
 const { run } = useApiHandler();
 
@@ -114,8 +140,9 @@ const props = defineProps({
   },
 });
 
-const rentRef = ref<any>(null);
-const tenantsRef = ref<any>(null);
+const rentRef = ref<InstanceType<typeof RentsRent> | null>(null);
+const tenantsRef = ref<InstanceType<typeof RentsTenants> | null>(null);
+const obligationsRef = ref<InstanceType<typeof Obligations> | null>(null);
 
 const activeTab = ref<string>("rent");
 
@@ -133,6 +160,9 @@ const { lookups } = useLookups([
   Constants.BANKS,
   Constants.TAXE_TYPE,
   Constants.CITY,
+  Constants.OBLIGATION_TYPE,
+  Constants.FREQUENCY,
+  Constants.STATUS,
 ]);
 
 const allProperties = ref<any[]>([]);
@@ -151,20 +181,41 @@ const switchTab = (tab: string) => {
 };
 
 const { distributeErrors } = useFormErrorDistributor(
-  { rent: rentRef, tenants: tenantsRef },
-  { rent: "rent", tenants: "tenants" },
+  {
+    rent: rentRef,
+    tenants: tenantsRef,
+    rent_obligations: obligationsRef,
+  },
+  {
+    rent: "rent",
+    tenants: "tenants",
+    rent_obligations: "obligations",
+  },
   switchTab,
 );
+
+const hasValue = (value: unknown): boolean => {
+  if (Array.isArray(value)) return value.some(hasValue);
+  if (value && typeof value === "object") {
+    return Object.values(value as object).some(hasValue);
+  }
+  return value !== null && value !== undefined && String(value).trim() !== "";
+};
 
 const save = async () => {
   const forms = [
     { key: "rent", ref: rentRef, optional: false },
     { key: "tenants", ref: tenantsRef, optional: false },
+    { key: "obligations", ref: obligationsRef, optional: true },
   ];
 
   const payload: Record<string, any> = {};
 
   for (const form of forms) {
+    const values = form.ref.value?.getValues();
+
+    if (form.optional && !hasValue(values)) continue;
+
     const isValid = await form.ref.value?.validateForm();
 
     if (!isValid) {
@@ -173,12 +224,9 @@ const save = async () => {
       return;
     }
 
-    if (form.key === "rent") {
-      payload.rent = form.ref.value?.getValues();
-    }
-    if (form.key === "tenants") {
-      payload.rent_tenants = form.ref.value?.getValues();
-    }
+    if (form.key === "rent") payload.rent = values;
+    if (form.key === "tenants") payload.rent_tenants = values;
+    if (form.key === "obligations") payload.rent_obligations = values;
   }
 
   const promise = props.isEditing
@@ -201,6 +249,7 @@ const save = async () => {
 const cancel = () => {
   rentRef.value?.reset();
   tenantsRef.value?.reset();
+  obligationsRef.value?.reset();
   navigateTo("/rents/all");
 };
 
@@ -217,6 +266,12 @@ const documentsLookups = computed(() => ({
   documentCategories: lookups.value[Constants.DOCUMENT_CATEGORY] ?? [],
   documentStatuses: lookups.value[Constants.DOCUMENT_STATUS] ?? [],
   documentTemplateTypes: lookups.value[Constants.DOCUMENT_TEMPLATE_TYPE] ?? [],
+}));
+
+const obligationsLookups = computed(() => ({
+  obligationTypes: lookups.value[Constants.OBLIGATION_TYPE] ?? [],
+  frequency: lookups.value[Constants.FREQUENCY] ?? [],
+  status: lookups.value[Constants.STATUS] ?? [],
 }));
 
 const getRent = async () => {

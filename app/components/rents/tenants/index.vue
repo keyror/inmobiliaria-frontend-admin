@@ -2,9 +2,15 @@
   <div>
     <!-- ── ARRENDATARIOS ── -->
     <template v-if="view !== 'codebtor'">
-      <div class="card-header ps-0 d-flex justify-content-between align-items-center">
+      <div
+        class="card-header ps-0 d-flex justify-content-between align-items-center"
+      >
         <h5>Arrendatarios</h5>
-        <button type="button" class="btn btn-pill btn-gradient color-4" @click="addTenant">
+        <button
+          type="button"
+          class="btn btn-pill btn-gradient color-4"
+          @click="addTenant"
+        >
           <i class="bi bi-plus-circle me-1"></i> Agregar Arrendatario
         </button>
       </div>
@@ -13,7 +19,11 @@
         Debe agregar al menos un arrendatario.
       </div>
 
-      <div v-for="(field, index) in tenantFields" :key="field.key" class="card mb-3 border mt-3">
+      <div
+        v-for="(field, index) in tenantFields"
+        :key="field.key"
+        class="card mb-3 border mt-3"
+      >
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start mb-3">
             <h6 class="mb-0">Arrendatario #{{ index + 1 }}</h6>
@@ -32,7 +42,9 @@
               v-model="field.value.tenant_id"
               :error="getTenantError(index)"
               :excludeIds="excludedTenantIds(index)"
-              :initialPeople="field.value.tenant?.id ? [field.value.tenant] : []"
+              :initialPeople="
+                field.value.tenant?.id ? [field.value.tenant] : []
+              "
               classes="col-md-6"
               label="Arrendatario"
               star="*"
@@ -44,18 +56,31 @@
 
     <!-- ── CODEUDORES ── -->
     <template v-else>
-      <div class="card-header ps-0 d-flex justify-content-between align-items-center">
+      <div
+        class="card-header ps-0 d-flex justify-content-between align-items-center"
+      >
         <h5>Codeudores</h5>
-        <button type="button" class="btn btn-pill btn-gradient color-4" @click="addCodebtor">
+        <button
+          type="button"
+          class="btn btn-pill btn-gradient color-4"
+          @click="addCodebtor"
+        >
           <i class="bi bi-plus-circle me-1"></i> Agregar Codeudor
         </button>
       </div>
 
-      <div v-if="coDebtorFields.length === 0" class="text-muted small mt-3 ps-1">
+      <div
+        v-if="coDebtorFields.length === 0"
+        class="text-muted small mt-3 ps-1"
+      >
         No hay codeudores asociados. Use el botón para agregar.
       </div>
 
-      <div v-for="(field, index) in coDebtorFields" :key="field.key" class="card mb-3 border mt-3">
+      <div
+        v-for="(field, index) in coDebtorFields"
+        :key="field.key"
+        class="card mb-3 border mt-3"
+      >
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start mb-3">
             <h6 class="mb-0">Codeudor #{{ index + 1 }}</h6>
@@ -73,7 +98,9 @@
               v-model="field.value.codebtor_id"
               :error="getCoDebtorError(index)"
               :excludeIds="excludedCoDebtorIds(index)"
-              :initialPeople="field.value.codebtor?.id ? [field.value.codebtor] : []"
+              :initialPeople="
+                field.value.codebtor?.id ? [field.value.codebtor] : []
+              "
               classes="col-md-6"
               label="Codeudor"
             />
@@ -86,20 +113,27 @@
 
 <script lang="ts" setup>
 import { useFieldArray } from "vee-validate";
+
 import { useRentTenantsForm } from "~/composables/forms/useRentTenantsForm";
 
 const props = defineProps<{
   data?: any[];
   isEditing?: boolean;
-  view?: 'tenant' | 'codebtor';
+  view?: "tenant" | "codebtor";
 }>();
 
 const { validate, values, resetForm, errors, setErrors } = useRentTenantsForm();
 
-const { remove: removeTenantField, push: pushTenant, fields: tenantFields } =
-  useFieldArray<any>("rent_tenants");
-const { remove: removeCoDebtorField, push: pushCodebtor, fields: coDebtorFields } =
-  useFieldArray<any>("rent_codebtors");
+const {
+  remove: removeTenantField,
+  push: pushTenant,
+  fields: tenantFields,
+} = useFieldArray<any>("rent_tenants");
+const {
+  remove: removeCoDebtorField,
+  push: pushCodebtor,
+  fields: coDebtorFields,
+} = useFieldArray<any>("rent_codebtors");
 
 const hasTriedSubmit = ref(false);
 
@@ -143,13 +177,19 @@ watch(
 
     const tenants =
       pairs.length > 0
-        ? pairs.map((pair: any) => ({ tenant_id: pair.tenant_id ?? "", tenant: pair.tenant }))
+        ? pairs.map((pair: any) => ({
+            tenant_id: pair.tenant_id ?? "",
+            tenant: pair.tenant,
+          }))
         : [{ tenant_id: "" }];
 
     const coDebtorPairs = pairs.filter((pair: any) => pair.codebtor_id);
     const codebtors =
       coDebtorPairs.length > 0
-        ? coDebtorPairs.map((pair: any) => ({ codebtor_id: pair.codebtor_id, codebtor: pair.codebtor }))
+        ? coDebtorPairs.map((pair: any) => ({
+            codebtor_id: pair.codebtor_id,
+            codebtor: pair.codebtor,
+          }))
         : [{ codebtor_id: null }];
 
     resetForm({ values: { rent_tenants: tenants, rent_codebtors: codebtors } });
