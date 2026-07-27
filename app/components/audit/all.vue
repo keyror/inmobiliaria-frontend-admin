@@ -280,6 +280,28 @@ const MODULE_OPTIONS: ILookup[] = [
     lang: "es",
   },
   {
+    id: "rents",
+    category: "",
+    name: "Contratos",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
+    id: "reports",
+    category: "",
+    name: "Informes",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
     id: "plans",
     category: "",
     name: "Planes",
@@ -437,6 +459,7 @@ const clearFilters = () => {
 };
 
 const SUBJECT_LABELS: Record<string, string> = {
+  // Módulo Propiedades
   Property: "Propiedad",
   PropertyFeature: "Características",
   PropertyPerson: "Propietarios",
@@ -444,14 +467,24 @@ const SUBJECT_LABELS: Record<string, string> = {
   PropertyArea: "Áreas",
   PropertyPrice: "Precios",
   PublishChannel: "Canales de publicación",
+  // Módulo Personas
+  Person: "Persona",
   Address: "Direcciones",
   Contact: "Contactos",
   AccountBank: "Cuentas bancarias",
   FiscalProfile: "Perfil Fiscal",
   EconomicActivity: "Actividad económica",
   TaxeType: "Responsabilidad fiscal",
-  Person: "Persona",
+  // Módulo Empresa
   Company: "Empresa",
+  // Módulo Contratos
+  Rent: "Contrato",
+  RentObligation: "Obligaciones del contrato",
+  RentTenantCodebtor: "Arrendatarios / Codeudores",
+  Liability: "Cargos",
+  // Módulo Informes
+  ReportTemplate: "Plantilla de informe",
+  // Otros
   User: "Usuario",
 };
 

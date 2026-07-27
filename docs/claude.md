@@ -1,10 +1,9 @@
 # FRONTEND (Admin) — Guía para Claude
 
 ## Contexto
-- **Stack**: Nuxt 4 con SSR: false (SPA) + Pinia + TypeScript
-- **Skill**: `frontend/.claude/skills/nuxt-admin`
+- **Stack**: Nuxt 4 SPA (SSR: false) + Pinia + TypeScript
+- **Skill**: `frontend/.claude/skills/nuxt-admin` — activar para cualquier tarea de código en este proyecto
 - **Ubicación**: `/frontend`
-- **Propósito**: Panel de administración con autenticación
 
 ---
 
@@ -12,15 +11,15 @@
 
 | Tarea | Leer primero |
 |---|---|
-| Entender módulos, páginas existentes, qué hace cada sección | [dominio.md](./dominio.md) |
+| Entender módulos, páginas existentes, archivos por módulo | [dominio.md](./dominio.md) |
 | Crear componente | [arquitectura.md](./arquitectura.md) + [componentes.md](./componentes.md) |
 | Crear store Pinia | [stores-pinia.md](./stores-pinia.md) |
 | Consumir API del backend | [consumo-api.md](./consumo-api.md) |
-| Crear composable | [arquitectura.md](./arquitectura.md) + [ejemplos/crear-composable.md](./ejemplos/crear-composable.md) |
-| Crear página/ruta | [arquitectura.md](./arquitectura.md) |
+| Crear composable | [arquitectura.md](./arquitectura.md) |
 | Galería con imágenes / marca de agua | Ver sección [Componente Gallery](#componente-gallery) abajo |
 | Store de empresa / favicon / logo | Ver sección [Store publicCompany](#store-publiccompany) abajo |
-| Constructor de plantillas de contrato (SectionBlock, drag&drop, toggle activo) | Ver sección [Módulo contract-templates](#módulo-contract-templates) abajo |
+| Constructor de plantillas de contrato | Ver sección [Módulo contract-templates](#módulo-contract-templates) abajo |
+| Auditoría / audit module | `backend/docs/auditoria.md` + `constants/AuditFieldLabels.ts` + `components/audit/` |
 
 ---
 
@@ -29,188 +28,96 @@
 ```
 app/
 ├── pages/            # Rutas automáticas Nuxt
-├── layouts/          # Layouts (default, auth, etc.)
+├── layouts/          # Layouts (default, auth)
 ├── components/       # Componentes reutilizables
-├── composables/      # useXxx.ts (lógica compartida)
-├── store/            # Pinia stores (carpeta singular)
-├── services/         # Clases singleton: XxxService
-├── interfaces/       # IXxx.ts — TypeScript interfaces
-├── constants/        # ApiUrls, etc.
+├── composables/      # useXxx.ts
+├── store/            # Pinia stores (carpeta SINGULAR — diferente al frontend-public)
+├── services/         # Clases singleton: XxxService.ts
+├── interfaces/       # IXxx.ts
+├── constants/        # ApiUrls.ts, AuditFieldLabels.ts, etc.
 ├── schemas/          # Validación de formularios
-├── middleware/       # Middleware de rutas Nuxt
-├── plugins/          # Plugins Vue/Nuxt
-├── utils/            # Utilidades puras
-└── data/             # Datos estáticos
+└── middleware/       # Middleware de rutas Nuxt
 ```
 
 ---
 
-## Patrones obligatorios
-
-### Servicio API (singleton)
-```ts
-// services/XxxService.ts
-import { useApi } from "~/composables/useApi";
-import { ApiUrls } from "~/constants/ApiUrls";
-
-class XxxService {
-  async getAll(params: IParamsTable): Promise<any> {
-    return useApi(ApiUrls.XXX_GET, { query: params });
-  }
-  async create(payload: any): Promise<any> {
-    return useApi(ApiUrls.XXX_CREATE_POST, { method: "POST", body: payload });
-  }
-}
-export default new XxxService();
-```
-
-### Consumo en componente/página
-```ts
-const { run } = useApiHandler();
-const result = await run(XxxService.create(payload), {
-  showSuccess: true,
-  setErrors: (errs) => { errors.value = errs; },
-});
-```
-
-### Store Pinia (composition API)
-```ts
-export const useXxxStore = defineStore("xxx", () => {
-  const items = ref<IXxx[]>([]);
-  // ...
-  return { items };
-}, { persist: true }); // si requiere persistencia
-```
-
----
-
-## Reglas de código
+## Reglas de código (resumen rápido)
 
 1. Siempre `<script setup lang="ts">` en componentes
 2. Props tipadas con `interface` + `defineProps<Props>()`
-3. Emits definidos con `defineEmits<{ (e: 'update', v: string): void }>()`
-4. Llamadas API siempre a través de `useApiHandler().run()` para manejo de errores
-5. Interfaces en `~/interfaces/IXxx.ts`
-6. URLs de API en `~/constants/ApiUrls`
+3. Emits: `defineEmits<{ (e: 'update', v: string): void }>()`
+4. Llamadas API siempre via `useApiHandler().run()` — nunca `$fetch` directo
+5. Interfaces en `~/interfaces/IXxx.ts` · URLs en `~/constants/ApiUrls`
+
+> Los patrones completos (servicio singleton, store Pinia, consumo de API) están en el skill `nuxt-admin` y en `arquitectura.md` / `consumo-api.md`.
 
 ---
 
 ## Componente Gallery
 
-`components/gallery/index.vue` — gestiona subida, orden (drag), portada y eliminación de imágenes.
-
-**Props relevantes:**
+`components/gallery/index.vue` — subida, orden (drag), portada y eliminación de imágenes.
 
 | Prop | Tipo | Default | Descripción |
 |---|---|---|---|
-| `watermark` | `boolean` | `false` | Aplica marca de agua del logo de empresa sobre cada imagen al subirla |
-| `maxImages` | `number` | `10` | Máximo de imágenes permitidas |
-| `showCover` | `boolean` | `true` | Muestra el selector de portada |
-| `dimensions` | `string` | `""` | Texto de ayuda con dimensiones recomendadas |
+| `watermark` | `boolean` | `false` | Aplica marca de agua del logo (solo usar en Properties) |
+| `maxImages` | `number` | `10` | Máximo de imágenes |
+| `showCover` | `boolean` | `true` | Selector de portada |
+| `dimensions` | `string` | `""` | Texto de ayuda |
 
-**Uso con marca de agua** (módulo de propiedades):
-```vue
-<Gallery :watermark="true" @updateImages="handleImages" />
-```
-
-Solo activar `watermark` donde se requiera — actualmente solo en propiedades.
-
-### Composable `useWatermark`
-
-`composables/useWatermark.ts` — aplica el logo de empresa como marca de agua semitransparente sobre imágenes usando Canvas API.
-
-- El logo se carga una sola vez y se cachea a nivel de módulo (compartido entre instancias)
-- Tamaño: 45% del lado más corto de la imagen (proporcional, funciona con cualquier resolución)
-- Opacidad: 0.52 (logo) + fondo blanco 0.18 para contraste en fotos oscuras
-- Si la carga del logo falla, retorna la imagen original sin watermark (falla silenciosa)
-- Usa `toSameOriginUrl()` para convertir la URL del logo a pathname cuando es cross-origin (desarrollo) — en producción same-origin, usa la URL completa directamente
+`composables/useWatermark.ts` — implementación Canvas API:
+- Logo cacheado a nivel de módulo (una carga por sesión)
+- Tamaño: 45% del lado más corto · Opacidad: 0.52 logo + 0.18 fondo blanco
+- Fallo silencioso: retorna imagen original si el logo no carga
+- Usa `toSameOriginUrl()` para cross-origin en desarrollo
 
 ---
 
 ## Store publicCompany
 
-`store/publicCompany.ts` — carga datos de `/api/public/company` una vez y los expone globalmente.
-
-**Propiedades expuestas:**
+`store/publicCompany.ts` — carga `/api/public/company` una vez y expone:
 
 | Propiedad | Descripción |
 |---|---|
-| `logoUrl` | URL del logo principal de la empresa |
-| `faviconUrl` | `favicon_url` del sitio (de site-settings) o `logoUrl` como fallback |
+| `logoUrl` | URL del logo principal |
+| `faviconUrl` | `favicon_url` del site-settings o `logoUrl` como fallback |
 | `displayName` | Nombre de la empresa |
 
-`faviconUrl` se usa en `app.vue` para el favicon del panel admin. Se actualiza cuando se cambia en la sección de gestión del sitio.
+`faviconUrl` se usa en `app.vue` para el favicon del panel admin.
 
 ---
 
 ## DevProxy (solo desarrollo)
 
-`nuxt.config.ts` > `nitro.devProxy` — activo únicamente en `npm run dev`, ignorado en builds de producción.
-
+`nuxt.config.ts` > `nitro.devProxy`:
 ```ts
-nitro: {
-  devProxy: {
-    "/api":     { target: "http://localhost:8000/api",     changeOrigin: true },
-    "/storage": { target: "http://localhost:8000/storage", changeOrigin: true },
-  },
-}
+"/api":     { target: "http://localhost:8000/api",     changeOrigin: true },
+"/storage": { target: "http://localhost:8000/storage", changeOrigin: true },
 ```
-
-**Regla crítica**: el target debe incluir el mismo prefijo que la key (`/api` → `.../api`, `/storage` → `.../storage`). Nitro elimina el prefijo del path antes de concatenar con el target — si el target no lo repone, la URL queda incompleta.
-
-En producción (Docker), Traefik enruta todo en el mismo dominio: no hay cross-origin, no se necesita proxy.
+**Regla crítica**: el target debe incluir el mismo prefijo que la key. Nitro elimina el prefijo antes de concatenar — si el target no lo repone, la URL queda incompleta. En producción (Docker + Traefik) no se necesita proxy.
 
 ---
 
 ## Módulo contract-templates
 
-`pages/contract-templates/index.vue` — editor de plantillas de contrato con drag&drop.
-
-### Estructura de componentes
+`pages/contract-templates/index.vue` — editor de plantillas con drag&drop.
 
 ```
-pages/contract-templates/index.vue       # página principal, selector de template
+pages/contract-templates/index.vue
 components/contract-templates/
-  SectionBlock.vue                        # bloque individual (compact/edit view)
+  SectionBlock.vue          # bloque individual (compact/edit view)
   editors/
-    ClauseEditor.vue                      # editor Tiptap para clause/observation
-    ConfigEditor.vue                      # checkboxes de campos para party/property/contract_info
-    SignatureEditor.vue                   # configurador de firmantes
+    ClauseEditor.vue        # editor Tiptap (clause/observation)
+    ConfigEditor.vue        # checkboxes party/property/contract_info
+    SignatureEditor.vue     # configurador de firmantes
 ```
 
-### Regla — `admin-form` en el root del componente
+**`admin-form` en el root**: `SectionBlock.vue` y `ConfigEditor.vue` tienen `admin-form` en su **elemento raíz**. Sin esto, los `CommonInputfields*` muestran estilos Bootstrap crudos.
 
-`SectionBlock.vue` y `ConfigEditor.vue` tienen `admin-form` en su **elemento raíz** (el `<div>` más externo), no en un form interno. Sin esta clase, los `CommonInputfields*` dentro del componente muestran estilos Bootstrap crudos en lugar del tema admin.
+**Toggle activo — gotcha CSS**: usar `:deep(.common-checkbox-text) { display: none }` para ocultar solo el label text, no el input que vive dentro de `<label>`.
 
-```vue
-<!-- ✅ correcto — admin-form en la raíz -->
-<template>
-  <div class="section-block admin-form" ...>
-    <CommonInputfieldsTextfield ... />
-  </div>
-</template>
-```
-
-### Toggle activo/inactivo — gotcha de CSS
-
-El checkbox de toggle activo en `SectionBlock.vue` usa `CommonInputfieldsCheckbox` con `label=""`. Para ocultarle el label sin ocultar el input (que vive dentro de `<label>`), se targetan clases internas con `:deep()`:
-
-```css
-/* ✅ oculta solo el texto, no el input */
-.sb-toggle :deep(.common-checkbox-text)  { display: none; }
-.sb-toggle :deep(.common-checkbox-label) { padding: 0.2rem; min-height: unset; }
-
-/* ❌ oculta también el input que está dentro del label */
-.sb-toggle :deep(label) { display: none; }
-```
-
-### Seeder de secciones (tenant)
-
-`TemplateSectionsSeeder` + `DocumentTemplatesSeeder` se llaman desde `TenantDatabaseSeeder`. Para tenants existentes creados antes de agregar el seeder, ejecutar:
-
+**Seeder de secciones** (para tenants existentes):
 ```bash
-php artisan tenants:seed               # todos los tenants
-php artisan tenants:seed --tenants=ID  # tenant específico
+php artisan tenants:seed               # todos
+php artisan tenants:seed --tenants=ID  # uno específico
 ```
-
-Ambos seeders usan `firstOrCreate` — son idempotentes y seguros de re-ejecutar.
+`TemplateSectionsSeeder` + `DocumentTemplatesSeeder` usan `firstOrCreate` — idempotentes.

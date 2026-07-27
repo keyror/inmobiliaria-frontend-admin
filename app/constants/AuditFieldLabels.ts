@@ -179,6 +179,51 @@ export const AUDIT_FIELD_LABELS: Record<string, string> = {
   icon: "Ícono",
   lang: "Idioma",
   lookup_id: "Desplegable",
+
+  // ── Contrato (Rent) ────────────────────────────────────────────────────
+  status: "Estado",
+  contract_number: "Número de contrato",
+  contract_type_id: "Tipo de contrato",
+  start_date: "Fecha de inicio",
+  end_date: "Fecha de fin",
+  duration: "Duración (meses)",
+  destination: "Destino del inmueble",
+  activity: "Actividad comercial",
+  period: "Fecha de período",
+  canon: "Canon",
+  iva: "IVA",
+  administration_included: "Administración incluida",
+  is_ph: "Propiedad horizontal",
+  interest_rate: "Tasa de mora (%)",
+  increment_type_id: "Tipo de incremento",
+  adjustment_date: "Fecha de ajuste",
+  is_insured: "Asegurado",
+  consignment_account: "Cuenta de consignación",
+  payment_bank_id: "Banco de pago",
+  commissions: "Comisiones",
+  signed_city: "Ciudad de firma",
+  signed_at: "Fecha de firma",
+  additional_clauses: "Cláusulas adicionales",
+  internal_notes: "Notas internas",
+  limit_dates_id: "Fechas límite",
+
+  // ── Arrendatario / Codeudor (RentTenantCodebtor) ──────────────────────
+  rent_id: "Contrato",
+  tenant_id: "Arrendatario",
+  codebtor_id: "Codeudor",
+  percentage: "Porcentaje",
+
+  // ── Obligación del contrato (RentObligation) ──────────────────────────
+  expiration_date: "Fecha de vencimiento",
+  description: "Descripción",
+
+  // ── Cargo (Liability) ─────────────────────────────────────────────────
+  liability_type_id: "Tipo de cargo",
+  fee: "Valor del cargo",
+
+  // ── Plantilla de informe (ReportTemplate) ─────────────────────────────
+  columns: "Columnas",
+  is_default: "Predeterminada",
 };
 
 /**
