@@ -41,5 +41,7 @@ const onSwitch = async (id: string) => {
 <style scoped>
 .branch-selector-wrap {
   padding: 0 14px 10px;
+  position: relative;
+  z-index: 1050;
 }
 </style>

@@ -30,8 +30,10 @@ export const useBranchStore = defineStore(
       if (loaded.value && !force) return;
       try {
         const res = await BranchService.getAll();
+        let defaultCompanyId: string | null = null;
         if (res?.data?.data) {
           branches.value = res.data.data;
+          defaultCompanyId = res.data.default_company_id ?? null;
         } else if (Array.isArray(res?.data)) {
           branches.value = res.data;
         }
@@ -41,7 +43,8 @@ export const useBranchStore = defineStore(
           !branches.value.find((b) => b.id === activeCompanyId.value)
         ) {
           const hq = headquarters.value;
-          activeCompanyId.value = hq?.id ?? branches.value[0]?.id ?? null;
+          activeCompanyId.value =
+            defaultCompanyId ?? hq?.id ?? branches.value[0]?.id ?? null;
         }
 
         loaded.value = true;
