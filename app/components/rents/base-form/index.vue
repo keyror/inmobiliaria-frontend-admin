@@ -6,51 +6,7 @@
     />
 
     <div class="container-fluid">
-      <nav class="admin-theme-tabs">
-        <div id="nav-tab" class="nav nav-tabs" role="tablist">
-          <button
-            :class="{ active: activeTab === 'rent' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('rent')"
-          >
-            Contrato
-          </button>
-          <button
-            :class="{ active: activeTab === 'tenants' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('tenants')"
-          >
-            Arrendatario
-          </button>
-          <button
-            :class="{ active: activeTab === 'codebtors' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('codebtors')"
-          >
-            Codeudor
-          </button>
-          <button
-            :class="{ active: activeTab === 'obligations' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('obligations')"
-          >
-            Obligaciones
-          </button>
-          <button
-            v-if="props.isEditing"
-            :class="{ active: activeTab === 'documents' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('documents')"
-          >
-            Documentos
-          </button>
-        </div>
-      </nav>
+      <CommonTabsNav v-model="activeTab" :tabs="tabsConfig" />
 
       <div class="tab-content mt-4">
         <div class="container-fluid">
@@ -145,6 +101,14 @@ const tenantsRef = ref<InstanceType<typeof RentsTenants> | null>(null);
 const obligationsRef = ref<InstanceType<typeof Obligations> | null>(null);
 
 const activeTab = ref<string>("rent");
+
+const tabsConfig = computed(() => [
+  { key: "rent", label: "Contrato", required: true },
+  { key: "tenants", label: "Arrendatario", required: true },
+  { key: "codebtors", label: "Codeudor" },
+  { key: "obligations", label: "Obligaciones" },
+  { key: "documents", label: "Documentos", visible: props.isEditing },
+]);
 
 const route = useRoute();
 const rentId = route.params.id as string;

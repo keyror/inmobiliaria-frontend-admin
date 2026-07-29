@@ -5,6 +5,4 @@ export interface IContact {
   mobile: string;
   email: string;
   is_principal: boolean;
-  person_id?: string;
-  company_id?: string;
 }

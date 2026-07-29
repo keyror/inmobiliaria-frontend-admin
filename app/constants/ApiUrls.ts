@@ -146,6 +146,14 @@ export class ApiUrls {
   /** @deprecated Use TEMPLATE_SECTIONS_* */
   static readonly CONTRACT_CLAUSES_PREVIEW_GET = "/contract-clauses/preview";
 
+  // Branches (Sucursales) URLs
+  static readonly BRANCHES_GET = "/branches";
+  static readonly BRANCHES_SHOW_GET = "/branches";
+  static readonly BRANCHES_CREATE_POST = "/branches";
+  static readonly BRANCHES_UPDATE_PUT = "/branches";
+  static readonly BRANCHES_DELETE_DELETE = "/branches";
+  static readonly BRANCH_SWITCH_POST = "/branch/switch";
+
   // Plans URLs
   static readonly PLANS_GET = "/plans";
   static readonly PLANS_SHOW_GET = "/plans";

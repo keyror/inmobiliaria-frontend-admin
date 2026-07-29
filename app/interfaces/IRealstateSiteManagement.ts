@@ -90,6 +90,7 @@ export interface RealstatePropertyListContent {
 
 export interface RealstatePropertyDetailContent {
   show_related_properties: boolean;
+  hide_address: boolean;
   contact_title: string | null;
   contact_description: string | null;
   related_title: string | null;

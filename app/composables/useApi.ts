@@ -1,3 +1,5 @@
+import { getActivePinia } from "pinia";
+
 import { useAuthStore } from "@/store/authStore";
 import LoadingService from "~/services/LoadingService";
 
@@ -77,12 +79,17 @@ export function useApi<T>(
   } = opts ?? {};
 
   const execute = (): Promise<T> => {
+    const activeCompanyId =
+      (getActivePinia()?.state.value["branch"] as any)?.activeCompanyId ??
+      null;
+
     const fetchOpts: Record<string, any> = {
       ...restOpts,
       baseURL: config.public.apiBase,
 
       headers: {
         ...(auth.token ? { Authorization: `Bearer ${auth.token}` } : {}),
+        ...(activeCompanyId ? { "X-Company-Id": activeCompanyId } : {}),
         ...restOpts?.headers,
       },
 

@@ -27,6 +27,5 @@ export const obligationFormSchema = Yup.object({
         description: Yup.string().nullable().notRequired(),
       }),
     )
-    .min(1, "Debe agregar al menos una obligación")
-    .required("Debe agregar al menos una obligación"),
+    .optional(),
 });

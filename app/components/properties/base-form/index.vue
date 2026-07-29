@@ -6,66 +6,7 @@
     />
 
     <div class="container-fluid">
-      <nav class="admin-theme-tabs">
-        <div id="nav-tab" class="nav nav-tabs" role="tablist">
-          <button
-            :class="{ active: activeTab === 'property' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('property')"
-          >
-            Propiedad
-          </button>
-          <button
-            :class="{ active: activeTab === 'ownerships' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('ownerships')"
-          >
-            Propietarios
-          </button>
-          <button
-            :class="{ active: activeTab === 'addresses' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('addresses')"
-          >
-            Dirección
-          </button>
-          <button
-            :class="{ active: activeTab === 'contacts' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('contacts')"
-          >
-            Contacto
-          </button>
-          <button
-            :class="{ active: activeTab === 'areas' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('areas')"
-          >
-            Áreas
-          </button>
-          <button
-            :class="{ active: activeTab === 'publishChannels' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('publishChannels')"
-          >
-            Redes Sociales
-          </button>
-          <button
-            :class="{ active: activeTab === 'obligations' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('obligations')"
-          >
-            Obligaciones
-          </button>
-        </div>
-      </nav>
+      <CommonTabsNav v-model="activeTab" :tabs="tabsConfig" />
 
       <div class="tab-content mt-4">
         <div class="container-fluid">
@@ -99,6 +40,18 @@
               </div>
 
               <div v-show="activeTab === 'contacts'">
+                <div class="alert alert-info d-flex align-items-start gap-2 mb-3">
+                  <i class="fa fa-info-circle mt-1 flex-shrink-0"></i>
+                  <span>
+                    En el sitio público, el detalle de la propiedad mostrará el
+                    correo, celular y teléfono del contacto marcado como
+                    <strong>principal</strong>. Si el contacto tiene celular, el
+                    botón de <strong>WhatsApp</strong> usará ese número; si solo
+                    tiene teléfono fijo, se usará como fallback. El formulario
+                    de contacto enviará el mensaje a los correos de
+                    <strong>todos</strong> los contactos registrados.
+                  </span>
+                </div>
                 <Contacts
                   ref="contactsRef"
                   :data="property?.contacts"
@@ -160,7 +113,13 @@ import { Constants } from "~/constants/Constants";
 import AlertService from "~/services/AlertService";
 import PropertyService from "~/services/PropertyService";
 
+import type { IAddress } from "~/interfaces/IAddress";
+import type { IArea } from "~/interfaces/IArea";
+import type { IContact } from "~/interfaces/IContact";
+import type { IOwnership } from "~/interfaces/IOwnership";
 import type { IProperty } from "~/interfaces/IProperty";
+import type { IPropertyObligation } from "~/interfaces/IPropertyObligation";
+import type { IPublishChannel } from "~/interfaces/IPublishChannel";
 import type { ISaveProperty } from "~/interfaces/ISaveProperty";
 
 import {
@@ -195,6 +154,16 @@ const publishChannelsRef = ref<InstanceType<typeof PublishChannels> | null>(
 const obligationsRef = ref<InstanceType<typeof Obligations> | null>(null);
 
 const activeTab = ref<string>("property");
+
+const tabsConfig = [
+  { key: "property", label: "Propiedad", required: true },
+  { key: "ownerships", label: "Propietarios", required: true },
+  { key: "addresses", label: "Dirección", required: true },
+  { key: "contacts", label: "Contacto", required: true },
+  { key: "areas", label: "Áreas", required: true },
+  { key: "publishChannels", label: "Redes Sociales" },
+  { key: "obligations", label: "Obligaciones" },
+];
 
 const route = useRoute();
 const idProperty = route.params.id as string;
@@ -292,12 +261,12 @@ const save = async () => {
       data.property = propertyData;
       data.prices = prices;
     }
-    if (form.key === "ownerships") data.ownerships = values;
-    if (form.key === "addresses") data.addresses = values;
-    if (form.key === "contacts") data.contacts = values;
-    if (form.key === "areas") data.areas = values;
-    if (form.key === "publishChannels") data.publish_channels = values;
-    if (form.key === "obligations") data.obligations = values;
+    if (form.key === "ownerships") data.ownerships = values as IOwnership[];
+    if (form.key === "addresses") data.addresses = values as IAddress[];
+    if (form.key === "contacts") data.contacts = values as IContact[];
+    if (form.key === "areas") data.areas = values as IArea[];
+    if (form.key === "publishChannels") data.publish_channels = values as IPublishChannel[];
+    if (form.key === "obligations") data.obligations = values as IPropertyObligation[];
   }
 
   const promise = props.isEditing

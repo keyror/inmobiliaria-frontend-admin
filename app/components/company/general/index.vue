@@ -46,6 +46,32 @@
       star="*"
     />
 
+    <!-- Sucursales -->
+    <div class="col-12">
+      <hr class="my-2" />
+      <h6 class="mb-2 text-muted">Módulo de sucursales</h6>
+    </div>
+    <div class="col-12">
+      <CommonInputfieldsCheckbox
+        v-model="uses_branches"
+        label="Habilitar sucursales"
+        name="uses_branches"
+      />
+      <small class="text-muted d-block mt-1">
+        Al activar, la empresa actual queda como sede principal y podrás
+        crear sucursales independientes con sus propios datos, usuarios y registros.
+      </small>
+    </div>
+    <div v-if="uses_branches" class="col-12">
+      <div class="branch-hq-info d-flex align-items-center gap-2 py-2 px-3 mt-1">
+        <Icon name="lucide:info" size="16" class="flex-shrink-0" />
+        <span>
+          Esta empresa es la <strong>sede principal</strong>. Gestiona las sucursales desde
+          <strong>Empresa → Sucursales</strong>.
+        </span>
+      </div>
+    </div>
+
     <div class="col-12 col-lg-6">
       <label class="form-label">Logo</label>
       <Gallery
@@ -137,6 +163,8 @@ const getCompanyPersonId = (
   return company?.[idKey] ?? getCompanyRelationPerson(company, key)?.id ?? "";
 };
 
+const uses_branches = ref<boolean>(false);
+
 const getCompanyValues = (company?: ICompany | null) => ({
   company_name: company?.company_name ?? "",
   tradename: company?.tradename ?? "",
@@ -167,6 +195,7 @@ const resetToCompany = (company?: ICompany | null) => {
     values: getCompanyValues(company),
   });
 
+  uses_branches.value = company?.uses_branches ?? false;
   logoImages.value = getLogoImages(company);
 };
 
@@ -202,6 +231,7 @@ defineExpose({
       logo_image_id: values.logo_image_id,
       legal_representative_id: values.legal_representative_id,
       person_attendant_id: values.person_attendant_id,
+      uses_branches: uses_branches.value,
     };
   },
   reset() {
@@ -212,3 +242,19 @@ defineExpose({
   },
 });
 </script>
+
+<style scoped>
+.branch-hq-info {
+  border-radius: 6px;
+  font-size: 13px;
+  background: rgba(var(--theme-color-rgb), 0.06);
+  color: rgba(28, 45, 58, 0.8);
+  border: 1px solid rgba(var(--theme-color-rgb), 0.18);
+}
+
+:global(body.dark-layout) .branch-hq-info {
+  background: rgba(var(--theme-color-rgb), 0.1);
+  color: rgba(255, 255, 255, 0.76);
+  border-color: rgba(var(--theme-color-rgb), 0.25);
+}
+</style>

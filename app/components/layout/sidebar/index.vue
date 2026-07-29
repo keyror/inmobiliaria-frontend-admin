@@ -38,6 +38,9 @@
           </div>
         </div>
       </div>
+      <ClientOnly>
+        <LayoutHeaderBranchSelector />
+      </ClientOnly>
       <div id="mainsidebar">
         <ul class="sidebar-menu custom-scrollbar">
           <LayoutSidebarItem
@@ -81,6 +84,7 @@ import { storeToRefs } from "pinia";
 
 import sidebar from "@/../public/data/sidebar.json";
 import { useAuthStore } from "@/store/authStore";
+import { useBranchStore } from "@/store/branchStore";
 import { usePublicCompanyStore } from "@/store/publicCompany";
 
 interface MenuItem {
@@ -92,11 +96,13 @@ interface MenuItem {
   active?: boolean;
   label?: string;
   permission?: string | string[];
+  requiresBranches?: boolean;
   children?: MenuItem[];
 }
 
 const route = useRoute();
 const authStore = useAuthStore();
+const branchStore = useBranchStore();
 const publicCompanyStore = usePublicCompanyStore();
 const { user } = storeToRefs(authStore);
 const alldata = ref<MenuItem[]>([]);
@@ -164,6 +170,7 @@ const userAvatarUrl = computed(() => {
 
 onMounted(() => {
   void publicCompanyStore.fetchCompany();
+  void branchStore.load();
 });
 
 watch(companyLogoUrl, () => {
@@ -202,6 +209,8 @@ function removesidebar() {
 }
 
 function canShowMenuItem(item: MenuItem) {
+  if (item.requiresBranches && !branchStore.branchesEnabled) return false;
+
   if (!item.permission) return true;
 
   return authStore.hasAnyPermission(item.permission);

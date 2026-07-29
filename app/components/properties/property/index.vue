@@ -367,8 +367,9 @@ const roomsLabel = computed(() =>
     : "Habitaciones",
 );
 
-// Limpiar campos ocultos al cambiar tipo de propiedad
+// Limpiar campos ocultos al cambiar tipo de propiedad (solo cuando el usuario cambia el tipo, no durante resetForm)
 watch(selectedPropertyTypeAlias, () => {
+  if (isResettingForm.value) return;
   if (!showRooms.value) setFieldValue("rooms", "");
   if (!showYearBuilt.value) setFieldValue("year_built", "");
   if (!showBathrooms.value) setFieldValue("bathrooms", "");
@@ -505,7 +506,6 @@ const hasPendingUpload = (): boolean => {
 defineExpose({
   async validateForm() {
     if (hasPendingUpload()) return false;
-
     const result = await validate();
     return result.valid;
   },

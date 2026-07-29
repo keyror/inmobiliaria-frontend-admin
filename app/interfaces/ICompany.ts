@@ -1,3 +1,4 @@
+import type { IAccountBank } from "~/interfaces/IAccountBank";
 import type { IAddress } from "~/interfaces/IAddress";
 import type { ICompanySetting } from "~/interfaces/ICompanySetting";
 import type { IContact } from "~/interfaces/IContact";
@@ -11,6 +12,7 @@ export interface ICompanyPersonRelation {
 
 export interface ICompany {
   id?: string;
+  uses_branches?: boolean;
   company_name: string;
   tradename: string;
   nit: string;
@@ -22,6 +24,7 @@ export interface ICompany {
   person_attendant?: ICompanyPersonRelation | null;
   contacts?: IContact[];
   addresses?: IAddress[];
+  account_banks?: IAccountBank[];
   publish_channels?: IPublishChannel[];
   company_setting?: ICompanySetting | null;
 }

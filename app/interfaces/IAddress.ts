@@ -9,8 +9,6 @@ export interface IAddress {
   sector?: string | null;
   stratum_id?: string | null;
   complement?: string | null;
-  person_id?: string | null;
-  company_id?: string | null;
   is_principal: boolean;
   via_type_id: string;
   via_number: string;

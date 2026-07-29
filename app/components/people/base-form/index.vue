@@ -6,51 +6,7 @@
     />
 
     <div class="container-fluid">
-      <nav class="admin-theme-tabs">
-        <div id="nav-tab" class="nav nav-tabs" role="tablist">
-          <button
-            :class="{ active: activeTab === 'persons' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('persons')"
-          >
-            Persona
-          </button>
-          <button
-            v-if="canManageFiscalProfile"
-            :class="{ active: activeTab === 'fiscalProfiles' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('fiscalProfiles')"
-          >
-            Perfil Fiscal
-          </button>
-          <button
-            :class="{ active: activeTab === 'accountBank' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('accountBank')"
-          >
-            Cuentas bancarias
-          </button>
-          <button
-            :class="{ active: activeTab === 'addresses' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('addresses')"
-          >
-            Direcciones
-          </button>
-          <button
-            :class="{ active: activeTab === 'contacts' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('contacts')"
-          >
-            Contactos
-          </button>
-        </div>
-      </nav>
+      <CommonTabsNav v-model="activeTab" :tabs="tabsConfig" />
 
       <div class="tab-content mt-4">
         <div class="container-fluid">
@@ -158,6 +114,15 @@ const addressesRef = ref<InstanceType<typeof Addresses> | null>(null);
 const contactsRef = ref<InstanceType<typeof Contacts> | null>(null);
 
 const activeTab = ref<string>("persons");
+
+const tabsConfig = computed(() => [
+  { key: "persons", label: "Persona", required: true },
+  { key: "fiscalProfiles", label: "Perfil Fiscal", visible: canManageFiscalProfile.value },
+  { key: "accountBank", label: "Cuentas bancarias" },
+  { key: "addresses", label: "Direcciones" },
+  { key: "contacts", label: "Contactos", required: true },
+]);
+
 const canSavePerson = computed(() =>
   props.isEditing ? can("people.edit") : can("people.create"),
 );

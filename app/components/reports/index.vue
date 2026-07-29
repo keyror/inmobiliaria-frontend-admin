@@ -8,37 +8,29 @@
         <div class="card-body admin-form">
           <!-- Fila 1: nombre/selector del informe + acciones -->
           <div class="row gx-3 align-items-end mb-3">
-            <!-- Un solo informe: muestra el nombre como texto -->
-            <div v-if="templates.length <= 1" class="col-md-4 col-sm-6">
-              <span class="toolbar-label d-block">Informe activo</span>
-              <span class="fw-semibold">{{ activeTemplate?.name ?? "—" }}</span>
-            </div>
-
-            <!-- Varios informes: selector + botón eliminar si no es default -->
-            <template v-else>
-              <CommonInputfieldsSelectfield
-                v-model="activeTemplateId"
-                :data="templates"
-                label="Informe"
-                labelField="name"
-                classes="col-md-4 col-sm-6"
-                @update:modelValue="onTemplateChange"
-              />
-              <div
-                v-if="activeTemplate && !activeTemplate.is_default"
-                class="col-auto"
-                style="padding-bottom: 1px"
+            <!-- Selector de informe -->
+            <CommonInputfieldsSelectfield
+              v-model="activeTemplateId"
+              :data="templates"
+              label="Informe"
+              labelField="name"
+              classes="col-md-4 col-sm-6"
+              @update:modelValue="onTemplateChange"
+            />
+            <div
+              v-if="activeTemplate && !activeTemplate.is_default"
+              class="col-auto"
+              style="padding-bottom: 1px"
+            >
+              <button
+                class="btn btn-dashed color-1"
+                type="button"
+                title="Eliminar este informe"
+                @click="deleteTemplate"
               >
-                <button
-                  class="btn btn-dashed color-1"
-                  type="button"
-                  title="Eliminar este informe"
-                  @click="deleteTemplate"
-                >
-                  <i class="fa fa-trash"></i>
-                </button>
-              </div>
-            </template>
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
 
             <!-- Botones de acción -->
             <div class="col ms-auto mt-3 mt-md-0">

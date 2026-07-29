@@ -849,6 +849,15 @@ input[type='radio'] {
       span {
         color: inherit;
       }
+
+      .tab-required {
+        color: $danger-color;
+        font-weight: 800;
+        margin-left: 2px;
+        font-size: 13px;
+        line-height: 1;
+      }
+
     }
   }
 }

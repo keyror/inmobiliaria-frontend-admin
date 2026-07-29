@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import { defineStore } from "pinia";
 
 import AutenticacionService from "@/services/AuthenticationService";
+import { useBranchStore } from "@/store/branchStore";
 
 type AuthUser = Record<string, any> & {
   roles?: string[];
@@ -90,6 +91,7 @@ export const useAuthStore = defineStore(
       token.value = null;
       setUserSession(null);
       expiresAt.value = null;
+      useBranchStore().reset();
     };
 
     return {

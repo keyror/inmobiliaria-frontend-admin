@@ -38,7 +38,6 @@
           <button
             type="button"
             class="btn btn-dashed color-4"
-            :disabled="fields.length === 1"
             @click="removeItem(index)"
           >
             <i class="fa fa-trash"></i>
@@ -190,11 +189,7 @@ watch(
         },
       });
     } else {
-      resetForm({
-        values: {
-          obligations: [{ ...emptyItem() }],
-        },
-      });
+      resetForm({ values: { obligations: [emptyItem()] } });
     }
   },
   { immediate: true },
@@ -203,9 +198,7 @@ watch(
 const addItem = () => push(emptyItem());
 
 const removeItem = (index: number) => {
-  if (fields.value.length > 1) {
-    remove(index);
-  }
+  remove(index);
 };
 
 defineExpose({

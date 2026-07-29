@@ -112,13 +112,27 @@
       ]
     },
     {
-      "link": "/company",
-      "icon": "lucide:settings",
+      "icon": "lucide:settings-2",
       "title": "Empresa",
       "titlePage": "Configuración de empresa",
-      "collapse": false,
+      "collapse": true,
       "active": false,
-      "permission": "companies.view"
+      "permission": "companies.view",
+      "children": [
+        {
+          "link": "/company",
+          "title": "Datos de empresa",
+          "icon": "lucide:chevron-right",
+          "permission": "companies.view"
+        },
+        {
+          "link": "/branches",
+          "title": "Sucursales",
+          "icon": "lucide:chevron-right",
+          "permission": "companies.view",
+          "requiresBranches": true
+        }
+      ]
     },
     {
       "link": "/realstate/site-management",

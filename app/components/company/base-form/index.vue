@@ -3,50 +3,7 @@
     <CommonBreadcrumb page="Empresa" title="Configuración de empresa" />
 
     <div class="container-fluid">
-      <nav class="admin-theme-tabs">
-        <div id="nav-tab" class="nav nav-tabs" role="tablist">
-          <button
-            :class="{ active: activeTab === 'company' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('company')"
-          >
-            Empresa
-          </button>
-          <button
-            :class="{ active: activeTab === 'addresses' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('addresses')"
-          >
-            Dirección
-          </button>
-          <button
-            :class="{ active: activeTab === 'contacts' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('contacts')"
-          >
-            Contacto
-          </button>
-          <button
-            :class="{ active: activeTab === 'publish_channels' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('publish_channels')"
-          >
-            Redes sociales
-          </button>
-          <button
-            :class="{ active: activeTab === 'settings' }"
-            class="nav-link"
-            type="button"
-            @click="switchTab('settings')"
-          >
-            Configuración
-          </button>
-        </div>
-      </nav>
+      <CommonTabsNav v-model="activeTab" :tabs="tabsConfig" />
 
       <div class="tab-content mt-4">
         <div class="container-fluid">
@@ -61,6 +18,14 @@
               </div>
 
               <div v-show="activeTab === 'addresses'">
+                <div class="alert alert-info d-flex align-items-center gap-2 mb-3">
+                  <i class="fa fa-info-circle"></i>
+                  <span>
+                    La dirección principal de la empresa se mostrará en la
+                    sección <strong>Información de contacto</strong> del detalle
+                    de propiedades en el sitio público.
+                  </span>
+                </div>
                 <Addresses
                   ref="addressesRef"
                   :data="company?.addresses"
@@ -84,6 +49,15 @@
                   :data="company?.contacts"
                   :isEditing="isEditing"
                   :single="false"
+                />
+              </div>
+
+              <div v-show="activeTab === 'account_banks'">
+                <AccountBanks
+                  ref="accountBanksRef"
+                  :data="company?.account_banks"
+                  :isEditing="isEditing"
+                  :lookups="accountBanksLookups"
                 />
               </div>
 
@@ -136,6 +110,7 @@
 </template>
 
 <script setup lang="ts">
+import AccountBanks from "~/components/account-banks/index.vue";
 import Addresses from "~/components/addresses/index.vue";
 import CompanyGeneral from "~/components/company/general/index.vue";
 import CompanySettings from "~/components/company/settings/index.vue";
@@ -145,24 +120,42 @@ import { useApiHandler } from "~/composables/useApiHandler";
 import { Constants } from "~/constants/Constants";
 import AlertService from "~/services/AlertService";
 import CompanyService from "~/services/CompanyService";
+import { useBranchStore } from "~/store/branchStore";
 import { useCompanySettingStore } from "~/store/companySettingStore";
 
+import type { IAccountBank } from "~/interfaces/IAccountBank";
+import type { IAddress } from "~/interfaces/IAddress";
 import type { ICompany } from "~/interfaces/ICompany";
+import type { ICompanySetting } from "~/interfaces/ICompanySetting";
+import type { IContact } from "~/interfaces/IContact";
+import type { IPublishChannel } from "~/interfaces/IPublishChannel";
 import type { ISaveCompany } from "~/interfaces/ISaveCompany";
 
 const { run } = useApiHandler();
 const { can } = useAuthorization();
+const branchStore = useBranchStore();
 const companySettingStore = useCompanySettingStore();
 
 const companyRef = ref<InstanceType<typeof CompanyGeneral> | null>(null);
 const addressesRef = ref<InstanceType<typeof Addresses> | null>(null);
 const contactsRef = ref<InstanceType<typeof Contacts> | null>(null);
+const accountBanksRef = ref<InstanceType<typeof AccountBanks> | null>(null);
 const publishChannelsRef = ref<InstanceType<typeof PublishChannels> | null>(
   null,
 );
 const settingsRef = ref<InstanceType<typeof CompanySettings> | null>(null);
 
 const activeTab = ref<string>("company");
+
+const tabsConfig = [
+  { key: "company", label: "Empresa", required: true },
+  { key: "addresses", label: "Dirección" },
+  { key: "contacts", label: "Contacto" },
+  { key: "account_banks", label: "Cuentas Bancarias" },
+  { key: "publish_channels", label: "Redes sociales" },
+  { key: "settings", label: "Configuración", required: true },
+];
+
 const company = ref<ICompany | null>();
 const isEditing = computed(() => !!company.value);
 const canSaveCompany = computed(() =>
@@ -179,6 +172,8 @@ const { lookups } = useLookups([
   Constants.CITY,
   Constants.PUBLISH_CHANNEL,
   Constants.STATUS,
+  Constants.ACCOUNT_BANKS,
+  Constants.BANKS,
 ]);
 
 const switchTab = (tab: string) => {
@@ -190,6 +185,7 @@ const { distributeErrors } = useFormErrorDistributor(
     company: companyRef,
     addresses: addressesRef,
     contacts: contactsRef,
+    account_banks: accountBanksRef,
     publish_channels: publishChannelsRef,
     company_setting: settingsRef,
   },
@@ -197,6 +193,7 @@ const { distributeErrors } = useFormErrorDistributor(
     company: "company",
     addresses: "addresses",
     contacts: "contacts",
+    account_banks: "account_banks",
     publish_channels: "publish_channels",
     company_setting: "settings",
   },
@@ -232,6 +229,7 @@ const save = async () => {
     { key: "company", ref: companyRef, optional: false },
     { key: "addresses", ref: addressesRef, optional: true },
     { key: "contacts", ref: contactsRef, optional: true },
+    { key: "account_banks", ref: accountBanksRef, optional: true },
     { key: "publish_channels", ref: publishChannelsRef, optional: true },
     { key: "settings", ref: settingsRef, optional: false },
   ];
@@ -251,11 +249,12 @@ const save = async () => {
       return;
     }
 
-    if (form.key === "company") data.company = values;
-    if (form.key === "addresses") data.addresses = values;
-    if (form.key === "contacts") data.contacts = values;
-    if (form.key === "publish_channels") data.publish_channels = values;
-    if (form.key === "settings") data.company_setting = values;
+    if (form.key === "company") data.company = values as Partial<ICompany>;
+    if (form.key === "addresses") data.addresses = values as IAddress[];
+    if (form.key === "contacts") data.contacts = values as IContact[];
+    if (form.key === "account_banks") data.account_banks = values as IAccountBank[];
+    if (form.key === "publish_channels") data.publish_channels = values as IPublishChannel[];
+    if (form.key === "settings") data.company_setting = values as Partial<ICompanySetting>;
   }
 
   const promise = isEditing.value
@@ -272,6 +271,7 @@ const save = async () => {
 
   if (response) {
     await getCompany();
+    await branchStore.load(true);
   }
 };
 
@@ -279,6 +279,7 @@ const cancel = () => {
   companyRef.value?.reset();
   addressesRef.value?.reset();
   contactsRef.value?.reset();
+  accountBanksRef.value?.reset();
   publishChannelsRef.value?.reset();
   settingsRef.value?.reset();
 };
@@ -291,6 +292,11 @@ const addressesLookups = computed(() => ({
   country: lookups.value[Constants.COUNTRY],
   cities: lookups.value[Constants.CITY],
   departments: lookups.value[Constants.DEPARTMENT],
+}));
+
+const accountBanksLookups = computed(() => ({
+  banks: lookups.value[Constants.BANKS] ?? [],
+  typeAccountBank: lookups.value[Constants.ACCOUNT_BANKS] ?? [],
 }));
 
 const publishChannelsLookups = computed(() => ({

@@ -13,8 +13,10 @@ export const propertySchema = Yup.object({
 
   stratum_id: Yup.string().nullable().notRequired(),
   year_built: Yup.number()
+    .transform((_, originalValue) => (originalValue === "" ? null : Number(originalValue)))
     .typeError("Año inválido")
-    .required("Año obligatorio"),
+    .nullable()
+    .notRequired(),
 
   rooms: Yup.string().nullable().notRequired(),
   bathrooms: Yup.string().nullable().notRequired(),
