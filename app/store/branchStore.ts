@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 
 import BranchService from "~/services/BranchService";
+
 import type { IBranch } from "~/interfaces/IBranch";
 
 export const useBranchStore = defineStore(
@@ -89,7 +90,7 @@ export const useBranchStore = defineStore(
   },
   {
     persist: {
-      paths: ["activeCompanyId"],
+      pick: ["activeCompanyId"],
     },
   },
 );

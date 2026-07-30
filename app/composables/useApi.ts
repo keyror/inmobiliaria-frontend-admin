@@ -160,6 +160,12 @@ export function useApi<T>(
 
     if (status !== 401 || opts?.skipRefresh) throw err;
 
+    // Si ya no hay token, el usuario cerró sesión — no intentar refresh
+    if (!auth.token) {
+      await navigateTo("/authentication/login");
+      return;
+    }
+
     // Solo un refresh simultáneo; los demás esperan la misma promesa
     if (!isRefreshing) {
       isRefreshing = true;
