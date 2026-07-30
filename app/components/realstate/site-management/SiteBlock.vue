@@ -75,7 +75,7 @@ withDefaults(
 /* ── Shared item styles (global so child editors can use them) ─── */
 :global(.site-item) {
   background: rgba(88, 97, 103, 0.025);
-  border-left: 3px solid rgba(127, 80, 243, 0.22);
+  border-left: 3px solid var(--theme-default7);
   border-radius: 0 10px 10px 0;
   margin-bottom: 0.75rem;
   padding: 0.9rem 1rem;
@@ -155,7 +155,7 @@ withDefaults(
 
 :global(body.dark-layout .site-item) {
   background: rgba(255, 255, 255, 0.025);
-  border-left-color: rgba(127, 80, 243, 0.38);
+  border-left-color: color-mix(in srgb, var(--theme-default7) 60%, #fff);
 }
 
 :global(body.dark-layout .site-item-label) {

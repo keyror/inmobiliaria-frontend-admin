@@ -12,6 +12,7 @@ export const useBranchStore = defineStore(
     const activeCompanyId = ref<string | null>(null);
     const branches = ref<IBranch[]>([]);
     const loaded = ref(false);
+    const usesBranches = ref(false);
 
     const activeBranch = computed(
       () => branches.value.find((b) => b.id === activeCompanyId.value) ?? null,
@@ -23,9 +24,8 @@ export const useBranchStore = defineStore(
 
     const hasMultipleBranches = computed(() => branches.value.length > 1);
 
-    const branchesEnabled = computed(
-      () => headquarters.value?.uses_branches ?? false,
-    );
+    // Viene del API — no depende de que HQ esté en la lista del usuario
+    const branchesEnabled = computed(() => usesBranches.value);
 
     const load = async (force = false) => {
       if (loaded.value && !force) return;
@@ -35,17 +35,19 @@ export const useBranchStore = defineStore(
         if (res?.data?.data) {
           branches.value = res.data.data;
           defaultCompanyId = res.data.default_company_id ?? null;
+          usesBranches.value = res.data.uses_branches ?? false;
         } else if (Array.isArray(res?.data)) {
           branches.value = res.data;
         }
 
-        if (
+        if (defaultCompanyId) {
+          activeCompanyId.value = defaultCompanyId;
+        } else if (
           !activeCompanyId.value ||
           !branches.value.find((b) => b.id === activeCompanyId.value)
         ) {
-          const hq = headquarters.value;
           activeCompanyId.value =
-            defaultCompanyId ?? hq?.id ?? branches.value[0]?.id ?? null;
+            headquarters.value?.id ?? branches.value[0]?.id ?? null;
         }
 
         loaded.value = true;
@@ -57,10 +59,6 @@ export const useBranchStore = defineStore(
         const res = await BranchService.switch(id);
         if (res?.data?.current_company_id) {
           activeCompanyId.value = res.data.current_company_id;
-          if (res.data.accessible_branches) {
-            const raw = res.data.accessible_branches;
-            branches.value = Array.isArray(raw) ? raw : (raw?.data ?? []);
-          }
         } else {
           console.warn("[branchStore] switchBranch: respuesta inesperada", res);
         }
@@ -73,12 +71,14 @@ export const useBranchStore = defineStore(
       activeCompanyId.value = null;
       branches.value = [];
       loaded.value = false;
+      usesBranches.value = false;
     };
 
     return {
       activeCompanyId,
       branches,
       loaded,
+      usesBranches,
       activeBranch,
       headquarters,
       hasMultipleBranches,

@@ -14,16 +14,21 @@
                   ref="companyRef"
                   :data="company"
                   :isEditing="isEditing"
+                  :isHeadquarters="isHeadquarters"
                 />
               </div>
 
               <div v-show="activeTab === 'addresses'">
                 <div class="alert alert-info d-flex align-items-center gap-2 mb-3">
                   <i class="fa fa-info-circle"></i>
-                  <span>
+                  <span v-if="isHeadquarters">
                     La dirección principal de la empresa se mostrará en la
                     sección <strong>Información de contacto</strong> del detalle
                     de propiedades en el sitio público.
+                  </span>
+                  <span v-else>
+                    La dirección de esta sucursal es para uso interno y contratos.
+                    El sitio público muestra la dirección de la sede principal.
                   </span>
                 </div>
                 <Addresses
@@ -38,9 +43,13 @@
               <div v-show="activeTab === 'contacts'">
                 <div class="alert alert-info d-flex align-items-center gap-2">
                   <i class="fa fa-info-circle"></i>
-                  <span>
+                  <span v-if="isHeadquarters">
                     El contacto marcado como principal recibirá los correos del
                     formulario de contacto y los mensajes enviados por WhatsApp.
+                  </span>
+                  <span v-else>
+                    Los contactos de esta sucursal son para uso interno y contratos.
+                    El formulario de contacto del sitio público usa los contactos de la sede principal.
                   </span>
                 </div>
 
@@ -84,6 +93,7 @@
                   :data="company?.company_setting"
                   :contacts="company?.contacts ?? []"
                   :isEditing="isEditing"
+                  :isHeadquarters="isHeadquarters"
                   @go-to-contacts="switchTab('contacts')"
                 />
               </div>
@@ -147,14 +157,20 @@ const settingsRef = ref<InstanceType<typeof CompanySettings> | null>(null);
 
 const activeTab = ref<string>("company");
 
-const tabsConfig = [
+const isHeadquarters = computed(
+  () => branchStore.activeBranch?.is_headquarters ?? true,
+);
+
+const tabsConfig = computed(() => [
   { key: "company", label: "Empresa", required: true },
   { key: "addresses", label: "Dirección" },
   { key: "contacts", label: "Contacto" },
   { key: "account_banks", label: "Cuentas Bancarias" },
-  { key: "publish_channels", label: "Redes sociales" },
+  ...(isHeadquarters.value
+    ? [{ key: "publish_channels", label: "Redes sociales" }]
+    : []),
   { key: "settings", label: "Configuración", required: true },
-];
+]);
 
 const company = ref<ICompany | null>();
 const isEditing = computed(() => !!company.value);
@@ -284,6 +300,12 @@ const cancel = () => {
   settingsRef.value?.reset();
 };
 
+watch(
+  () => branchStore.activeCompanyId,
+  () => { void getCompany(); },
+  { immediate: true },
+);
+
 const addressesLookups = computed(() => ({
   roadTypes: lookups.value[Constants.ROAD_TYPE],
   letters: lookups.value[Constants.LETTER],
@@ -303,8 +325,6 @@ const publishChannelsLookups = computed(() => ({
   publishChannels: lookups.value[Constants.PUBLISH_CHANNEL] ?? [],
   status: lookups.value[Constants.STATUS] ?? [],
 }));
-
-getCompany();
 </script>
 
 <style scoped></style>

@@ -40,9 +40,6 @@
     </form>
 
     <template #actions>
-      <button type="button" class="btn btn-pill btn-dashed color-4" @click="close">
-        Cancelar
-      </button>
       <button type="button" class="btn btn-pill btn-gradient color-4" @click="submit">
         {{ isEdit ? "Actualizar" : "Crear" }}
       </button>

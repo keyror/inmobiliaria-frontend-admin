@@ -46,31 +46,33 @@
       star="*"
     />
 
-    <!-- Sucursales -->
-    <div class="col-12">
-      <hr class="my-2" />
-      <h6 class="mb-2 text-muted">Módulo de sucursales</h6>
-    </div>
-    <div class="col-12">
-      <CommonInputfieldsCheckbox
-        v-model="uses_branches"
-        label="Habilitar sucursales"
-        name="uses_branches"
-      />
-      <small class="text-muted d-block mt-1">
-        Al activar, la empresa actual queda como sede principal y podrás
-        crear sucursales independientes con sus propios datos, usuarios y registros.
-      </small>
-    </div>
-    <div v-if="uses_branches" class="col-12">
-      <div class="branch-hq-info d-flex align-items-center gap-2 py-2 px-3 mt-1">
-        <Icon name="lucide:info" size="16" class="flex-shrink-0" />
-        <span>
-          Esta empresa es la <strong>sede principal</strong>. Gestiona las sucursales desde
-          <strong>Empresa → Sucursales</strong>.
-        </span>
+    <!-- Sucursales (solo sede principal) -->
+    <template v-if="isHeadquarters">
+      <div class="col-12">
+        <hr class="my-2" />
+        <h6 class="mb-2 text-muted">Módulo de sucursales</h6>
       </div>
-    </div>
+      <div class="col-12">
+        <CommonInputfieldsCheckbox
+          v-model="uses_branches"
+          label="Habilitar sucursales"
+          name="uses_branches"
+        />
+        <small class="text-muted d-block mt-1">
+          Al activar, la empresa actual queda como sede principal y podrás
+          crear sucursales independientes con sus propios datos, usuarios y registros.
+        </small>
+      </div>
+      <div v-if="uses_branches" class="col-12">
+        <div class="branch-hq-info d-flex align-items-center gap-2 py-2 px-3 mt-1">
+          <Icon name="lucide:info" size="16" class="flex-shrink-0" />
+          <span>
+            Esta empresa es la <strong>sede principal</strong>. Gestiona las sucursales desde
+            <strong>Empresa → Sucursales</strong>.
+          </span>
+        </div>
+      </div>
+    </template>
 
     <div class="col-12 col-lg-6">
       <label class="form-label">Logo</label>
@@ -101,6 +103,7 @@ import type { IImage, IImagePayload } from "~/interfaces/IImageItem";
 const props = defineProps<{
   data?: ICompany | null;
   isEditing?: boolean;
+  isHeadquarters?: boolean;
 }>();
 
 const form = useCompanyForm(props.data);

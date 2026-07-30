@@ -17,111 +17,115 @@
           Esta configuración transforma automáticamente el texto ingresado en
           los formularios (nombres, títulos, descripciones). No aplica a correos
           electrónicos, contraseñas.
+          <template v-if="!isHeadquarters">
+            Aplica solo a esta sucursal, no afecta a la sede principal ni a otras sucursales.
+          </template>
         </span>
       </div>
     </div>
 
-    <!-- Separador -->
-    <div class="col-12">
-      <hr />
-    </div>
-
-    <!-- Servidor de correo -->
-    <div class="col-12">
-      <CommonInputfieldsCheckbox
-        v-model="hasCustomSmtp"
-        label="Cuenta con servidor de correo propio"
-        name="has_custom_smtp"
-      />
-    </div>
-
-    <template v-if="hasCustomSmtp">
+    <!-- Servidor de correo (solo sede principal) -->
+    <template v-if="isHeadquarters">
       <div class="col-12">
-        <div class="alert alert-warning d-flex align-items-center gap-2">
-          <i class="fa fa-exclamation-triangle"></i>
-          <span>
-            Los correos se enviarán usando este servidor. Asegúrate de que las
-            credenciales sean correctas antes de guardar.
-          </span>
+        <hr />
+      </div>
+
+      <div class="col-12">
+        <CommonInputfieldsCheckbox
+          v-model="hasCustomSmtp"
+          label="Cuenta con servidor de correo propio"
+          name="has_custom_smtp"
+        />
+      </div>
+
+      <template v-if="hasCustomSmtp">
+        <div class="col-12">
+          <div class="alert alert-warning d-flex align-items-center gap-2">
+            <i class="fa fa-exclamation-triangle"></i>
+            <span>
+              Los correos se enviarán usando este servidor. Asegúrate de que las
+              credenciales sean correctas antes de guardar.
+            </span>
+          </div>
         </div>
-      </div>
 
-      <!-- Correo remitente -->
-      <CommonInputfieldsSelectfield
-        v-model="smtpFromEmail"
-        :data="contactEmailOptions"
-        :error="errors.smtp_from_email"
-        label="Correo remitente"
-        name="smtp_from_email"
-        classes="col-md-6"
-        show="Seleccione un correo"
-        star="*"
-      />
+        <!-- Correo remitente -->
+        <CommonInputfieldsSelectfield
+          v-model="smtpFromEmail"
+          :data="contactEmailOptions"
+          :error="errors.smtp_from_email"
+          label="Correo remitente"
+          name="smtp_from_email"
+          classes="col-md-6"
+          show="Seleccione un correo"
+          star="*"
+        />
 
-      <div class="col-md-auto d-flex flex-column justify-content-end">
-        <button
-          class="btn btn-pill btn-gradient color-4"
-          type="button"
-          @click="emit('go-to-contacts')"
-        >
-          <i class="fa fa-plus me-1" />
-          Agregar correo
-        </button>
-      </div>
+        <div class="col-md-auto d-flex flex-column justify-content-end">
+          <button
+            class="btn btn-pill btn-gradient color-4"
+            type="button"
+            @click="emit('go-to-contacts')"
+          >
+            <i class="fa fa-plus me-1" />
+            Agregar correo
+          </button>
+        </div>
 
-      <!-- Host y puerto -->
-      <CommonInputfieldsTextfield
-        v-model="smtpHost"
-        :error="errors.smtp_host"
-        label="Host SMTP"
-        name="smtp_host"
-        classes="col-md-6"
-        placeholder="smtp.ejemplo.com"
-        star="*"
-      />
+        <!-- Host y puerto -->
+        <CommonInputfieldsTextfield
+          v-model="smtpHost"
+          :error="errors.smtp_host"
+          label="Host SMTP"
+          name="smtp_host"
+          classes="col-md-6"
+          placeholder="smtp.ejemplo.com"
+          star="*"
+        />
 
-      <CommonInputfieldsNumberfield
-        v-model="smtpPort"
-        :error="errors.smtp_port"
-        label="Puerto"
-        name="smtp_port"
-        classes="col-md-3"
-        placeholder="587"
-        star="*"
-      />
+        <CommonInputfieldsNumberfield
+          v-model="smtpPort"
+          :error="errors.smtp_port"
+          label="Puerto"
+          name="smtp_port"
+          classes="col-md-3"
+          placeholder="587"
+          star="*"
+        />
 
-      <CommonInputfieldsSelectfield
-        v-model="smtpEncryption"
-        :data="ENCRYPTION_OPTIONS"
-        :error="errors.smtp_encryption"
-        label="Encriptación"
-        name="smtp_encryption"
-        classes="col-md-3"
-        show="Seleccione"
-        star="*"
-      />
+        <CommonInputfieldsSelectfield
+          v-model="smtpEncryption"
+          :data="ENCRYPTION_OPTIONS"
+          :error="errors.smtp_encryption"
+          label="Encriptación"
+          name="smtp_encryption"
+          classes="col-md-3"
+          show="Seleccione"
+          star="*"
+        />
 
-      <!-- Usuario y contraseña -->
-      <CommonInputfieldsTextfield
-        v-model="smtpUsername"
-        :error="errors.smtp_username"
-        label="Usuario"
-        name="smtp_username"
-        classes="col-md-6"
-        placeholder="correo@ejemplo.com"
-        star="*"
-      />
+        <!-- Usuario y contraseña -->
+        <CommonInputfieldsTextfield
+          v-model="smtpUsername"
+          :error="errors.smtp_username"
+          label="Usuario"
+          name="smtp_username"
+          classes="col-md-6"
+          placeholder="correo@ejemplo.com"
+          star="*"
+        />
 
-      <CommonInputfieldsTextfield
-        v-model="smtpPasswordInput"
-        :error="errors.smtp_password"
-        :placeholder="hasExistingPassword ? '••••••••' : 'Contraseña'"
-        label="Contraseña"
-        name="smtp_password"
-        classes="col-md-6"
-        type="password"
-        @input="passwordChanged = true"
-      />
+        <CommonInputfieldsTextfield
+          v-model="smtpPasswordInput"
+          :error="errors.smtp_password"
+          :placeholder="hasExistingPassword ? '••••••••' : 'Contraseña'"
+          label="Contraseña"
+          name="smtp_password"
+          classes="col-md-6"
+          type="password"
+          @input="passwordChanged = true"
+        />
+      </template>
     </template>
   </form>
 </template>
@@ -135,6 +139,7 @@ interface Props {
   data?: ICompanySetting | null;
   contacts?: IContact[];
   isEditing?: boolean;
+  isHeadquarters?: boolean;
 }
 
 const emit = defineEmits<{ (e: "go-to-contacts"): void }>();
@@ -143,6 +148,7 @@ const props = withDefaults(defineProps<Props>(), {
   data: null,
   contacts: () => [],
   isEditing: false,
+  isHeadquarters: true,
 });
 
 const NONE_SENTINEL = "none";
