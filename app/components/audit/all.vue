@@ -13,6 +13,15 @@
                 @submit.prevent="applyFilters"
               >
                 <CommonInputfieldsSelectfield
+                  v-if="showBranchFilter"
+                  v-model="filters.company_id"
+                  :data="branchOptions"
+                  label="Sucursal"
+                  name="company_id"
+                  classes="col-md-3 col-sm-6"
+                  show="Todas las sucursales"
+                />
+                <CommonInputfieldsSelectfield
                   v-model="filters.log_name"
                   :data="MODULE_OPTIONS"
                   label="Módulo"
@@ -216,12 +225,36 @@ import VueDatePicker from "@vuepic/vue-datepicker";
 
 import { auditHeader } from "~/constants/tableHeaders/AuditHeader";
 import AuditService from "~/services/AuditService";
+import { useBranchStore } from "~/store/branchStore";
 
 import type { IAuditLog } from "~/interfaces/IAuditLog";
 import type { ILookup } from "~/interfaces/ILookup";
 import type { IParamsTable } from "~/interfaces/IParamsTable";
 
 const NONE = "none";
+
+const branchStore = useBranchStore();
+const { can } = useAuthorization();
+
+const showBranchFilter = computed(
+  () => branchStore.branchesEnabled && can("companies.view_all"),
+);
+
+const branchOptions = computed<ILookup[]>(() =>
+  branchStore.branches.map((b) => ({
+    id: b.id,
+    name: b.is_headquarters
+      ? `${b.company_name} · Principal`
+      : b.company_name,
+    category: "",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: b.is_active,
+    lang: "es",
+  })),
+);
 
 const MODULE_OPTIONS: ILookup[] = [
   {
@@ -324,6 +357,17 @@ const MODULE_OPTIONS: ILookup[] = [
     lang: "es",
   },
   {
+    id: "documents",
+    category: "",
+    name: "Documentos",
+    alias: null,
+    value: null,
+    code: null,
+    icon: null,
+    is_active: true,
+    lang: "es",
+  },
+  {
     id: "site-settings",
     category: "",
     name: "Configuración del sitio",
@@ -411,6 +455,7 @@ const filters = ref({
   causer_email: "",
   date_from: null as string | null,
   date_to: null as string | null,
+  company_id: null as string | null,
 });
 
 const activeFilters = ref<Record<string, string>>({});
@@ -442,6 +487,8 @@ const applyFilters = () => {
     applied.causer_email = filters.value.causer_email;
   if (filters.value.date_from) applied.date_from = filters.value.date_from;
   if (filters.value.date_to) applied.date_to = filters.value.date_to;
+  if (filters.value.company_id && showBranchFilter.value)
+    applied.company_id = filters.value.company_id;
   activeFilters.value = applied;
   loadLogs({ ...lastParams.value, page: 1 });
 };
@@ -453,6 +500,7 @@ const clearFilters = () => {
     causer_email: "",
     date_from: null,
     date_to: null,
+    company_id: null,
   };
   activeFilters.value = {};
   loadLogs({ ...lastParams.value, page: 1 });

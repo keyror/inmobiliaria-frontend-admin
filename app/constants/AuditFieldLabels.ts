@@ -107,12 +107,15 @@ export const AUDIT_FIELD_LABELS: Record<string, string> = {
   birth_date: "Fecha de nacimiento",
   gender_type_id: "Género",
 
-  // ── Empresa (Company) ──────────────────────────────────────────────────
+  // ── Empresa / Sucursal (Company) ───────────────────────────────────────
   company_id: "Empresa",
   tradename: "Nombre comercial",
   nit: "NIT",
   legal_representative_id: "Representante legal",
   person_attendant_id: "Persona de contacto",
+  parent_company_id: "Empresa matriz",
+  branch_code: "Código de sucursal",
+  uses_branches: "Habilita sucursales",
 
   // ── Perfil fiscal (FiscalProfile) ─────────────────────────────────────
   tax_regime: "Régimen tributario",
@@ -138,11 +141,20 @@ export const AUDIT_FIELD_LABELS: Record<string, string> = {
   remember_token: "Token de sesión",
   email_verified_at: "Correo verificado en",
   tenant_id: "Tenant",
+  status_type_id: "Estado del usuario",
 
   // ── Rol (Role / Spatie) ────────────────────────────────────────────────
   guard_name: "Guard",
 
-  // ── Configuración del sitio (RealstateSiteSetting) ─────────────────────
+  // ── Configuración del sitio inmobiliario (RealstateSiteSetting) ────────
+  template_set: "Plantilla del sitio",
+  theme: "Tema de colores",
+  pages: "Páginas del sitio",
+  backup_template_set: "Plantilla de respaldo",
+  backup_theme: "Tema de respaldo",
+  backup_pages: "Páginas de respaldo",
+
+  // ── Configuración del sitio central (CentralSiteSetting) ───────────────
   template: "Plantilla",
   primary_color: "Color primario",
   secondary_color: "Color secundario",
@@ -224,6 +236,34 @@ export const AUDIT_FIELD_LABELS: Record<string, string> = {
   // ── Plantilla de informe (ReportTemplate) ─────────────────────────────
   columns: "Columnas",
   is_default: "Predeterminada",
+
+  // ── Documento (Document) ───────────────────────────────────────────────
+  documentable_type: "Tipo de entidad",
+  documentable_id: "Entidad relacionada",
+  document_category_id: "Categoría del documento",
+  number: "Número",
+  template_key: "Clave de plantilla",
+  content: "Contenido",
+  file_name: "Nombre del archivo",
+  file_path: "Ruta del archivo",
+  file_extension: "Extensión",
+  mime_type: "Tipo MIME",
+  file_size: "Tamaño (bytes)",
+  document_date: "Fecha del documento",
+  expiry_date: "Fecha de vencimiento",
+  generated_at: "Generado el",
+  notes: "Notas",
+  created_by: "Creado por",
+  parent_document_id: "Documento origen",
+  is_verified: "Verificado",
+
+  // ── Campos morph (Contact / Address / AccountBank) ─────────────────────
+  contactable_type: "Tipo de entidad (contacto)",
+  contactable_id: "Entidad (contacto)",
+  addressable_type: "Tipo de entidad (dirección)",
+  addressable_id: "Entidad (dirección)",
+  accountable_type: "Tipo de entidad (cuenta)",
+  accountable_id: "Entidad (cuenta)",
 };
 
 /**
