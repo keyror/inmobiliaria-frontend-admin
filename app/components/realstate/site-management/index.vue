@@ -25,15 +25,6 @@
           </div>
 
           <div class="d-flex flex-wrap gap-2">
-            <a
-              :href="publicSiteUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn btn-pill btn-dashed color-4"
-            >
-              <i class="fas fa-external-link-alt me-1"></i>
-              Ver sitio
-            </a>
             <button
               class="btn btn-pill btn-dashed color-4"
               type="button"
@@ -388,13 +379,6 @@ const {
   pointsToText,
   setItemPoints,
 } = useSiteManagement();
-
-const runtimeConfig = useRuntimeConfig();
-const publicSiteUrl = computed(
-  () =>
-    (runtimeConfig.public as Record<string, unknown>).publicSiteUrl as string ||
-    "/",
-);
 
 onMounted(() => {
   void loadAll();

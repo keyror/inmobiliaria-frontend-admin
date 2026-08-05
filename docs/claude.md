@@ -20,6 +20,7 @@
 | Store de empresa / favicon / logo | Ver sección [Store publicCompany](#store-publiccompany) abajo |
 | Constructor de plantillas de contrato | Ver sección [Módulo contract-templates](#módulo-contract-templates) abajo |
 | Auditoría / audit module | `backend/docs/auditoria.md` + `constants/AuditFieldLabels.ts` + `components/audit/` |
+| Módulo central (company, person, dashboard) | Ver sección [Módulos Central](#módulos-central) abajo |
 
 ---
 
@@ -27,12 +28,18 @@
 
 ```
 app/
-├── pages/            # Rutas automáticas Nuxt
+├── pages/
+│   ├── central/      # Páginas del panel central SaaS
+│   └── ...           # Páginas del panel tenant
 ├── layouts/          # Layouts (default, auth)
-├── components/       # Componentes reutilizables
+├── components/
+│   ├── central/      # Componentes exclusivos del panel central
+│   └── ...           # Componentes del panel tenant / compartidos
 ├── composables/      # useXxx.ts
 ├── store/            # Pinia stores (carpeta SINGULAR — diferente al frontend-public)
-├── services/         # Clases singleton: XxxService.ts
+├── services/
+│   ├── central/      # Servicios exclusivos del panel central
+│   └── XxxService.ts # Servicios del panel tenant
 ├── interfaces/       # IXxx.ts
 ├── constants/        # ApiUrls.ts, AuditFieldLabels.ts, etc.
 ├── schemas/          # Validación de formularios
@@ -121,3 +128,36 @@ php artisan tenants:seed               # todos
 php artisan tenants:seed --tenants=ID  # uno específico
 ```
 `TemplateSectionsSeeder` + `DocumentTemplatesSeeder` usan `firstOrCreate` — idempotentes.
+
+---
+
+## Módulos Central
+
+El panel central (rutas `pages/central/`) tiene sus propios servicios y componentes que evolucionan de forma independiente al panel tenant. **Nunca importar servicios o componentes de tenant en páginas central.**
+
+### Dónde vive cada cosa
+
+| Tipo | Tenant | Central |
+|---|---|---|
+| Servicio | `services/XxxService.ts` | `services/central/XxxService.ts` |
+| Componente | `components/xxx/` | `components/central/xxx/` |
+| Página | `pages/xxx/` | `pages/central/xxx/` |
+
+### Módulos separados actualmente
+
+| Módulo | Servicio | Componentes principales |
+|---|---|---|
+| Person | `services/central/PersonService.ts` | `components/central/people/all.vue`, `base-form/`, `add/`, `edit/` |
+| Company | `services/central/CompanyService.ts` | `components/central/company/base-form/`, `general/`, `settings/` |
+
+### Reglas del contexto central
+
+1. **Sin `useBranchStore`** — el panel central no tiene sucursales. No importar ni usar `branchStore` en ningún componente central.
+2. **Sin `watch(branchStore.activeCompanyId, ...)`** — cargar datos en `onMounted`, no en watch de branch.
+3. **Sin `uses_branches`** — el campo no existe en la empresa central. No enviar ese campo al backend.
+4. **Componentes `general/` y `settings/`** — las versiones centrales eliminan las secciones condicionales de `isHeadquarters` porque la empresa central siempre es sede única.
+5. **Duplicar, no reutilizar** — si un módulo tenant y central comparten lógica hoy, igual se duplica. La separación permite que evolucionen sin acoplarse.
+
+### Naming — auto-import Nuxt
+
+Los componentes en `components/central/people/all.vue` se auto-nombran `<CentralPeopleAll />`. La carpeta central actúa como prefijo de namespace. No hace falta registrar manualmente.

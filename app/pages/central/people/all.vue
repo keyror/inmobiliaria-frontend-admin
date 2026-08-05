@@ -1,13 +1,13 @@
 <template>
-  <Dashboard />
+  <CentralPeopleAll />
 </template>
 
 <script setup lang="ts">
 definePageMeta({
-  permission: "dashboard.view",
+  permission: "people.view",
 });
 
 useHead({
-  title: "Dashboard",
+  title: "Personas - Central",
 });
 </script>

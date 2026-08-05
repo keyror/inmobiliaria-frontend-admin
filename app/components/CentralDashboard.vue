@@ -1,14 +1,8 @@
 <template>
-  <div class="container-fluid">
-    <div class="page-title">
-      <div class="row">
-        <div class="col-12">
-          <h3>Panel SaaS</h3>
-          <p class="text-muted mb-0">Resumen de la plataforma</p>
-        </div>
-      </div>
-    </div>
+  <div class="page-body">
+    <CommonBreadcrumb page="Central SaaS" title="Panel SaaS" />
 
+    <div class="container-fluid">
     <div v-if="loading" class="row">
       <div class="col-12 text-center py-5">
         <div class="spinner-border text-primary" role="status" />
@@ -182,10 +176,12 @@
         </div>
       </div>
     </template>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useApi } from "~/composables/useApi";
 import { ApiUrls } from "~/constants/ApiUrls";
 
 interface PlanStat {
@@ -221,7 +217,7 @@ const formatDate = (iso: string) =>
   });
 
 onMounted(async () => {
-  const res = await run($fetch<{ status: boolean; data: CentralStats }>(ApiUrls.DASHBOARD_GET));
+  const res = await run(useApi<{ status: boolean; data: CentralStats }>(ApiUrls.DASHBOARD_GET, { method: 'GET' }));
   if (res?.status) data.value = res.data;
   loading.value = false;
 });

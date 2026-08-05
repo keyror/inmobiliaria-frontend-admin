@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isCentral && branchStore.branchesEnabled" class="branch-selector-wrap">
+  <div v-if="!isCentral && branchStore.branchesEnabled && can('companies.switch')" class="branch-selector-wrap">
     <CommonInputfieldsSelectfield
       :data="branchOptions"
       :model-value="branchStore.activeCompanyId ?? ''"
@@ -15,6 +15,7 @@ import { useAppContext } from "~/composables/useAppContext";
 
 const branchStore = useBranchStore();
 const { isCentral } = useAppContext();
+const { can } = useAuthorization();
 
 const branchOptions = computed(() =>
   branchStore.branches.map((b) => ({

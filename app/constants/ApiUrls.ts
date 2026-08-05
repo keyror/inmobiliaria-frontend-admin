@@ -89,6 +89,10 @@ export class ApiUrls {
   static readonly COMPANIES_CREATE_POST = "/companies";
   static readonly COMPANIES_UPDATE_PUT = "/companies";
 
+  // Central site management URLs
+  static readonly CENTRAL_SITE_THEME_GET = "/central/site-theme";
+  static readonly CENTRAL_SITE_THEME_PUT = "/central/site-theme";
+
   // Realstate site management URLs
   static readonly REALSTATE_SITE_TEMPLATE_GET =
     "/admin/realstate/site-template";

@@ -1,7 +1,7 @@
 {
   "sidebar": [
     {
-      "link": "/",
+      "link": "/central",
       "icon": "lucide:monitor",
       "title": "Dashboard",
       "titlePage": "Panel SaaS",
@@ -111,13 +111,44 @@
       ]
     },
     {
-      "link": "/company",
+      "icon": "lucide:users",
+      "title": "Personas",
+      "titlePage": "Gestión de personas",
+      "collapse": true,
+      "active": false,
+      "permission": "people.view",
+      "children": [
+        {
+          "link": "/central/people/all",
+          "title": "Listado",
+          "icon": "lucide:chevron-right",
+          "permission": "people.view"
+        },
+        {
+          "link": "/central/people/add",
+          "title": "Agregar",
+          "icon": "lucide:chevron-right",
+          "permission": "people.create"
+        }
+      ]
+    },
+    {
+      "link": "/central/company",
       "icon": "lucide:settings-2",
       "title": "Empresa SaaS",
       "titlePage": "Configuración de la empresa",
       "collapse": false,
       "active": false,
       "permission": "companies.view"
+    },
+    {
+      "link": "/central/site-management",
+      "icon": "lucide:palette",
+      "title": "Sitio central",
+      "titlePage": "Colores del sitio central",
+      "collapse": false,
+      "active": false,
+      "permission": "site-settings.theme-view"
     }
   ]
 }

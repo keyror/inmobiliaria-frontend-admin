@@ -3,6 +3,8 @@ import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 
 import { normalizeRealstateTheme } from "~/constants/RealstateTemplates";
+import { useAppContext } from "~/composables/useAppContext";
+import CentralSiteManagementService from "~/services/CentralSiteManagementService";
 import PublicCompanyService from "~/services/PublicCompanyService";
 import RealstateSiteManagementService from "~/services/RealstateSiteManagementService";
 import { useAuthStore } from "~/store/authStore";
@@ -11,6 +13,7 @@ import { usecustomizerStore } from "~/store/costomizer";
 import type { PublicCompany } from "~/interfaces/IPublicCompany";
 
 export const usePublicCompanyStore = defineStore("public-company", () => {
+  const { isCentral } = useAppContext();
   const company = ref<PublicCompany | null>(null);
   const loading = ref(false);
   const loaded = ref(false);
@@ -33,6 +36,29 @@ export const usePublicCompanyStore = defineStore("public-company", () => {
 
     const customizerStore = usecustomizerStore();
     const authStore = useAuthStore();
+
+    // Central: usa el tema del sitio SaaS central (no el del tenant)
+    if (isCentral.value) {
+      const cachedTheme = customizerStore.applyCachedColor();
+      try {
+        const response = await CentralSiteManagementService.getTheme();
+        const theme = normalizeRealstateTheme(response.data?.theme);
+        customizerStore.setcolor(
+          { primary: theme.primary, secondary: theme.secondary, accent: theme.accent },
+          { persist: true },
+        );
+      } catch {
+        if (cachedTheme) return;
+        const theme = normalizeRealstateTheme();
+        customizerStore.setcolor({
+          primary: theme.primary,
+          secondary: theme.secondary,
+          accent: theme.accent,
+        });
+      }
+      return;
+    }
+
     const cachedTheme = customizerStore.applyCachedColor();
 
     if (!authStore.hasPermission("site-settings.theme-view")) {

@@ -1,0 +1,286 @@
+<template>
+  <div class="page-body">
+    <CommonBreadcrumb
+      :page="$t('people.breadCrumbPage')"
+      :title="$t('people.breadCrumbTitle')"
+    />
+
+    <div class="container-fluid">
+      <CommonTabsNav v-model="activeTab" :tabs="tabsConfig" />
+
+      <div class="tab-content mt-4">
+        <div class="container-fluid">
+          <div class="card">
+            <div class="card-body admin-form">
+              <div v-show="activeTab === 'persons'">
+                <PeoplePersons
+                  ref="personRef"
+                  :lookups="lookupsToSend || {}"
+                  :data="person"
+                  :isEditing="props.isEditing"
+                />
+              </div>
+              <div v-show="activeTab === 'fiscalProfiles'">
+                <PeopleFiscalProfiles
+                  v-if="canManageFiscalProfile"
+                  ref="fiscalProfileRef"
+                  :lookups="fiscalProfilesLookups || {}"
+                  :data="person?.fiscal_profile"
+                  :isEditing="props.isEditing"
+                />
+              </div>
+              <div v-show="activeTab === 'accountBank'">
+                <PeopleAccountBank
+                  ref="accountBankRef"
+                  :lookups="accountBankLookups"
+                  :data="person?.account_banks"
+                  :isEditing="props.isEditing"
+                />
+              </div>
+              <div v-show="activeTab === 'addresses'">
+                <Addresses
+                  ref="addressesRef"
+                  :lookups="addressesLookups"
+                  :data="person?.addresses"
+                  :isEditing="props.isEditing"
+                />
+              </div>
+              <div v-show="activeTab === 'contacts'">
+                <Contacts
+                  ref="contactsRef"
+                  :data="person?.contacts"
+                  :isEditing="props.isEditing"
+                />
+              </div>
+              <div v-if="canSavePerson" class="form-btn mt-3">
+                <button class="btn btn-pill btn-gradient color-4" @click="save">
+                  {{ props.isEditing ? "Actualizar" : "Crear" }}
+                </button>
+                <button
+                  class="btn btn-pill btn-dashed color-4"
+                  type="button"
+                  @click="cancel"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import "@vuepic/vue-datepicker/dist/main.css";
+import { useApiHandler } from "~/composables/useApiHandler";
+import { Constants } from "~/constants/Constants";
+import AlertService from "~/services/AlertService";
+import PersonService from "~/services/central/PersonService";
+
+import type { IAccountBank } from "~/interfaces/IAccountBank";
+import type { IAddress } from "~/interfaces/IAddress";
+import type { IContact } from "~/interfaces/IContact";
+import type { IFiscalProfile } from "~/interfaces/IFiscalProfile";
+import type { IPerson } from "~/interfaces/IPerson";
+import type { ISavePerson } from "~/interfaces/ISavePerson";
+
+import {
+  PeopleFiscalProfiles,
+  PeopleAccountBank,
+  type PeoplePersons,
+  Addresses,
+  Contacts,
+} from "#components";
+
+const { run } = useApiHandler();
+const { can } = useAuthorization();
+
+const props = defineProps({
+  isEditing: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const personRef = ref<InstanceType<typeof PeoplePersons> | null>(null);
+const fiscalProfileRef = ref<InstanceType<typeof PeopleFiscalProfiles> | null>(null);
+const accountBankRef = ref<InstanceType<typeof PeopleAccountBank> | null>(null);
+const addressesRef = ref<InstanceType<typeof Addresses> | null>(null);
+const contactsRef = ref<InstanceType<typeof Contacts> | null>(null);
+
+const activeTab = ref<string>("persons");
+
+const tabsConfig = computed(() => [
+  { key: "persons", label: "Persona", required: true },
+  { key: "fiscalProfiles", label: "Perfil Fiscal", visible: canManageFiscalProfile.value },
+  { key: "accountBank", label: "Cuentas bancarias" },
+  { key: "addresses", label: "Direcciones" },
+  { key: "contacts", label: "Contactos", required: true },
+]);
+
+const canSavePerson = computed(() =>
+  props.isEditing ? can("people.edit") : can("people.create"),
+);
+const canManageFiscalProfile = computed(() =>
+  props.isEditing ? can("fiscal-profiles.edit") : can("fiscal-profiles.create"),
+);
+
+const route = useRoute();
+const idPersona = route.params.id as string;
+const person = ref<any>({});
+
+const { lookups } = useLookups([
+  Constants.TAXE_TYPE,
+  Constants.ORGANIZATION_TYPE,
+  Constants.DOCUMENT_TYPE,
+  Constants.GENDER,
+  Constants.OP_SI_NO,
+  Constants.ECONOMIC_ACTIVITY,
+  Constants.CITY,
+  Constants.ACCOUNT_BANKS,
+  Constants.BANKS,
+  Constants.ROAD_TYPE,
+  Constants.LETTER,
+  Constants.ORIENTATION,
+  Constants.STRATUM,
+  Constants.COUNTRY,
+  Constants.DEPARTMENT,
+]);
+
+const switchTab = (tab: string) => {
+  if (tab === "fiscalProfiles" && !canManageFiscalProfile.value) return;
+  activeTab.value = tab;
+};
+
+const { distributeErrors } = useFormErrorDistributor(
+  {
+    person: personRef,
+    fiscal_profile: fiscalProfileRef,
+    accounts: accountBankRef,
+    addresses: addressesRef,
+    contacts: contactsRef,
+  },
+  {
+    person: "persons",
+    fiscal_profile: "fiscalProfiles",
+    accounts: "accountBank",
+    addresses: "addresses",
+    contacts: "contacts",
+  },
+  switchTab,
+);
+
+const hasValue = (value: unknown): boolean => {
+  if (Array.isArray(value)) return value.some(hasValue);
+  if (value && typeof value === "object") {
+    return Object.entries(value).some(
+      ([key, nestedValue]) => key !== "is_principal" && hasValue(nestedValue),
+    );
+  }
+  return value !== null && value !== undefined && String(value).trim() !== "";
+};
+
+const save = async () => {
+  if (!canSavePerson.value) return;
+
+  const forms = [
+    { key: "persons", ref: personRef, optional: false },
+    ...(canManageFiscalProfile.value
+      ? [{ key: "fiscalProfiles", ref: fiscalProfileRef, optional: true }]
+      : []),
+    { key: "accountBank", ref: accountBankRef, optional: true },
+    { key: "addresses", ref: addressesRef, optional: true },
+    { key: "contacts", ref: contactsRef, optional: false },
+  ];
+
+  const data: ISavePerson = {};
+
+  for (const form of forms) {
+    const values = form.ref.value?.getValues();
+
+    if (form.optional && !hasValue(values)) continue;
+
+    const isValid = await form.ref.value?.validateForm();
+
+    if (!isValid) {
+      switchTab(form.key);
+      await AlertService.showFormError();
+      return;
+    }
+
+    if (form.key === "persons") data.person = values as IPerson;
+    if (form.key === "fiscalProfiles") data.fiscal_profile = values as IFiscalProfile;
+    if (form.key === "accountBank") data.account_banks = values as IAccountBank[];
+    if (form.key === "addresses") data.addresses = values as IAddress[];
+    if (form.key === "contacts") data.contacts = values as IContact[];
+  }
+
+  const promise = props.isEditing
+    ? PersonService.updatePerson(idPersona, data)
+    : PersonService.createPerson(data);
+
+  const response = await run(promise, {
+    showSuccess: true,
+    successMessage: props.isEditing
+      ? "Persona actualizada correctamente"
+      : "Persona creada correctamente",
+    setErrors: distributeErrors,
+  });
+
+  if (response) {
+    props.isEditing ? await getPerson() : cancel();
+  }
+};
+
+const cancel = () => {
+  if (props.isEditing) {
+    navigateTo("/central/people/all");
+    return;
+  }
+  personRef.value?.reset();
+  fiscalProfileRef.value?.reset();
+  accountBankRef.value?.reset();
+  addressesRef.value?.reset();
+  contactsRef.value?.reset();
+};
+
+const lookupsToSend = computed(() => ({
+  organizationTypes: lookups.value[Constants.ORGANIZATION_TYPE],
+  documentTypes: lookups.value[Constants.DOCUMENT_TYPE],
+  genders: lookups.value[Constants.GENDER],
+  cities: lookups.value[Constants.CITY],
+}));
+
+const fiscalProfilesLookups = computed(() => ({
+  opSiNo: lookups.value[Constants.OP_SI_NO],
+  taxeType: lookups.value[Constants.TAXE_TYPE],
+  economicActivity: lookups.value[Constants.ECONOMIC_ACTIVITY],
+}));
+
+const accountBankLookups = computed(() => ({
+  banks: lookups.value[Constants.BANKS],
+  typeAccountBank: lookups.value[Constants.ACCOUNT_BANKS],
+}));
+
+const addressesLookups = computed(() => ({
+  roadTypes: lookups.value[Constants.ROAD_TYPE],
+  letters: lookups.value[Constants.LETTER],
+  orientations: lookups.value[Constants.ORIENTATION],
+  strata: lookups.value[Constants.STRATUM],
+  country: lookups.value[Constants.COUNTRY],
+  cities: lookups.value[Constants.CITY],
+  departments: lookups.value[Constants.DEPARTMENT],
+}));
+
+const getPerson = async () => {
+  if (!props.isEditing) return;
+  const response = await run(PersonService.getPerson(idPersona));
+  if (response) {
+    person.value = response.data;
+  }
+};
+
+getPerson();
+</script>

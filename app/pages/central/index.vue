@@ -1,5 +1,5 @@
 <template>
-  <Dashboard />
+  <CentralDashboard />
 </template>
 
 <script setup lang="ts">
@@ -8,6 +8,6 @@ definePageMeta({
 });
 
 useHead({
-  title: "Dashboard",
+  title: "Dashboard Central",
 });
 </script>

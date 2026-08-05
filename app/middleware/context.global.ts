@@ -20,6 +20,10 @@ export default defineNuxtRouteMiddleware((to) => {
 
   const { isCentral } = useAppContext();
 
+  if (isCentral.value && to.path === "/") {
+    return navigateTo("/central");
+  }
+
   if (!isCentral.value && CENTRAL_ONLY.some((r) => to.path.startsWith(r))) {
     return navigateTo("/");
   }

@@ -1,13 +1,13 @@
 <template>
-  <Dashboard />
+  <CentralCompanyBaseForm />
 </template>
 
 <script setup lang="ts">
 definePageMeta({
-  permission: "dashboard.view",
+  permission: "companies.view",
 });
 
 useHead({
-  title: "Dashboard",
+  title: "Empresa - Central",
 });
 </script>
