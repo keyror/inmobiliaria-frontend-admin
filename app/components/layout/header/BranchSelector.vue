@@ -1,5 +1,5 @@
 <template>
-  <div v-if="branchStore.branchesEnabled" class="branch-selector-wrap">
+  <div v-if="!isCentral && branchStore.branchesEnabled" class="branch-selector-wrap">
     <CommonInputfieldsSelectfield
       :data="branchOptions"
       :model-value="branchStore.activeCompanyId ?? ''"
@@ -11,8 +11,10 @@
 
 <script setup lang="ts">
 import { useBranchStore } from "~/store/branchStore";
+import { useAppContext } from "~/composables/useAppContext";
 
 const branchStore = useBranchStore();
+const { isCentral } = useAppContext();
 
 const branchOptions = computed(() =>
   branchStore.branches.map((b) => ({

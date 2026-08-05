@@ -32,12 +32,10 @@ export const useBranchStore = defineStore(
       try {
         const res = await BranchService.getAll();
         let defaultCompanyId: string | null = null;
-        if (res?.data?.data) {
-          branches.value = res.data.data;
-          defaultCompanyId = res.data.default_company_id ?? null;
-          usesBranches.value = res.data.uses_branches ?? false;
-        } else if (Array.isArray(res?.data)) {
+        if (res?.data) {
           branches.value = res.data;
+          defaultCompanyId = res.default_company_id ?? null;
+          usesBranches.value = res.uses_branches ?? false;
         }
 
         if (defaultCompanyId) {

@@ -1,0 +1,123 @@
+{
+  "sidebar": [
+    {
+      "link": "/",
+      "icon": "lucide:monitor",
+      "title": "Dashboard",
+      "titlePage": "Panel SaaS",
+      "collapse": false,
+      "active": false,
+      "permission": "dashboard.view"
+    },
+    {
+      "icon": "lucide:grid-2x2",
+      "title": "Tenants",
+      "titlePage": "Gestión de tenants",
+      "collapse": true,
+      "active": false,
+      "permission": "tenants.view",
+      "children": [
+        {
+          "link": "/central/tenants/all",
+          "title": "Listado",
+          "icon": "lucide:chevron-right",
+          "permission": "tenants.view"
+        },
+        {
+          "link": "/central/tenants/add",
+          "title": "Agregar",
+          "icon": "lucide:chevron-right",
+          "permission": "tenants.create"
+        }
+      ]
+    },
+    {
+      "icon": "lucide:credit-card",
+      "title": "Planes",
+      "titlePage": "Gestión de planes",
+      "collapse": true,
+      "active": false,
+      "permission": "plans.view",
+      "children": [
+        {
+          "link": "/plans/all",
+          "title": "Listado",
+          "icon": "lucide:chevron-right",
+          "permission": "plans.view"
+        },
+        {
+          "link": "/plans/add",
+          "title": "Agregar",
+          "icon": "lucide:chevron-right",
+          "permission": "plans.create"
+        }
+      ]
+    },
+    {
+      "icon": "lucide:list-tree",
+      "title": "Lookups",
+      "titlePage": "Gestión de lookups",
+      "collapse": true,
+      "active": false,
+      "permission": "lookups.view",
+      "children": [
+        {
+          "link": "/lookups/all",
+          "title": "Listado",
+          "icon": "lucide:chevron-right",
+          "permission": "lookups.view"
+        },
+        {
+          "link": "/lookups/add",
+          "title": "Agregar",
+          "icon": "lucide:chevron-right",
+          "permission": "lookups.create"
+        }
+      ]
+    },
+    {
+      "icon": "lucide:lock",
+      "title": "Autorizaciones",
+      "titlePage": "Autorizaciones",
+      "collapse": true,
+      "active": false,
+      "permission": ["roles.view", "permissions.view", "users.view"],
+      "children": [
+        {
+          "link": "/authorization/all-roles",
+          "title": "Roles / Permisos",
+          "icon": "lucide:chevron-right",
+          "permission": ["roles.view", "permissions.view"]
+        },
+        {
+          "icon": "lucide:chevron-right",
+          "title": "Usuarios",
+          "permission": "users.view",
+          "children": [
+            {
+              "title": "Listado",
+              "link": "/users/all",
+              "icon": "lucide:chevron-right",
+              "permission": "users.view"
+            },
+            {
+              "title": "Agregar",
+              "link": "/users/add",
+              "icon": "lucide:chevron-right",
+              "permission": "users.create"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "link": "/company",
+      "icon": "lucide:settings-2",
+      "title": "Empresa SaaS",
+      "titlePage": "Configuración de la empresa",
+      "collapse": false,
+      "active": false,
+      "permission": "companies.view"
+    }
+  ]
+}

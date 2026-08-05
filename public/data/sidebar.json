@@ -68,28 +68,6 @@
       "permission": "reports.view"
     },
     {
-      "icon": "lucide:grid-2x2",
-      "title": "Administrar Tenants",
-      "titlePage": "Listado tenants",
-      "collapse": true,
-      "active": false,
-      "permission": "tenants.view",
-      "children": [
-        {
-          "link": "/central/tenants/all",
-          "title": "Listado tenants",
-          "icon": "lucide:chevron-right",
-          "permission": "tenants.view"
-        },
-        {
-          "link": "/central/tenants/add",
-          "title": "Agregar tenant",
-          "icon": "lucide:chevron-right",
-          "permission": "tenants.create"
-        }
-      ]
-    },
-    {
       "icon": "lucide:users",
       "title": "Personas",
       "titlePage": "Personas",
@@ -142,28 +120,6 @@
       "collapse": false,
       "active": false,
       "permission": "site-settings.view"
-    },
-    {
-      "icon": "lucide:credit-card",
-      "title": "Planes SaaS",
-      "titlePage": "Gestión de planes",
-      "collapse": true,
-      "active": false,
-      "permission": "plans.view",
-      "children": [
-        {
-          "link": "/plans/all",
-          "title": "Listado",
-          "icon": "lucide:chevron-right",
-          "permission": "plans.view"
-        },
-        {
-          "link": "/plans/add",
-          "title": "Agregar",
-          "icon": "lucide:chevron-right",
-          "permission": "plans.create"
-        }
-      ]
     },
     {
       "icon": "lucide:list-tree",

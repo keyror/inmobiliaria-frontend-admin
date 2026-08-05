@@ -1,8 +1,11 @@
 <template>
-  <Dashboard />
+  <CentralDashboard v-if="isCentral" />
+  <Dashboard v-else />
 </template>
 
 <script setup lang="ts">
+import { useAppContext } from "~/composables/useAppContext";
+
 definePageMeta({
   permission: "dashboard.view",
 });
@@ -10,6 +13,6 @@ definePageMeta({
 useHead({
   title: "Dashboard",
 });
-</script>
 
-<style scoped></style>
+const { isCentral } = useAppContext();
+</script>

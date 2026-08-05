@@ -82,10 +82,12 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 
-import sidebar from "@/../public/data/sidebar.json";
+import sidebarTenant from "@/../public/data/sidebar.json";
+import sidebarCentral from "@/../public/data/sidebar-central.json";
 import { useAuthStore } from "@/store/authStore";
 import { useBranchStore } from "@/store/branchStore";
 import { usePublicCompanyStore } from "@/store/publicCompany";
+import { useAppContext } from "@/composables/useAppContext";
 
 interface MenuItem {
   link?: string;
@@ -104,10 +106,11 @@ const route = useRoute();
 const authStore = useAuthStore();
 const branchStore = useBranchStore();
 const publicCompanyStore = usePublicCompanyStore();
+const { isCentral } = useAppContext();
 const { user } = storeToRefs(authStore);
 const alldata = ref<MenuItem[]>([]);
 
-const data = ref(sidebar);
+const data = computed(() => (isCentral.value ? sidebarCentral : sidebarTenant));
 const activeMenu = ref<string[]>([]);
 const defaultAvatarUrl = "/image/avatar/3.jpg";
 const logoLoadError = ref(false);
@@ -170,7 +173,7 @@ const userAvatarUrl = computed(() => {
 
 onMounted(() => {
   void publicCompanyStore.fetchCompany();
-  void branchStore.load();
+  if (!isCentral.value) void branchStore.load();
 });
 
 watch(companyLogoUrl, () => {

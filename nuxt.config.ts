@@ -5,6 +5,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: "/api",
+      // Dominios centrales (SaaS). Env var: NUXT_PUBLIC_CENTRAL_DOMAINS
+      // Debe coincidir con tenancy.central_domains del backend.
+      centralDomains: "",
     },
   },
 
