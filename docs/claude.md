@@ -19,6 +19,9 @@
 | Galería con imágenes / marca de agua | Ver sección [Componente Gallery](#componente-gallery) abajo |
 | Store de empresa / favicon / logo | Ver sección [Store publicCompany](#store-publiccompany) abajo |
 | Constructor de plantillas de contrato | Ver sección [Módulo contract-templates](#módulo-contract-templates) abajo |
+| Módulo sucursales, `branchStore`, selector de sucursal | Ver sección [Módulo Sucursales](#módulo-sucursales) abajo |
+| Firma electrónica, modal firmantes, página `/firmar` | Ver sección [Módulo Firma Electrónica](#módulo-firma-electrónica) abajo |
+| Drawer lateral dentro de listados (patrón anti-conflicto modal) | Ver sección [Patrón Drawer en listados](#patrón-drawer-en-listados) abajo |
 | Auditoría / audit module | `backend/docs/auditoria.md` + `constants/AuditFieldLabels.ts` + `components/audit/` |
 | Módulo central (company, person, dashboard) | Ver sección [Módulos Central](#módulos-central) abajo |
 
@@ -128,6 +131,72 @@ php artisan tenants:seed               # todos
 php artisan tenants:seed --tenants=ID  # uno específico
 ```
 `TemplateSectionsSeeder` + `DocumentTemplatesSeeder` usan `firstOrCreate` — idempotentes.
+
+---
+
+## Módulo Sucursales
+
+`store/branchStore.ts` — persiste `activeCompanyId` en localStorage; se carga en `onMounted` del sidebar.
+
+`composables/useApi.ts` — inyecta el header `X-Company-Id` con `getActivePinia()` (sin dependencia circular).
+
+`components/layout/header/BranchSelector.vue` — dropdown click-based en el header. Solo se muestra si `uses_branches = true`.
+
+**Reglas:**
+- En cualquier listado tenant que deba filtrarse por sucursal: observar `watch(branchStore.activeCompanyId, loadData)`.
+- `BranchService.ts` consume `/api/branches`. El backend mapea esto a `Company` con `parent_company_id`.
+- Permiso `companies.switch` — permite ver la lista de sucursales en el selector sin acceso a la página de gestión.
+- Permiso `companies.view_all` — desactiva el scoping; el usuario ve todos los datos de todas las sucursales.
+
+---
+
+## Módulo Firma Electrónica
+
+Archivos relevantes:
+```
+interfaces/IDocumentSignatory.ts          # IDocumentSignatory, ISigningPageData, tipos
+services/DocumentSignatoryService.ts      # 7 métodos: privados (admin) + públicos (firmante)
+constants/ApiUrls.ts                      # DOCUMENT_SIGNATORIES_BASE, SIGN_BASE
+components/rents/documents/index.vue      # modal firmantes integrado
+pages/firmar/[token].vue                  # página pública de firma
+```
+
+**Regla de layout para la página pública:**
+```ts
+definePageMeta({ layout: 'login', auth: false })
+```
+Sin esto, el middleware global `auth.global.ts` redirige al login antes de cargar la página.
+
+**Regla de estado del documento:**
+El botón "Firma electrónica" solo aparece cuando `doc.status?.alias === 'generado'`. Un documento borrador, enviado, firmado o archivado no puede iniciar un nuevo flujo de firma.
+
+**`DocumentSignatoryService`** — diferencia entre rutas:
+- Métodos privados (`getSignatories`, `storeSignatories`, etc.) → requieren token de auth → `useApiHandler().run()`
+- Métodos públicos (`getSigningPage`, `getDocumentBlob`, `submitSignature`) → sin auth → `useApi` con `{ auth: false }` o similar
+
+**Validación de email en frontend antes de enviar a firmar:**
+Los firmantes propuestos pueden tener `email: ""`. `ConvertEmptyStringsToNull` del backend convierte `""` → `null`, lo que hace fallar `required|email`. Por eso `saveSignatories()` pre-valida en frontend y muestra error antes de llamar a la API.
+
+---
+
+## Patrón Drawer en listados
+
+Cuando un listado necesita abrir un componente que internamente usa `CommonModal`, **no usar `CommonModal` como contenedor externo** — provoca conflicto de z-index (ambos usan `z-index: 1050/1055`).
+
+**Solución**: drawer lateral con Teleport y z-index inferior:
+
+```vue
+<Teleport to="body">
+  <div class="drawer-backdrop" style="z-index: 1040" @click="close" />
+  <div class="drawer-panel" style="z-index: 1045">
+    <ComponentQueUsaCommonModal />
+  </div>
+</Teleport>
+```
+
+Los `CommonModal` que el componente embebido abra (z-index 1050/1055) flotan encima del drawer (1045) sin conflicto.
+
+**Implementado en:** `components/rents/all.vue` — drawer de documentos del contrato con `RentsDocuments` embebido.
 
 ---
 

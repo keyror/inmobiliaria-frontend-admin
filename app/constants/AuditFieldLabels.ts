@@ -221,13 +221,11 @@ export const AUDIT_FIELD_LABELS: Record<string, string> = {
 
   // ── Arrendatario / Codeudor (RentTenantCodebtor) ──────────────────────
   rent_id: "Contrato",
-  tenant_id: "Arrendatario",
   codebtor_id: "Codeudor",
   percentage: "Porcentaje",
 
   // ── Obligación del contrato (RentObligation) ──────────────────────────
   expiration_date: "Fecha de vencimiento",
-  description: "Descripción",
 
   // ── Cargo (Liability) ─────────────────────────────────────────────────
   liability_type_id: "Tipo de cargo",

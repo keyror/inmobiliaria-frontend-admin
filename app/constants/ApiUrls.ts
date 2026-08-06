@@ -166,6 +166,12 @@ export class ApiUrls {
   static readonly PLANS_UPDATE_PUT = "/plans";
   static readonly PLANS_DELETE_DELETE = "/plans";
 
+  // Document Signatories URLs
+  static readonly DOCUMENT_SIGNATORIES_BASE = "/rents";
+
+  // Public Sign URLs (no auth)
+  static readonly SIGN_BASE = "/sign";
+
   // Reports URLs
   static readonly REPORTS_GET = "/reports";
   static readonly REPORTS_POST = "/reports";

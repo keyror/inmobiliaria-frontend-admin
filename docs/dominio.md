@@ -11,10 +11,13 @@ Panel de administración SPA (sin SSR). Consume la API del backend Laravel. Acce
 | **Properties** | `properties/` (all, add, edit/[id]) | `PropertyService.ts` | `properties.*` | `/api/properties` |
 | **People** | `people/` (all, add, edit/[id]) | `PersonService.ts` | `people.*` | `/api/people` |
 | **Company** | `company/index.vue` | `CompanyService.ts` | `companies.*` | `/api/companies` |
+| **Branches** | `branches/index.vue` | `BranchService.ts` | `companies.*` | `/api/branches` |
 | **Users** | `users/` (all, add, edit/[id]) | `UserService.ts` | `users.*` | `/api/users` |
 | **Roles** | `authorization/all-roles.vue` | `RolePermissionService.ts` | `roles.*` | `/api/roles` |
 | **Lookups** | `lookups/` (all, add, edit/[id]) | `LookupService.ts` | `lookups.*` | `/api/lookups` |
 | **Rents** | `rents/` (all, add, edit/[id]) | `RentService.ts` | `rents.*` | `/api/rents` |
+| **Documents** | tab en `rents/edit/[id].vue` · drawer en `rents/all.vue` | `DocumentSignatoryService.ts` | `documents.*` | `/api/rents/{id}/documents` |
+| **Firma electrónica** | `firmar/[token].vue` (pública, auth: false) | `DocumentSignatoryService.ts` | ninguno (token) | `/api/sign/{token}` |
 | **Reports** | `reports/index.vue` | `ReportService.ts` | `reports.view` | `/api/report-templates` |
 | **ContractTemplates** | `contract-templates/index.vue` | `TemplateSectionService.ts`, `ContractClauseService.ts` | — | `/api/admin/template-sections` |
 | **RealstateSite** | `realstate/site-management.vue` | `RealstateSiteManagementService.ts` | `site-settings.*` | `/api/admin/realstate/site-*` |
@@ -48,10 +51,25 @@ Panel de administración SPA (sin SSR). Consume la API del backend Laravel. Acce
 - Los selects del resto de módulos usan `POST /api/lookups` filtrando por `category`.
 - Servicio auxiliar `LookupAdminService.ts` para operaciones CRUD; `LookupService.ts` para cargar catálogos en formularios.
 
+### Branches (sucursales)
+- Una sucursal **es** un `Company` con `parent_company_id != null`. El endpoint es `/api/branches` pero el modelo es `Company`.
+- `branchStore.ts` persiste `activeCompanyId` y lo inyecta como header `X-Company-Id` en cada request via `useApi.ts`.
+- `BranchSelector.vue` vive en el header del layout; `BranchList.vue` en la página de gestión.
+- En componentes tenant: siempre observar `branchStore.activeCompanyId` para recargar datos al cambiar sucursal.
+- El componente de empresa (`CompanyService.ts`) llama `branchStore.load(true)` después de guardar para refrescar el selector.
+
 ### Rents
 - **Sub-entidades en payload**: `rent_tenants` (arrendatarios/codeudores), `rent_obligations` (obligaciones).
 - Al actualizar la pestaña de arrendatarios, se envía `rent_tenants`; al actualizar obligaciones, `rent_obligations`. Cada pestaña es independiente.
 - Auditoría: todos los cambios (Rent + RentObligation + RentTenantCodebtor + Liability) quedan en un batch `log_name='rents'`.
+- **Pestaña Documentos**: `components/rents/documents/index.vue` — acciones via `CommonActionsDropdown`, modal de firmantes integrado.
+- **Drawer de documentos en el listado**: `components/rents/all.vue` contiene un drawer lateral (slide-in desde la derecha) con `RentsDocuments` embebido. Usa z-index 1040/1045 (menor que `CommonModal` 1050/1055) para que los modales internos del componente de documentos floten encima sin conflicto.
+
+### Documentos y Firma Electrónica
+- `DocumentSignatoryService.ts` maneja tanto las rutas privadas (gestión de firmantes) como las rutas públicas (página de firma).
+- **Página pública** `pages/firmar/[token].vue`: `definePageMeta({ layout: 'login', auth: false })` — sin autenticación. Canvas táctil + upload de imagen, PDF embebido via blob URL.
+- **Solo documentos en estado `generado`** pueden enviarse a firmar — el botón "Firma electrónica" en `docActions()` valida `doc.status?.alias === 'generado'`.
+- `IDocumentSignatory.ts` define `SignatoryRole`, `SignatoryStatus`, `SignatureType`, `IDocumentSignatory`, `ISigningPageData`.
 
 ### Reports
 - `ReportService.ts` consume el CRUD de plantillas (`/api/report-templates`) + preview + export Excel.

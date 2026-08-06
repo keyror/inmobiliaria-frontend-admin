@@ -30,9 +30,7 @@
               <th>N°</th>
               <th>Estado</th>
               <th>Fecha</th>
-              <th v-if="can('documents.create') || can('documents.delete') || can('documents.generate') || can('documents.export')">
-                Acciones
-              </th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -44,52 +42,190 @@
                 <span class="badge bg-secondary">{{ doc.status?.name ?? doc.status_id ?? "-" }}</span>
               </td>
               <td>{{ doc.document_date ?? "-" }}</td>
-              <td v-if="can('documents.create') || can('documents.delete') || can('documents.generate') || can('documents.export')">
-                <div class="btn-group">
-                  <button
-                    v-if="can('documents.generate')"
-                    class="btn btn-dashed color-2 btn-sm"
-                    type="button"
-                    :title="!doc.template_key || !TEMPLATES_WITH_BLADE.has(doc.template_key) ? 'Sin plantilla PDF disponible' : doc.generated_at ? 'Regenerar PDF' : 'Generar PDF'"
-                    :disabled="!doc.template_key || !TEMPLATES_WITH_BLADE.has(doc.template_key)"
-                    @click="generatePdf(doc)"
-                  >
-                    <i class="fas fa-file-pdf"></i>
-                  </button>
-                  <button
-                    v-if="can('documents.export') && doc.generated_at"
-                    class="btn btn-dashed color-3 btn-sm"
-                    type="button"
-                    :title="'Descargar ' + doc.file_name"
-                    :disabled="downloadingId === doc.id"
-                    @click="downloadDocument(doc)"
-                  >
-                    <i v-if="downloadingId === doc.id" class="fas fa-spinner fa-spin"></i>
-                    <i v-else class="fas fa-download"></i>
-                  </button>
-                  <button
-                    v-if="can('documents.create')"
-                    class="btn btn-dashed color-1 btn-sm"
-                    type="button"
-                    @click="editDocument(doc)"
-                  >
-                    <i class="fas fa-pen"></i>
-                  </button>
-                  <button
-                    v-if="can('documents.delete')"
-                    class="btn btn-dashed color-4 btn-sm"
-                    type="button"
-                    @click="deleteDocument(doc)"
-                  >
-                    <i class="fa fa-trash"></i>
-                  </button>
-                </div>
+              <td>
+                <CommonActionsDropdown :actions="docActions(doc)" />
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+
+    <!-- Modal de firmantes -->
+    <CommonModal
+      v-model:show="showSignatoryModal"
+      title="Firma electrónica"
+      size="lg"
+      @close="closeSignatoryModal"
+    >
+      <div v-if="signatoryDoc" class="signatory-modal-content">
+        <!-- Estado del documento -->
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <span class="text-muted small">Documento:</span>
+          <strong class="small">{{ signatoryDoc.title }}</strong>
+          <span
+            class="badge ms-1"
+            :class="signatoryStatusBadge(signatoryDoc.status?.alias)"
+          >{{ signatoryDoc.status?.name ?? signatoryDoc.status_id }}</span>
+        </div>
+
+        <div v-if="signatoryDoc.status?.alias === 'firmado'" class="alert alert-success py-2 small">
+          <i class="fas fa-check-circle me-1"></i> Documento firmado. Descarga el PDF para ver las firmas incrustadas.
+        </div>
+
+        <div v-else-if="signatoryDoc.status?.alias === 'enviado'" class="alert alert-info py-2 small">
+          <i class="fas fa-paper-plane me-1"></i> Enviado a firmar. Los firmantes recibieron un correo con el enlace.
+        </div>
+
+        <div v-else-if="signatoryDoc.status?.alias !== 'generado'" class="alert alert-warning py-2 small">
+          <i class="fas fa-exclamation-triangle me-1"></i>
+          Solo se puede enviar a firmar cuando el documento está en estado <strong>Generado</strong>.
+        </div>
+
+        <!-- Tabla de firmantes actuales -->
+        <div v-if="loadingSignatories" class="text-center py-3">
+          <i class="fas fa-spinner fa-spin me-1"></i> Cargando firmantes...
+        </div>
+        <template v-else>
+          <div v-if="signatories.length === 0 && signatoryDoc.status?.alias !== 'generado'" class="text-muted small">
+            Sin firmantes registrados.
+          </div>
+
+          <!-- Lista de firmantes guardados (solo lectura si ya fue enviado) -->
+          <div v-if="signatories.length > 0 && signatoryDoc.status?.alias !== 'generado'" class="mb-3">
+            <table class="table table-sm table-bordered signatories-table">
+              <thead>
+                <tr>
+                  <th style="width:30px">#</th>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                  <th v-if="signatoryDoc.status?.alias === 'enviado'"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="s in signatories" :key="s.id ?? s.order">
+                  <td>{{ s.order }}</td>
+                  <td>{{ s.name }}</td>
+                  <td>{{ s.email }}</td>
+                  <td>{{ ROLE_LABELS[s.role] ?? s.role }}</td>
+                  <td>
+                    <span class="badge" :class="signatoryStatusBadge(s.status)">
+                      {{ STATUS_LABELS[s.status] ?? s.status }}
+                    </span>
+                    <div v-if="s.rejection_reason" class="text-danger small mt-1">
+                      {{ s.rejection_reason }}
+                    </div>
+                  </td>
+                  <td v-if="signatoryDoc.status?.alias === 'enviado'">
+                    <button
+                      v-if="s.status === 'pending' || s.status === 'viewed'"
+                      class="btn btn-dashed color-2 btn-sm"
+                      title="Reenviar correo"
+                      :disabled="resendingId === s.id"
+                      @click="resendSignatory(s)"
+                    >
+                      <i v-if="resendingId === s.id" class="fas fa-spinner fa-spin"></i>
+                      <i v-else class="fas fa-redo"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Editor / vista de firmantes (editable en generado, solo lectura en firmado) -->
+          <template v-if="['generado', 'firmado'].includes(signatoryDoc.status?.alias ?? '')">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold small">Firmantes</span>
+              <span v-if="proposedSignatories" class="badge bg-light text-dark small">
+                Pre-cargados desde la plantilla
+              </span>
+            </div>
+
+            <form class="admin-form">
+              <div
+                v-for="(s, idx) in signatoryRows"
+                :key="idx"
+                class="row gx-2 mb-2 align-items-center signatory-row"
+              >
+                <div class="col-auto" style="width:36px">
+                  <span class="badge bg-secondary text-white">{{ idx + 1 }}</span>
+                </div>
+                <CommonInputfieldsTextfield
+                  classes="col"
+                  label="Nombre completo"
+                  placeholder="Nombre completo"
+                  :model-value="s.name"
+                  :required="false"
+                  :apply-case="false"
+                  :disabled="signatoryDoc.status?.alias !== 'generado'"
+                  @update:model-value="updateSignatoryField(idx, 'name', $event)"
+                />
+                <CommonInputfieldsTextfield
+                  classes="col"
+                  label="Correo electrónico"
+                  placeholder="Correo electrónico *"
+                  type="email"
+                  :model-value="s.email"
+                  :required="false"
+                  :apply-case="false"
+                  :disabled="signatoryDoc.status?.alias !== 'generado'"
+                  :error="signatoryDoc.status?.alias === 'generado' && !s.email.trim() ? 'Requerido' : undefined"
+                  @update:model-value="updateSignatoryField(idx, 'email', $event)"
+                />
+                <CommonInputfieldsSelectfield
+                  classes="col-auto"
+                  style="width:160px"
+                  label="Rol"
+                  :data="ROLE_OPTIONS"
+                  :model-value="s.role"
+                  :disabled="signatoryDoc.status?.alias !== 'generado'"
+                  @update:model-value="updateSignatoryField(idx, 'role', $event)"
+                />
+                <div v-if="signatoryDoc.status?.alias === 'generado'" class="col-auto align-self-end mb-3">
+                  <button
+                    type="button"
+                    class="btn btn-dashed color-1 btn-sm"
+                    @click="removeSignatoryRow(idx)"
+                  >
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <button
+              v-if="signatoryDoc.status?.alias === 'generado'"
+              type="button"
+              class="btn btn-dashed color-4 btn-sm mt-1"
+              @click="addSignatoryRow"
+            >
+              <i class="bi bi-plus me-1"></i> Agregar firmante
+            </button>
+          </template>
+        </template>
+      </div>
+
+      <template #actions>
+        <template v-if="signatoryDoc?.status?.alias === 'generado'">
+          <button class="btn btn-pill btn-outline-secondary" @click="saveSignatories">
+            <i class="fas fa-save me-1"></i> Guardar firmantes
+          </button>
+          <button
+            class="btn btn-pill btn-gradient color-4 ms-2"
+            :disabled="!signatoryRowsValid || sendingForSign"
+            :title="!signatoryRowsValid ? 'Completa el correo de todos los firmantes' : ''"
+            @click="sendForSigning"
+          >
+            <i v-if="sendingForSign" class="fas fa-spinner fa-spin me-1"></i>
+            <i v-else class="fas fa-paper-plane me-1"></i>
+            Enviar a firmar
+          </button>
+        </template>
+      </template>
+    </CommonModal>
 
     <CommonModal
       v-model:show="showAddModal"
@@ -711,7 +847,9 @@ import VueDatePicker from "@vuepic/vue-datepicker";
 import { useApiHandler } from "~/composables/useApiHandler";
 import AlertService from "~/services/AlertService";
 import RentService from "~/services/RentService";
+import DocumentSignatoryService from "~/services/DocumentSignatoryService";
 import type { ILookup } from "~/interfaces/ILookup";
+import type { IDocumentSignatory, SignatoryRole } from "~/interfaces/IDocumentSignatory";
 
 interface PendingPayment {
   concept: string;
@@ -750,10 +888,214 @@ const props = defineProps<{
 const { run } = useApiHandler();
 const { can } = useAuthorization();
 
+const ROLE_LABELS: Record<string, string> = {
+  arrendatario: "Arrendatario",
+  arrendador: "Arrendador",
+  codeudor: "Codeudor",
+  propietario: "Propietario",
+  custom: "Otro",
+};
+
+const ROLE_OPTIONS = Object.entries(ROLE_LABELS).map(([id, name]) => ({ id, name }));
+
+const STATUS_LABELS: Record<string, string> = {
+  pending: "Pendiente",
+  viewed: "Visto",
+  signed: "Firmado",
+  rejected: "Rechazado",
+  expired: "Expirado",
+};
+
+const signatoryStatusBadge = (status?: string) => {
+  const map: Record<string, string> = {
+    pending: "bg-secondary",
+    viewed: "bg-info",
+    signed: "bg-success",
+    rejected: "bg-danger",
+    expired: "bg-warning text-dark",
+    generado: "bg-primary",
+    enviado: "bg-info",
+    firmado: "bg-success",
+    borrador: "bg-secondary",
+  };
+  return map[status ?? ""] ?? "bg-secondary";
+};
+
 const documents = ref<any[]>([]);
 const showAddModal = ref(false);
 const editingDoc = ref<any>(null);
 const downloadingId = ref<string | null>(null);
+
+const docActions = (doc: any) => [
+  {
+    label: doc.generated_at ? "Regenerar PDF" : "Generar PDF",
+    icon: "fas fa-file-pdf",
+    show: can("documents.generate") && !!doc.template_key && TEMPLATES_WITH_BLADE.has(doc.template_key),
+    onClick: () => generatePdf(doc),
+  },
+  {
+    label: downloadingId.value === doc.id ? "Descargando…" : "Descargar PDF",
+    icon: "fas fa-download",
+    show: can("documents.export") && !!doc.generated_at,
+    onClick: () => downloadDocument(doc),
+  },
+  {
+    label: "Firma electrónica",
+    icon: "fas fa-signature",
+    show: can("documents.sign") && !!doc.template_key && TEMPLATES_WITH_BLADE.has(doc.template_key) && ['generado', 'enviado', 'firmado'].includes(doc.status?.alias ?? ''),
+    onClick: () => openSignatoryModal(doc),
+  },
+  { divider: true, show: can("documents.create") || can("documents.delete") },
+  {
+    label: "Editar",
+    icon: "fas fa-pen",
+    show: can("documents.create"),
+    onClick: () => editDocument(doc),
+  },
+  {
+    label: "Eliminar",
+    icon: "fa fa-trash",
+    variant: "danger",
+    show: can("documents.delete"),
+    onClick: () => deleteDocument(doc),
+  },
+];
+
+// ── Firma electrónica ────────────────────────────────────────────────────────
+const showSignatoryModal = ref(false);
+const signatoryDoc = ref<any>(null);
+const signatories = ref<IDocumentSignatory[]>([]);
+const signatoryRows = ref<Pick<IDocumentSignatory, 'person_id' | 'name' | 'email' | 'role' | 'order'>[]>([]);
+const proposedSignatories = ref(false);
+const loadingSignatories = ref(false);
+const sendingForSign = ref(false);
+const resendingId = ref<string | null>(null);
+
+const openSignatoryModal = async (doc: any) => {
+  signatoryDoc.value = doc;
+  signatories.value = [];
+  signatoryRows.value = [];
+  proposedSignatories.value = false;
+  showSignatoryModal.value = true;
+  loadingSignatories.value = true;
+
+  try {
+    const res = await run(DocumentSignatoryService.getSignatories(props.rentId!, doc.id));
+    if (res) {
+      const list: IDocumentSignatory[] = res.data?.data ?? res.data ?? [];
+      if (res.data?.proposed) {
+        proposedSignatories.value = true;
+        signatoryRows.value = list.map((s, i) => ({
+          person_id: s.person_id ?? null,
+          name: s.name,
+          email: s.email,
+          role: s.role,
+          order: i + 1,
+        }));
+      } else {
+        signatories.value = list;
+        if (['generado', 'firmado'].includes(doc.status?.alias ?? '')) {
+          signatoryRows.value = list.map((s, i) => ({
+            person_id: s.person_id ?? null,
+            name: s.name,
+            email: s.email,
+            role: s.role,
+            order: i + 1,
+          }));
+        }
+      }
+    }
+  } finally {
+    loadingSignatories.value = false;
+  }
+};
+
+const closeSignatoryModal = () => {
+  showSignatoryModal.value = false;
+  signatoryDoc.value = null;
+  signatories.value = [];
+  signatoryRows.value = [];
+};
+
+const addSignatoryRow = () => {
+  signatoryRows.value = [
+    ...signatoryRows.value,
+    { person_id: null, name: "", email: "", role: "arrendatario" as SignatoryRole, order: signatoryRows.value.length + 1 },
+  ];
+};
+
+const removeSignatoryRow = (idx: number) => {
+  signatoryRows.value = signatoryRows.value.filter((_, i) => i !== idx).map((s, i) => ({ ...s, order: i + 1 }));
+};
+
+const updateSignatoryField = (idx: number, field: string, val: string) => {
+  const arr = [...signatoryRows.value];
+  (arr[idx] as any)[field] = val;
+  signatoryRows.value = arr;
+};
+
+const signatoryRowsValid = computed(() =>
+  signatoryRows.value.length > 0 &&
+  signatoryRows.value.every((s) => s.name.trim() && s.email.trim()),
+);
+
+const saveSignatories = async (): Promise<boolean> => {
+  if (!props.rentId || !signatoryDoc.value) return false;
+
+  const missing = signatoryRows.value.filter((s) => !s.email.trim());
+  if (missing.length > 0) {
+    AlertService.showError("Correo requerido", `Completa el correo de: ${missing.map((s) => s.name || "firmante sin nombre").join(", ")}`);
+    return false;
+  }
+
+  const res = await run(
+    DocumentSignatoryService.storeSignatories(props.rentId, signatoryDoc.value.id, signatoryRows.value),
+    { showSuccess: true, successMessage: "Firmantes guardados correctamente" },
+  );
+  if (res) {
+    const list: IDocumentSignatory[] = res.data?.data ?? res.data ?? [];
+    signatories.value = list;
+    proposedSignatories.value = false;
+    return true;
+  }
+  return false;
+};
+
+const sendForSigning = async () => {
+  if (!props.rentId || !signatoryDoc.value) return;
+
+  if (signatoryRows.value.length > 0) {
+    const saved = await saveSignatories();
+    if (!saved) return;
+  }
+
+  sendingForSign.value = true;
+  try {
+    const res = await run(
+      DocumentSignatoryService.sendForSigning(props.rentId, signatoryDoc.value.id),
+      { showSuccess: true, successMessage: "Documento enviado a firmar" },
+    );
+    if (res) {
+      closeSignatoryModal();
+      await loadDocuments();
+    }
+  } finally {
+    sendingForSign.value = false;
+  }
+};
+
+const resendSignatory = async (signatory: IDocumentSignatory) => {
+  if (!props.rentId || !signatoryDoc.value || !signatory.id) return;
+  resendingId.value = signatory.id;
+  try {
+    await run(
+      DocumentSignatoryService.resendSignatory(props.rentId, signatoryDoc.value.id, signatory.id),
+      { showSuccess: true, successMessage: "Correo reenviado" },
+    );
+  } finally {
+    resendingId.value = null;
+  }
+};
 
 const emptyDocForm = () => ({
   title: "",
@@ -946,11 +1288,17 @@ const updatePaymentType = (idx: number, val: "debit" | "credit") => {
   docForm.value.content_pending_payments = arr;
 };
 
+const normalizeDocStatus = (doc: any) => {
+  if (!doc.status) return doc;
+  return { ...doc, status: { ...doc.status, alias: doc.status.alias?.toLowerCase() } };
+};
+
 const loadDocuments = async () => {
   if (!props.rentId) return;
   const response = await run(RentService.getDocuments(props.rentId));
   if (response) {
-    documents.value = response.data?.data ?? response.data ?? [];
+    const raw = response.data?.data ?? response.data ?? [];
+    documents.value = raw.map(normalizeDocStatus);
   }
 };
 
@@ -1208,6 +1556,32 @@ watch(
   border-radius: 4px;
   padding: 8px 12px;
   font-size: 0.9rem;
+}
+
+.signatory-row {
+  padding: 4px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.signatory-row:last-child {
+  border-bottom: none;
+}
+
+.signatories-table th,
+.signatories-table td {
+  font-size: 0.82rem;
+  vertical-align: middle;
+}
+
+:global(body.dark-layout) .signatory-row {
+  border-bottom-color: #2a2a2a;
+}
+
+:global(body.dark-layout) .signatories-table th,
+:global(body.dark-layout) .signatories-table td {
+  color: rgba(255, 255, 255, 0.82);
+  background-color: #232323;
+  border-color: #383434;
 }
 
 :global(body.dark-layout) .acta-section-title {
