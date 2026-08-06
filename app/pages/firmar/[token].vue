@@ -63,14 +63,7 @@
         <!-- Visor del documento -->
         <div class="sign-pdf-section">
           <h6 class="sign-section-title">Documento a firmar</h6>
-          <div v-if="loadingPdf" class="sign-pdf-loading">
-            <div class="spinner-border spinner-border-sm text-secondary me-2"></div>
-            Cargando documento...
-          </div>
-          <div v-else-if="pdfUrl" class="sign-pdf-wrapper">
-            <iframe :src="pdfUrl" class="sign-pdf-iframe" title="Documento a firmar"></iframe>
-          </div>
-          <div v-else class="text-muted small">No se pudo cargar el documento.</div>
+          <SignPdfViewer :blob-url="pdfUrl" @read-complete="onReadComplete" />
         </div>
 
         <!-- Sección de firma -->
@@ -131,11 +124,31 @@
             </div>
           </div>
 
+          <!-- Consentimiento explícito (habilitado solo cuando se leyó el documento) -->
+          <div :class="['sign-consent-box', !hasReadDocument && 'sign-consent-box--locked']">
+            <div v-if="!hasReadDocument" class="sign-consent-hint">
+              <i class="fas fa-arrow-down me-1"></i>
+              Debes desplazarte hasta el final del documento para poder firmar
+            </div>
+            <label class="sign-consent-label" :class="{ 'opacity-50': !hasReadDocument }">
+              <input
+                v-model="consentAccepted"
+                type="checkbox"
+                class="sign-consent-check"
+                :disabled="!hasReadDocument"
+              />
+              <span>
+                He leído el documento completo y acepto que esta firma electrónica tiene validez legal en Colombia según la
+                <strong>Ley 527 de 1999</strong>. Se registrarán mi dirección IP, dispositivo y la fecha/hora exacta de la firma.
+              </span>
+            </label>
+          </div>
+
           <!-- Botones de acción -->
           <div class="sign-actions">
             <button
               class="btn btn-pill btn-gradient color-4 sign-submit-btn"
-              :disabled="submitting || !hasSignature"
+              :disabled="submitting || !hasSignature || !consentAccepted"
               @click="submitAction('sign')"
             >
               <i v-if="submitting && submittingAction === 'sign'" class="fas fa-spinner fa-spin me-1"></i>
@@ -170,12 +183,6 @@
               Confirmar rechazo
             </button>
           </div>
-
-          <!-- Aviso legal -->
-          <p class="sign-legal-note">
-            Al firmar, aceptas que esta firma electrónica tiene validez legal en Colombia según la
-            <strong>Ley 527 de 1999</strong>. Se registrará tu dirección IP y la fecha/hora de la firma.
-          </p>
         </div>
       </div>
     </template>
@@ -208,7 +215,6 @@ const ROLE_LABELS: Record<string, string> = {
 const loading = ref(true);
 const error = ref<string | null>(null);
 const pageData = ref<ISigningPageData | null>(null);
-const loadingPdf = ref(false);
 const pdfUrl = ref<string | null>(null);
 
 const signMode = ref<"draw" | "upload">("draw");
@@ -216,6 +222,9 @@ const canvasRef = ref<HTMLCanvasElement | null>(null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const uploadFile = ref<File | null>(null);
 const uploadPreview = ref<string | null>(null);
+
+const consentAccepted = ref(false);
+const hasReadDocument = ref(false);
 
 const showRejectForm = ref(false);
 const rejectionReason = ref("");
@@ -242,14 +251,11 @@ onMounted(async () => {
     pageData.value = res?.data ?? null;
 
     if (pageData.value) {
-      loadingPdf.value = true;
       try {
         const blob = await DocumentSignatoryService.getDocumentBlob(token);
         pdfUrl.value = URL.createObjectURL(blob);
       } catch {
         // El PDF no es bloqueante — se puede firmar igual
-      } finally {
-        loadingPdf.value = false;
       }
     }
   } catch (err: any) {
@@ -262,6 +268,16 @@ onMounted(async () => {
 onUnmounted(() => {
   if (pdfUrl.value) URL.revokeObjectURL(pdfUrl.value);
 });
+
+// ── Lectura del documento ─────────────────────────────────────────────────────
+async function onReadComplete() {
+  hasReadDocument.value = true;
+  try {
+    await DocumentSignatoryService.confirmRead(token);
+  } catch {
+    // No es crítico si falla — el flag local ya está activo
+  }
+}
 
 // ── Canvas drawing ────────────────────────────────────────────────────────────
 const getCtx = () => canvasRef.value?.getContext("2d") ?? null;
@@ -375,6 +391,8 @@ const submitAction = async (action: "sign" | "reject") => {
     fd.append("action", action);
 
     if (action === "sign") {
+      if (!consentAccepted.value) throw new Error("Debes aceptar el consentimiento para firmar.");
+      fd.append("consent_accepted", "1");
       if (signMode.value === "draw") {
         const blob = await canvasToBlob();
         if (!blob) throw new Error("No se pudo capturar la firma del canvas.");
@@ -525,17 +543,17 @@ const submitAction = async (action: "sign" | "reject") => {
   padding: 12px 0;
 }
 
-.sign-pdf-wrapper {
-  border: 1px solid #e0e4ef;
-  border-radius: 8px;
-  overflow: hidden;
+.sign-consent-box--locked {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  cursor: not-allowed;
 }
 
-.sign-pdf-iframe {
-  width: 100%;
-  height: 500px;
-  border: none;
-  display: block;
+.sign-consent-hint {
+  font-size: 11.5px;
+  color: #b45309;
+  font-weight: 600;
+  margin-bottom: 8px;
 }
 
 .sign-tabs {
@@ -600,6 +618,34 @@ const submitAction = async (action: "sign" | "reject") => {
 .sign-submit-btn,
 .sign-reject-btn {
   font-size: 0.9rem;
+}
+
+.sign-consent-box {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #f5f5ff;
+  border: 1px solid #d0d1f7;
+  border-left: 3px solid #6366f1;
+  border-radius: 8px;
+}
+
+.sign-consent-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: #374151;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.sign-consent-check {
+  flex-shrink: 0;
+  margin-top: 2px;
+  width: 16px;
+  height: 16px;
+  accent-color: #6366f1;
+  cursor: pointer;
 }
 
 .sign-reject-form {

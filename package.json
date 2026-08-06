@@ -69,6 +69,7 @@
     "vuedraggable": "^4.1.0",
     "vuejs3-datepicker": "^1.0.19",
     "vuevectormap": "^1.1.0",
-    "yup": "^1.7.1"
+    "yup": "^1.7.1",
+    "pdfjs-dist": "^6.2.108"
   }
 }

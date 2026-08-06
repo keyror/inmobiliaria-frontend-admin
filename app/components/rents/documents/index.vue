@@ -69,8 +69,35 @@
           >{{ signatoryDoc.status?.name ?? signatoryDoc.status_id }}</span>
         </div>
 
-        <div v-if="signatoryDoc.status?.alias === 'firmado'" class="alert alert-success py-2 small">
+        <div v-if="signatoryDoc.status?.alias === 'firmado'" class="alert alert-success py-2 small w-100 mb-2">
           <i class="fas fa-check-circle me-1"></i> Documento firmado. Descarga el PDF para ver las firmas incrustadas.
+        </div>
+        <div v-if="signatoryDoc.status?.alias === 'firmado'" class="d-flex gap-2 flex-wrap mb-3">
+          <button class="btn btn-dashed color-4 btn-sm" :disabled="downloadingCert" @click="downloadCertificate(signatoryDoc)">
+            <i v-if="downloadingCert" class="fas fa-spinner fa-spin me-1"></i>
+            <i v-else class="fas fa-certificate me-1"></i>
+            Certificado de evidencias
+          </button>
+          <button
+            v-if="signatoryDoc.has_tsr"
+            class="btn btn-dashed color-3 btn-sm"
+            :disabled="downloadingTsr"
+            @click="downloadTsrFile(signatoryDoc)"
+          >
+            <i v-if="downloadingTsr" class="fas fa-spinner fa-spin me-1"></i>
+            <i v-else class="fas fa-stamp me-1"></i>
+            Sello TSR (.tsr)
+          </button>
+          <button
+            v-if="signatoryDoc.has_tsr"
+            class="btn btn-dashed color-3 btn-sm"
+            :disabled="downloadingTsq"
+            @click="downloadTsqFile(signatoryDoc)"
+          >
+            <i v-if="downloadingTsq" class="fas fa-spinner fa-spin me-1"></i>
+            <i v-else class="fas fa-file-alt me-1"></i>
+            Petición TSQ (.tsq)
+          </button>
         </div>
 
         <div v-else-if="signatoryDoc.status?.alias === 'enviado'" class="alert alert-info py-2 small">
@@ -101,7 +128,7 @@
                   <th>Email</th>
                   <th>Rol</th>
                   <th>Estado</th>
-                  <th v-if="signatoryDoc.status?.alias === 'enviado'"></th>
+                  <th v-if="signatoryDoc.status?.alias === 'enviado' || signatoryDoc.status?.alias === 'firmado'"></th>
                 </tr>
               </thead>
               <tbody>
@@ -118,16 +145,26 @@
                       {{ s.rejection_reason }}
                     </div>
                   </td>
-                  <td v-if="signatoryDoc.status?.alias === 'enviado'">
+                  <td v-if="signatoryDoc.status?.alias === 'enviado' || signatoryDoc.status?.alias === 'firmado'">
                     <button
-                      v-if="s.status === 'pending' || s.status === 'viewed'"
+                      v-if="signatoryDoc.status?.alias === 'enviado' && (s.status === 'pending' || s.status === 'viewed')"
                       class="btn btn-dashed color-2 btn-sm"
-                      title="Reenviar correo"
+                      title="Reenviar correo de invitación"
                       :disabled="resendingId === s.id"
                       @click="resendSignatory(s)"
                     >
                       <i v-if="resendingId === s.id" class="fas fa-spinner fa-spin"></i>
                       <i v-else class="fas fa-redo"></i>
+                    </button>
+                    <button
+                      v-if="signatoryDoc.status?.alias === 'firmado' && s.status === 'signed'"
+                      class="btn btn-dashed color-2 btn-sm"
+                      title="Reenviar correo firmado"
+                      :disabled="resendingCompletionId === s.id"
+                      @click="openResendSignatoryModal(s)"
+                    >
+                      <i v-if="resendingCompletionId === s.id" class="fas fa-spinner fa-spin"></i>
+                      <i v-else class="fas fa-envelope"></i>
                     </button>
                   </td>
                 </tr>
@@ -224,6 +261,35 @@
             Enviar a firmar
           </button>
         </template>
+      </template>
+    </CommonModal>
+
+    <!-- Modal: Reenviar correo firmado por firmante -->
+    <CommonModal
+      v-model:show="showResendSignatoryModal"
+      title="Reenviar correo firmado"
+      size="sm"
+    >
+      <div class="p-2">
+        <p class="small mb-3">
+          Se reenviará el correo con el PDF firmado a <strong>{{ resendSignatoryTarget?.name }}</strong>.
+        </p>
+        <CommonInputfieldsCheckbox
+          v-model="resendSignatoryIncludeCert"
+          label="Incluir certificado de evidencias"
+          name="include_certificate"
+        />
+      </div>
+      <template #actions>
+        <button
+          class="btn btn-pill btn-gradient color-4"
+          :disabled="resendingCompletionId !== null"
+          @click="sendResendCompletionForSignatory"
+        >
+          <i v-if="resendingCompletionId !== null" class="fas fa-spinner fa-spin me-1"></i>
+          <i v-else class="fas fa-paper-plane me-1"></i>
+          Reenviar
+        </button>
       </template>
     </CommonModal>
 
@@ -945,6 +1011,12 @@ const docActions = (doc: any) => [
     show: can("documents.sign") && !!doc.template_key && TEMPLATES_WITH_BLADE.has(doc.template_key) && ['generado', 'enviado', 'firmado'].includes(doc.status?.alias ?? ''),
     onClick: () => openSignatoryModal(doc),
   },
+  {
+    label: "Certificado de evidencias",
+    icon: "fas fa-certificate",
+    show: can("documents.export") && doc.status?.alias === 'firmado',
+    onClick: () => downloadCertificate(doc),
+  },
   { divider: true, show: can("documents.create") || can("documents.delete") },
   {
     label: "Editar",
@@ -970,6 +1042,13 @@ const proposedSignatories = ref(false);
 const loadingSignatories = ref(false);
 const sendingForSign = ref(false);
 const resendingId = ref<string | null>(null);
+const downloadingCert = ref(false);
+const downloadingTsr = ref(false);
+const downloadingTsq = ref(false);
+const resendingCompletionId = ref<string | null>(null);
+const showResendSignatoryModal = ref(false);
+const resendSignatoryTarget = ref<IDocumentSignatory | null>(null);
+const resendSignatoryIncludeCert = ref(false);
 
 const openSignatoryModal = async (doc: any) => {
   signatoryDoc.value = doc;
@@ -1094,6 +1173,85 @@ const resendSignatory = async (signatory: IDocumentSignatory) => {
     );
   } finally {
     resendingId.value = null;
+  }
+};
+
+const downloadTsrFile = async (doc: any) => {
+  if (!props.rentId || downloadingTsr.value) return;
+  downloadingTsr.value = true;
+  try {
+    const blob = await run<Blob>(DocumentSignatoryService.downloadTsr(props.rentId, doc.id));
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `sello_rfc3161_${doc.number ?? doc.id}.tsr`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  } finally {
+    downloadingTsr.value = false;
+  }
+};
+
+const downloadTsqFile = async (doc: any) => {
+  if (!props.rentId || downloadingTsq.value) return;
+  downloadingTsq.value = true;
+  try {
+    const blob = await run<Blob>(DocumentSignatoryService.downloadTsq(props.rentId, doc.id));
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `peticion_tsa_${doc.number ?? doc.id}.tsq`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  } finally {
+    downloadingTsq.value = false;
+  }
+};
+
+const downloadCertificate = async (doc: any) => {
+  if (!props.rentId || downloadingCert.value) return;
+  downloadingCert.value = true;
+  try {
+    const blob = await run<Blob>(DocumentSignatoryService.downloadCertificate(props.rentId, doc.id));
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `certificado_evidencias_${doc.number ?? doc.id}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  } finally {
+    downloadingCert.value = false;
+  }
+};
+
+const openResendSignatoryModal = (signatory: IDocumentSignatory) => {
+  resendSignatoryTarget.value = signatory;
+  resendSignatoryIncludeCert.value = false;
+  showResendSignatoryModal.value = true;
+};
+
+const sendResendCompletionForSignatory = async () => {
+  if (!props.rentId || !signatoryDoc.value || !resendSignatoryTarget.value?.id) return;
+  resendingCompletionId.value = resendSignatoryTarget.value.id;
+  try {
+    await run(
+      DocumentSignatoryService.resendCompletionForSignatory(
+        props.rentId,
+        signatoryDoc.value.id,
+        resendSignatoryTarget.value.id,
+        resendSignatoryIncludeCert.value,
+      ),
+      { showSuccess: true, successMessage: "Correo firmado reenviado" },
+    );
+    showResendSignatoryModal.value = false;
+  } finally {
+    resendingCompletionId.value = null;
   }
 };
 

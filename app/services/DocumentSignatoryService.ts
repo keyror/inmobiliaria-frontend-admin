@@ -40,6 +40,38 @@ class DocumentSignatoryService {
     });
   }
 
+  async downloadCertificate(rentId: string, documentId: string): Promise<Blob> {
+    return useApi<Blob>(`${this.base(rentId, documentId)}/certificate`, {
+      responseType: "blob",
+    });
+  }
+
+  async downloadTsr(rentId: string, documentId: string): Promise<Blob> {
+    return useApi<Blob>(`${this.base(rentId, documentId)}/tsr`, {
+      responseType: "blob",
+    });
+  }
+
+  async downloadTsq(rentId: string, documentId: string): Promise<Blob> {
+    return useApi<Blob>(`${this.base(rentId, documentId)}/tsq`, {
+      responseType: "blob",
+    });
+  }
+
+  async resendCompletion(rentId: string, documentId: string, includeCertificate: boolean): Promise<any> {
+    return useApi(`${this.base(rentId, documentId)}/resend-completion`, {
+      method: "POST",
+      body: { include_certificate: includeCertificate },
+    });
+  }
+
+  async resendCompletionForSignatory(rentId: string, documentId: string, signatoryId: string, includeCertificate: boolean): Promise<any> {
+    return useApi(`${this.base(rentId, documentId)}/${signatoryId}/resend-completion`, {
+      method: "POST",
+      body: { include_certificate: includeCertificate },
+    });
+  }
+
   // Public endpoints — no token needed but useApi won't add auth if store is empty
   async getSigningPage(token: string): Promise<any> {
     return useApi(`${ApiUrls.SIGN_BASE}/${token}`);
@@ -56,6 +88,12 @@ class DocumentSignatoryService {
       method: "POST",
       body: formData,
       cleanPayload: false,
+    });
+  }
+
+  async confirmRead(token: string): Promise<void> {
+    return useApi(`${ApiUrls.SIGN_BASE}/${token}/read-confirmed`, {
+      method: "POST",
     });
   }
 }
