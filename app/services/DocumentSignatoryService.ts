@@ -1,5 +1,6 @@
 import { useApi } from "~/composables/useApi";
 import { ApiUrls } from "~/constants/ApiUrls";
+
 import type { IDocumentSignatory } from "~/interfaces/IDocumentSignatory";
 
 class DocumentSignatoryService {
@@ -14,7 +15,10 @@ class DocumentSignatoryService {
   async storeSignatories(
     rentId: string,
     documentId: string,
-    signatories: Pick<IDocumentSignatory, 'person_id' | 'name' | 'email' | 'role' | 'order'>[],
+    signatories: Pick<
+      IDocumentSignatory,
+      "person_id" | "name" | "email" | "role" | "order"
+    >[],
   ): Promise<any> {
     return useApi(this.base(rentId, documentId), {
       method: "POST",
@@ -22,7 +26,11 @@ class DocumentSignatoryService {
     });
   }
 
-  async deleteSignatory(rentId: string, documentId: string, signatoryId: string): Promise<any> {
+  async deleteSignatory(
+    rentId: string,
+    documentId: string,
+    signatoryId: string,
+  ): Promise<any> {
     return useApi(`${this.base(rentId, documentId)}/${signatoryId}`, {
       method: "DELETE",
     });
@@ -34,7 +42,11 @@ class DocumentSignatoryService {
     });
   }
 
-  async resendSignatory(rentId: string, documentId: string, signatoryId: string): Promise<any> {
+  async resendSignatory(
+    rentId: string,
+    documentId: string,
+    signatoryId: string,
+  ): Promise<any> {
     return useApi(`${this.base(rentId, documentId)}/${signatoryId}/resend`, {
       method: "POST",
     });
@@ -58,23 +70,41 @@ class DocumentSignatoryService {
     });
   }
 
-  async resendCompletion(rentId: string, documentId: string, includeCertificate: boolean): Promise<any> {
+  async resendCompletion(
+    rentId: string,
+    documentId: string,
+    includeCertificate: boolean,
+  ): Promise<any> {
     return useApi(`${this.base(rentId, documentId)}/resend-completion`, {
       method: "POST",
       body: { include_certificate: includeCertificate },
     });
   }
 
-  async resendCompletionForSignatory(rentId: string, documentId: string, signatoryId: string, includeCertificate: boolean): Promise<any> {
-    return useApi(`${this.base(rentId, documentId)}/${signatoryId}/resend-completion`, {
-      method: "POST",
-      body: { include_certificate: includeCertificate },
-    });
+  async resendCompletionForSignatory(
+    rentId: string,
+    documentId: string,
+    signatoryId: string,
+    includeCertificate: boolean,
+  ): Promise<any> {
+    return useApi(
+      `${this.base(rentId, documentId)}/${signatoryId}/resend-completion`,
+      {
+        method: "POST",
+        body: { include_certificate: includeCertificate },
+      },
+    );
   }
 
   // Public endpoints — no token needed but useApi won't add auth if store is empty
   async getSigningPage(token: string): Promise<any> {
     return useApi(`${ApiUrls.SIGN_BASE}/${token}`);
+  }
+
+  async verifyDocument(number: string): Promise<any> {
+    return useApi(
+      `${ApiUrls.DOCUMENT_VERIFY_BASE}/${encodeURIComponent(number)}/verify`,
+    );
   }
 
   async getDocumentBlob(token: string): Promise<Blob> {

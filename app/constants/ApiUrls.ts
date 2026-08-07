@@ -169,8 +169,9 @@ export class ApiUrls {
   // Document Signatories URLs
   static readonly DOCUMENT_SIGNATORIES_BASE = "/rents";
 
-  // Public Sign URLs (no auth)
+  // Public Sign / Verify URLs (no auth)
   static readonly SIGN_BASE = "/sign";
+  static readonly DOCUMENT_VERIFY_BASE = "/public/documents";
 
   // Reports URLs
   static readonly REPORTS_GET = "/reports";

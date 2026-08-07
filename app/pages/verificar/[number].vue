@@ -2,7 +2,7 @@
   <div class="vfy-page">
 
     <!-- Loading -->
-    <div v-if="pending" class="vfy-center">
+    <div v-if="loading" class="vfy-center">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Verificando...</span>
       </div>
@@ -10,7 +10,7 @@
     </div>
 
     <!-- Error -->
-    <div v-else-if="!doc" class="vfy-center">
+    <div v-else-if="!pageData" class="vfy-center">
       <div class="vfy-card text-center" style="max-width:440px; width:100%;">
         <i class="fas fa-shield-alt text-danger mb-3" style="font-size:2.8rem"></i>
         <h5 class="fw-bold mb-2">No se pudo verificar</h5>
@@ -33,7 +33,7 @@
         </div>
         <div class="vfy-doc-number ms-auto text-end">
           <div class="text-muted small">N° Documento</div>
-          <div class="vfy-mono fw-bold">{{ doc.number }}</div>
+          <div class="vfy-mono fw-bold">{{ pageData.document.number }}</div>
         </div>
       </div>
 
@@ -42,7 +42,7 @@
         <i class="fas fa-check-circle vfy-status-icon"></i>
         <div>
           <div class="vfy-status-title">Documento firmado electrónicamente</div>
-          <div class="vfy-status-sub">Firma completada el {{ formatDateTime(doc.signed_at) }}</div>
+          <div class="vfy-status-sub">Firma completada el {{ formatDateTime(pageData.document.signed_at) }}</div>
         </div>
       </div>
 
@@ -52,22 +52,22 @@
         <div class="vfy-field-grid">
           <div class="vfy-field">
             <span class="vfy-label">Título</span>
-            <span class="vfy-value">{{ doc.title }}</span>
+            <span class="vfy-value">{{ pageData.document.title }}</span>
           </div>
           <div class="vfy-field">
             <span class="vfy-label">Generado</span>
-            <span class="vfy-value">{{ formatDateTime(doc.generated_at) }}</span>
+            <span class="vfy-value">{{ formatDateTime(pageData.document.generated_at) }}</span>
           </div>
           <div class="vfy-field">
             <span class="vfy-label">Expedido por</span>
             <span class="vfy-value">
-              {{ company?.name }}
-              <span v-if="company?.nit" class="text-muted small"> — NIT {{ company.nit }}</span>
+              {{ pageData.company?.name }}
+              <span v-if="pageData.company?.nit" class="text-muted small"> — NIT {{ pageData.company.nit }}</span>
             </span>
           </div>
           <div class="vfy-field">
             <span class="vfy-label">Verificado el</span>
-            <span class="vfy-value">{{ verifiedAt ? formatDateTime(verifiedAt) : '—' }}</span>
+            <span class="vfy-value">{{ formatDateTime(verifiedAt) }}</span>
           </div>
         </div>
       </div>
@@ -76,7 +76,7 @@
       <div class="vfy-card">
         <div class="vfy-section-title">Registro de Firmantes</div>
         <div class="vfy-sig-list">
-          <div v-for="(sig, idx) in sigs" :key="idx" class="vfy-sig-row">
+          <div v-for="(sig, idx) in pageData.signatories" :key="idx" class="vfy-sig-row">
             <div class="vfy-sig-avatar">{{ sig.name?.charAt(0)?.toUpperCase() ?? '?' }}</div>
             <div class="vfy-sig-info">
               <div class="fw-bold" style="font-size:0.88rem">{{ sig.name }}</div>
@@ -98,13 +98,13 @@
         <div class="vfy-section-title">Integridad del Documento</div>
         <div class="vfy-field mb-2">
           <span class="vfy-label">Hash SHA-256 del PDF firmado</span>
-          <code class="vfy-hash">{{ doc.pdf_hash }}</code>
+          <code class="vfy-hash">{{ pageData.document.pdf_hash }}</code>
         </div>
-        <div v-if="doc.has_tsr" class="vfy-tsr-badge">
+        <div v-if="pageData.document.has_tsr" class="vfy-tsr-badge">
           <i class="fas fa-clock vfy-tsr-icon text-primary"></i>
           <div>
             <div class="fw-bold" style="font-size:0.8rem; color:#1d4ed8">Sello de tiempo RFC 3161 (FreeTSA)</div>
-            <div style="font-size:0.75rem; color:#3b82f6">Sellado el {{ formatDateTime(doc.tsa_stamped_at) }}</div>
+            <div style="font-size:0.75rem; color:#3b82f6">Sellado el {{ formatDateTime(pageData.document.tsa_stamped_at) }}</div>
           </div>
         </div>
       </div>
@@ -116,7 +116,7 @@
           <strong>Ley 527 de 1999</strong> de la República de Colombia.
           La firma electrónica tiene plena validez legal y no requiere firma manuscrita ni autenticación notarial.
         </p>
-        <p class="mt-1">Documento N° <strong>{{ doc.number }}</strong></p>
+        <p class="mt-1">Documento N° <strong>{{ pageData.document.number }}</strong></p>
       </div>
 
     </div>
@@ -124,11 +124,12 @@
 </template>
 
 <script setup lang="ts">
+import DocumentSignatoryService from '~/services/DocumentSignatoryService';
+
 definePageMeta({ layout: 'login', auth: false });
 
 const route = useRoute();
-const numParam = route.params.number;
-const number = (Array.isArray(numParam) ? numParam[0] : numParam) as string;
+const number = (Array.isArray(route.params.number) ? route.params.number[0] : route.params.number) as string;
 
 const ROLE_LABELS: Record<string, string> = {
   arrendatario: 'Arrendatario',
@@ -137,53 +138,38 @@ const ROLE_LABELS: Record<string, string> = {
   propietario: 'Propietario',
 };
 
-const { data, pending, error } = await useAsyncData(
-  `verify-doc-${number}`,
-  () => $fetch<any>(`/api/public/documents/${encodeURIComponent(number)}/verify`),
-  { default: () => null },
-);
-
-const doc = computed<Record<string, any> | null>(() => {
-  const d = data.value;
-  if (!d || typeof d !== 'object' || Array.isArray(d)) return null;
-  const document = (d as any).document;
-  if (!document || typeof document !== 'object') return null;
-  return document;
-});
-
-const company = computed<Record<string, any> | null>(() => {
-  const d = data.value;
-  if (!d || typeof d !== 'object') return null;
-  return (d as any).company ?? null;
-});
-
-const sigs = computed<any[]>(() => {
-  const d = data.value;
-  if (!d || typeof d !== 'object') return [];
-  const s = (d as any).signatories;
-  return Array.isArray(s) ? s : [];
-});
-
+const loading = ref(true);
+const pageData = ref<any>(null);
+const errorCode = ref<'not_found' | 'not_signed' | 'generic' | null>(null);
 const verifiedAt = ref<string | null>(null);
-onMounted(() => { verifiedAt.value = new Date().toISOString(); });
 
-const errorMessage = computed((): string => {
-  if (!error.value) return 'No fue posible verificar el documento en este momento.';
-  const status = (error.value as any)?.status ?? (error.value as any)?.statusCode;
-  if (status === 404) return 'No se encontró ningún documento con ese número.';
-  if (status === 422) return 'Este documento aún no ha sido firmado electrónicamente.';
+const errorMessage = computed(() => {
+  if (errorCode.value === 'not_found') return 'No se encontró ningún documento con ese número.';
+  if (errorCode.value === 'not_signed') return 'Este documento aún no ha sido firmado electrónicamente.';
   return 'No fue posible verificar el documento en este momento.';
+});
+
+onMounted(async () => {
+  verifiedAt.value = new Date().toISOString();
+  try {
+    const res = await DocumentSignatoryService.verifyDocument(number);
+    pageData.value = res?.data ?? null;
+  } catch (err: any) {
+    const status = err?.status ?? err?.statusCode;
+    if (status === 404) errorCode.value = 'not_found';
+    else if (status === 422) errorCode.value = 'not_signed';
+    else errorCode.value = 'generic';
+  } finally {
+    loading.value = false;
+  }
 });
 
 function formatDateTime(iso: string | null | undefined): string {
   if (!iso) return '—';
   try {
     return new Date(iso).toLocaleString('es-CO', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+      year: 'numeric', month: 'long', day: 'numeric',
+      hour: '2-digit', minute: '2-digit',
       timeZone: 'America/Bogota',
     });
   } catch {
@@ -191,12 +177,7 @@ function formatDateTime(iso: string | null | undefined): string {
   }
 }
 
-useHead({
-  title: doc.value?.number
-    ? `Verificación — Documento N° ${doc.value.number}`
-    : `Verificación — ${number}`,
-  meta: [{ name: 'robots', content: 'noindex, nofollow' }],
-});
+useHead({ title: `Verificación — Documento N° ${number}` });
 </script>
 
 <style scoped>
@@ -209,7 +190,6 @@ useHead({
   padding: 24px 16px 48px;
 }
 
-/* Centrado para loading/error */
 .vfy-center {
   display: flex;
   flex-direction: column;
@@ -219,7 +199,6 @@ useHead({
   text-align: center;
 }
 
-/* Contenedor principal del resultado */
 .vfy-container {
   width: 100%;
   max-width: 700px;
@@ -228,7 +207,6 @@ useHead({
   gap: 16px;
 }
 
-/* Header */
 .vfy-header {
   display: flex;
   align-items: center;
@@ -239,158 +217,80 @@ useHead({
   padding: 18px 22px;
 }
 .vfy-shield {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: #ede9fe;
-  color: #6366f1;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: #ede9fe; color: #6366f1;
   font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
-.vfy-header-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #1a1a2e;
-}
-.vfy-header-sub {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  margin-top: 2px;
-}
+.vfy-header-title { font-size: 0.95rem; font-weight: 700; color: #1a1a2e; }
+.vfy-header-sub { font-size: 0.75rem; color: #9ca3af; margin-top: 2px; }
 .vfy-doc-number { font-size: 0.82rem; }
 .vfy-mono { font-family: 'Courier New', monospace; font-size: 0.85rem; }
 
-/* Banner estado */
 .vfy-status-banner {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: #d1fae5;
-  border-left: 4px solid #059669;
+  display: flex; align-items: center; gap: 14px;
+  background: #d1fae5; border-left: 4px solid #059669;
   border-radius: 0 0 8px 8px;
   padding: 14px 22px;
   margin-top: -16px;
 }
-.vfy-status-icon {
-  font-size: 1.6rem;
-  color: #059669;
-  flex-shrink: 0;
-}
-.vfy-status-title {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #065f46;
-}
-.vfy-status-sub {
-  font-size: 0.78rem;
-  color: #047857;
-  margin-top: 2px;
-}
+.vfy-status-icon { font-size: 1.6rem; color: #059669; flex-shrink: 0; }
+.vfy-status-title { font-size: 0.9rem; font-weight: 700; color: #065f46; }
+.vfy-status-sub { font-size: 0.78rem; color: #047857; margin-top: 2px; }
 
-/* Cards */
 .vfy-card {
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,.06);
   padding: 18px 22px;
 }
-
 .vfy-section-title {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #6b7280;
-  border-left: 3px solid #6366f1;
-  padding-left: 8px;
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: #6b7280;
+  border-left: 3px solid #6366f1; padding-left: 8px;
   margin-bottom: 14px;
 }
 
-/* Grid de campos */
-.vfy-field-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
+.vfy-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 500px) { .vfy-field-grid { grid-template-columns: 1fr; } }
 
 .vfy-field { display: flex; flex-direction: column; gap: 2px; }
-.vfy-label {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #9ca3af;
-  font-weight: 600;
-}
+.vfy-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: #9ca3af; font-weight: 600; }
 .vfy-value { font-size: 0.85rem; color: #1a1a2e; }
 
-/* Hash */
 .vfy-hash {
-  display: block;
-  word-break: break-all;
-  background: #f8f9fc;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  padding: 6px 10px;
-  margin-top: 4px;
-  font-size: 0.72rem;
-  color: #374151;
-  line-height: 1.7;
+  display: block; word-break: break-all;
+  background: #f8f9fc; border: 1px solid #e5e7eb; border-radius: 6px;
+  padding: 6px 10px; margin-top: 4px;
+  font-size: 0.72rem; color: #374151; line-height: 1.7;
 }
 
-/* TSR badge */
 .vfy-tsr-badge {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
-  padding: 10px 14px;
-  margin-top: 12px;
+  display: flex; align-items: center; gap: 10px;
+  background: #eff6ff; border: 1px solid #bfdbfe;
+  border-radius: 8px; padding: 10px 14px; margin-top: 12px;
 }
 .vfy-tsr-icon { font-size: 1.1rem; flex-shrink: 0; }
 
-/* Firmantes */
 .vfy-sig-list { display: flex; flex-direction: column; gap: 10px; }
 .vfy-sig-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #f8f9fc;
-  border-radius: 8px;
-  padding: 10px 14px;
+  display: flex; align-items: center; gap: 12px;
+  background: #f8f9fc; border-radius: 8px; padding: 10px 14px;
 }
 .vfy-sig-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #6366f1;
-  color: #fff;
-  font-size: 0.9rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #6366f1; color: #fff;
+  font-size: 0.9rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .vfy-sig-info { flex: 1; min-width: 0; }
 .vfy-sig-check {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: #d1fae5;
-  color: #059669;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #d1fae5; color: #059669;
   font-size: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 
-/* Legal */
 .vfy-legal { padding: 4px 8px; line-height: 1.6; }
 </style>
